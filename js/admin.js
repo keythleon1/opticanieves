@@ -54,6 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    // Limpieza y auto-reparación preventiva de duplicados
+    autoLimpiarPacientesDuplicados();
+
     initNavigation();
     initGlobalSedeSelector();
     initTasaSelector();
@@ -67,6 +70,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renderCurrentTab();
 });
+
+function autoLimpiarPacientesDuplicados() {
+    try {
+        if (!window.OpticaStorage || !window.OpticaStorage.getPacientes) return;
+        const list = window.OpticaStorage.getPacientes();
+        if (!list || list.length <= 1) return;
+
+        const seen = new Map();
+        let hayDuplicados = false;
+
+        for (const p of list) {
+            const cleanCedula = (p.cedula || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+            const key = cleanCedula || p.id;
+            if (!seen.has(key)) {
+                seen.set(key, p);
+            } else {
+                hayDuplicados = true;
+                seen.set(key, { ...seen.get(key), ...p });
+            }
+        }
+
+        if (hayDuplicados) {
+            const uniqueList = Array.from(seen.values());
+            window.OpticaStorage.savePacientes(uniqueList);
+        }
+    } catch (e) {
+        console.warn('Error en autoLimpiarPacientesDuplicados', e);
+    }
+}
 
 // =============================================================================
 // SISTEMA DE NOTIFICACIONES TOAST (CERO EMOJIS)
@@ -255,7 +287,6 @@ function renderCurrentTab() {
 }
 
 function actualizarBadgesContadores() {
-    const stats = window.OpticaStorage.getDashboardStats();
     const pacientes = window.OpticaStorage.getPacientes();
     const recibos = window.OpticaStorage.getRecibos();
     const labOrders = window.OpticaStorage.getOrdenesLaboratorio();
@@ -263,25 +294,29 @@ function actualizarBadgesContadores() {
     const informes = window.OpticaStorage.getInformes();
     const citas = window.OpticaStorage.getCitas();
 
-    const elPacientes = document.getElementById('navCountPacientes');
-    const elRecibos = document.getElementById('navCountRecibos');
-    const elLab = document.getElementById('navCountLaboratorio');
-    const elRecipes = document.getElementById('navCountRecipes');
-    const elInformes = document.getElementById('navCountInformes');
-    const elCitas = document.getElementById('navCountCitas');
+    const setBadge = (id, count) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.innerText = count;
+        if (count > 0) {
+            el.classList.add('has-badge');
+            el.classList.remove('zero-badge');
+            el.style.display = 'inline-flex';
+        } else {
+            el.classList.add('zero-badge');
+            el.classList.remove('has-badge');
+            el.style.display = 'none'; // No saturar la barra con ceros
+        }
+    };
 
-    if (elPacientes) elPacientes.innerText = pacientes.length;
-    if (elRecibos) elRecibos.innerText = recibos.length;
-    if (elLab) {
-        const activos = labOrders.filter(o => o.fase !== 'FASE_4').length;
-        elLab.innerText = activos;
-    }
-    if (elRecipes) elRecipes.innerText = recipes.length;
-    if (elInformes) elInformes.innerText = informes.length;
-    if (elCitas) {
-        const pendientes = citas.filter(c => c.estado === 'PENDIENTE').length;
-        elCitas.innerText = pendientes;
-    }
+    setBadge('navCountPacientes', pacientes.length);
+    setBadge('navCountRecibos', recibos.length);
+    const activosLab = labOrders.filter(o => o.fase !== 'FASE_4').length;
+    setBadge('navCountLaboratorio', activosLab);
+    setBadge('navCountRecipes', recipes.length);
+    setBadge('navCountInformes', informes.length);
+    const pendientesCitas = citas.filter(c => c.estado === 'PENDIENTE').length;
+    setBadge('navCountCitas', pendientesCitas);
 }
 
 // =============================================================================
@@ -559,16 +594,25 @@ window.abrirFicha360 = function(pacienteId) {
     const fSede = document.getElementById('f360Sede');
     const fTel = document.getElementById('f360Tel');
     const fWa = document.getElementById('f360Wa');
+    const fEmail = document.getElementById('f360Email');
+    const fEdadSexo = document.getElementById('f360EdadSexo');
+    const fNacimiento = document.getElementById('f360Nacimiento');
     const fOcup = document.getElementById('f360Ocupacion');
+    const fDir = document.getElementById('f360Direccion');
     const fAntec = document.getElementById('f360Antecedentes');
     const fNotas = document.getElementById('f360Notas');
 
-    if (fNombre) fNombre.innerText = `${p.nombre} ${p.apellido || ''}`;
+    if (fNombre) fNombre.innerText = `${p.nombre} ${p.apellido || ''}`.trim();
     if (fCedula) fCedula.innerText = p.cedula;
-    if (fSede) fSede.innerText = p.sede;
-    if (fTel) fTel.innerText = p.telefono;
-    if (fWa) fWa.innerText = p.telefono_wa || p.telefono;
+    if (fSede) fSede.innerText = p.sede || 'Maracay';
+    if (fTel) fTel.innerText = p.telefono || '--';
+    if (fWa) fWa.innerText = p.whatsapp || p.telefono_wa || p.telefono || '--';
+    if (fEmail) fEmail.innerText = p.email || '--';
+    const sexoDesc = p.sexo === 'F' ? 'Femenino' : p.sexo === 'M' ? 'Masculino' : (p.sexo || '--');
+    if (fEdadSexo) fEdadSexo.innerText = `${p.edad !== undefined && p.edad !== '' ? p.edad + ' años' : '--'} / ${sexoDesc}`;
+    if (fNacimiento) fNacimiento.innerText = p.fecha_nacimiento || '--';
     if (fOcup) fOcup.innerText = p.ocupacion || 'No especificada';
+    if (fDir) fDir.innerText = p.direccion || 'No especificada';
     if (fAntec) fAntec.innerText = p.antecedentes || 'Sin antecedentes reportados.';
     if (fNotas) fNotas.innerText = p.notas || 'Sin observaciones.';
 
@@ -773,10 +817,22 @@ window.abrirModalNuevoPaciente = function(fromWizard = false) {
     const title = document.getElementById('modalPacienteTitle');
     if (title) title.innerHTML = '<i class="fa-solid fa-user-plus"></i> Nuevo Registro de Paciente';
 
-    const selSede = document.getElementById('pacienteSedeSelect');
-    if (selSede) {
-        selSede.value = AppState.sedeFiltro !== 'todas' ? AppState.sedeFiltro : 'Maracay';
-    }
+    const setVal = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val !== undefined && val !== null ? val : '';
+    };
+
+    setVal('pacienteCedulaPrefix', 'V-');
+    setVal('pacienteCedulaNum', '');
+    setVal('pacienteNombreInput', '');
+    setVal('pacienteTelefonoInput', '');
+    setVal('pacienteWhatsappInput', '');
+    setVal('pacienteEmailInput', '');
+    setVal('pacienteNacimientoInput', '');
+    setVal('pacienteEdadInput', '');
+    setVal('pacienteSexoSelect', 'M');
+    setVal('pacienteOcupacionInput', '');
+    setVal('pacienteDireccionInput', '');
 
     openModal('modalFormPaciente');
 };
@@ -785,6 +841,66 @@ window.cerrarModalFormPaciente = function() {
     closeModal('modalFormPaciente');
     AppState.pacienteEditingId = null;
     AppState.fromWizardNewPatient = false;
+};
+
+window.calcularEdadDesdeNacimiento = function() {
+    const fechaInput = document.getElementById('pacienteNacimientoInput');
+    const edadInput = document.getElementById('pacienteEdadInput');
+    if (!fechaInput || !edadInput) return;
+
+    const val = (fechaInput.value || '').trim();
+    if (!val) return;
+
+    let year = null, month = null, day = null;
+
+    if (val.includes('-')) {
+        const parts = val.split('-');
+        if (parts.length === 3) {
+            year = parseInt(parts[0], 10);
+            month = parseInt(parts[1], 10);
+            day = parseInt(parts[2], 10);
+        }
+    } else if (val.includes('/')) {
+        const parts = val.split('/');
+        if (parts.length === 3) {
+            day = parseInt(parts[0], 10);
+            month = parseInt(parts[1], 10);
+            year = parseInt(parts[2], 10);
+        }
+    }
+
+    if (isNaN(year) || isNaN(month) || isNaN(day)) return;
+    const currentYear = new Date().getFullYear();
+    if (year < 1900 || year > currentYear) return;
+    if (month < 1 || month > 12 || day < 1 || day > 31) return;
+
+    const dob = new Date(year, month - 1, day);
+    if (isNaN(dob.getTime())) return;
+
+    const hoy = new Date();
+    let edad = hoy.getFullYear() - dob.getFullYear();
+    const mesDiff = hoy.getMonth() - dob.getMonth();
+    if (mesDiff < 0 || (mesDiff === 0 && hoy.getDate() < dob.getDate())) {
+        edad--;
+    }
+
+    if (edad >= 0 && edad <= 125) {
+        edadInput.value = edad;
+        edadInput.style.transition = 'background-color 0.25s ease';
+        edadInput.style.backgroundColor = '#EFF6FF';
+        setTimeout(() => {
+            if (edadInput) edadInput.style.backgroundColor = '';
+        }, 300);
+    }
+};
+
+window.autoCopiarTelefonoAWhatsapp = function() {
+    const telInput = document.getElementById('pacienteTelefonoInput');
+    const waInput = document.getElementById('pacienteWhatsappInput');
+    if (!telInput || !waInput) return;
+    if (!waInput.value.trim() && telInput.value.trim()) {
+        waInput.value = telInput.value.trim();
+    }
 };
 
 window.editarPaciente = function(pacienteId) {
@@ -807,42 +923,22 @@ window.editarPaciente = function(pacienteId) {
     if (num.includes('-')) {
         const parts = num.split('-');
         prefix = parts[0] + '-';
-        num = parts[1] || '';
+        num = parts.slice(1).join('-');
     }
+
+    const nombreCompleto = `${p.nombre || ''} ${p.apellido || ''}`.trim();
 
     setVal('pacienteCedulaPrefix', prefix);
     setVal('pacienteCedulaNum', num);
-    setVal('pacienteNombreInput', p.nombre);
-    setVal('pacienteApellidoInput', p.apellido);
-    setVal('pacienteTelefonoInput', p.telefono);
-    setVal('pacienteSedeSelect', p.sede || 'Maracay');
-    setVal('pacienteEdadInput', p.edad);
+    setVal('pacienteNombreInput', nombreCompleto);
+    setVal('pacienteTelefonoInput', p.telefono || '');
+    setVal('pacienteWhatsappInput', p.whatsapp || p.telefono_wa || p.telefono || '');
+    setVal('pacienteEmailInput', p.email || '');
+    setVal('pacienteNacimientoInput', p.fecha_nacimiento || '');
+    setVal('pacienteEdadInput', p.edad !== undefined && p.edad !== null ? p.edad : '');
     setVal('pacienteSexoSelect', p.sexo || 'M');
-    setVal('pacienteOcupacionInput', p.ocupacion);
-    setVal('pacienteDireccionInput', p.direccion);
-    setVal('pacienteAntecedentesInput', p.antecedentes);
-    setVal('pacienteAlergiasInput', p.alergias);
-    setVal('pacienteNotasInput', p.notas);
-
-    const f = p.ultima_formula || {};
-    const od = f.od || {};
-    const os = f.os || {};
-
-    setVal('pacienteOdSph', od.sph);
-    setVal('pacienteOdCyl', od.cyl);
-    setVal('pacienteOdAxis', od.axis);
-    setVal('pacienteOdAdd', od.add);
-    setVal('pacienteOdAv', od.av);
-
-    setVal('pacienteOsSph', os.sph);
-    setVal('pacienteOsCyl', os.cyl);
-    setVal('pacienteOsAxis', os.axis);
-    setVal('pacienteOsAdd', os.add);
-    setVal('pacienteOsAv', os.av);
-
-    setVal('pacienteDpInput', f.dp);
-    setVal('pacienteAltInput', f.alt);
-    setVal('pacienteTipoLenteInput', f.tipo_lente || 'Monofocal');
+    setVal('pacienteOcupacionInput', p.ocupacion || '');
+    setVal('pacienteDireccionInput', p.direccion || '');
 
     openModal('modalFormPaciente');
 };
@@ -850,86 +946,96 @@ window.editarPaciente = function(pacienteId) {
 window.guardarFormPaciente = function(e) {
     if (e) e.preventDefault();
 
+    // Bloqueo estricto contra doble envío simultáneo
+    if (window.guardarFormPaciente._isSaving) {
+        return;
+    }
+    window.guardarFormPaciente._isSaving = true;
+    setTimeout(() => { window.guardarFormPaciente._isSaving = false; }, 800);
+
     const prefix = document.getElementById('pacienteCedulaPrefix')?.value || 'V-';
     const num = (document.getElementById('pacienteCedulaNum')?.value || '').trim();
-    const nombre = (document.getElementById('pacienteNombreInput')?.value || '').trim();
-    const apellido = (document.getElementById('pacienteApellidoInput')?.value || '').trim();
+    const nombreCompleto = (document.getElementById('pacienteNombreInput')?.value || '').trim();
     const telefono = (document.getElementById('pacienteTelefonoInput')?.value || '').trim();
-    const sede = document.getElementById('pacienteSedeSelect')?.value || 'Maracay';
+    const whatsapp = (document.getElementById('pacienteWhatsappInput')?.value || '').trim() || telefono;
+    const email = (document.getElementById('pacienteEmailInput')?.value || '').trim();
+    const nacimiento = (document.getElementById('pacienteNacimientoInput')?.value || '').trim();
     const edad = parseInt(document.getElementById('pacienteEdadInput')?.value) || '';
     const sexo = document.getElementById('pacienteSexoSelect')?.value || 'M';
     const ocupacion = (document.getElementById('pacienteOcupacionInput')?.value || '').trim();
     const direccion = (document.getElementById('pacienteDireccionInput')?.value || '').trim();
-    const antecedentes = (document.getElementById('pacienteAntecedentesInput')?.value || '').trim();
-    const alergias = (document.getElementById('pacienteAlergiasInput')?.value || '').trim();
-    const notas = (document.getElementById('pacienteNotasInput')?.value || '').trim();
 
     if (!num) {
         showAdminToast('Por favor ingrese el número de cédula.', 'warning');
         return;
     }
-    if (!nombre) {
+    if (!nombreCompleto) {
         showAdminToast('Por favor ingrese el nombre del paciente.', 'warning');
         return;
     }
+    if (!telefono) {
+        showAdminToast('Por favor ingrese el número de teléfono.', 'warning');
+        return;
+    }
+
+    // Split nombreCompleto into nombre and apellido
+    let nombre = nombreCompleto;
+    let apellido = '';
+    const nameParts = nombreCompleto.split(/\s+/);
+    if (nameParts.length === 2) {
+        nombre = nameParts[0];
+        apellido = nameParts[1];
+    } else if (nameParts.length >= 3) {
+        nombre = nameParts.slice(0, 2).join(' ');
+        apellido = nameParts.slice(2).join(' ');
+    }
 
     const cedula = `${prefix}${num}`;
+    const cleanWa = whatsapp.replace(/\D/g, '');
+    const telefono_wa = cleanWa || telefono.replace(/\D/g, '');
 
-    const formula = {
-        od: {
-            sph: document.getElementById('pacienteOdSph')?.value || '0.00',
-            cyl: document.getElementById('pacienteOdCyl')?.value || '',
-            axis: document.getElementById('pacienteOdAxis')?.value || '',
-            add: document.getElementById('pacienteOdAdd')?.value || '',
-            av: document.getElementById('pacienteOdAv')?.value || '20/20'
-        },
-        os: {
-            sph: document.getElementById('pacienteOsSph')?.value || '0.00',
-            cyl: document.getElementById('pacienteOsCyl')?.value || '',
-            axis: document.getElementById('pacienteOsAxis')?.value || '',
-            add: document.getElementById('pacienteOsAdd')?.value || '',
-            av: document.getElementById('pacienteOsAv')?.value || '20/20'
-        },
-        dp: document.getElementById('pacienteDpInput')?.value || '62',
-        alt: document.getElementById('pacienteAltInput')?.value || '',
-        tipo_lente: document.getElementById('pacienteTipoLenteInput')?.value || 'Monofocal'
-    };
+    let existingPatient = null;
+    if (AppState.pacienteEditingId) {
+        existingPatient = window.OpticaStorage.getPacienteById(AppState.pacienteEditingId);
+    }
 
     const pacienteData = {
+        ...(existingPatient || {}),
         cedula,
         nombre,
         apellido,
-        telefono: telefono || '0414-0000000',
-        telefono_wa: telefono ? telefono.replace(/\D/g, '') : '',
-        sede,
+        telefono,
+        whatsapp,
+        telefono_wa,
+        email,
+        fecha_nacimiento: nacimiento,
         edad,
         sexo,
         ocupacion,
         direccion,
-        antecedentes,
-        alergias,
-        notas,
-        ultima_formula: formula
+        sede: existingPatient?.sede || (AppState.sedeFiltro !== 'todas' ? AppState.sedeFiltro : 'Maracay')
     };
+
+    if (AppState.pacienteEditingId) {
+        pacienteData.id = AppState.pacienteEditingId;
+    }
 
     let pacienteGuardado = null;
 
     if (AppState.pacienteEditingId) {
-        // Try actualizarPaciente first, fall back to crearOActualizarPaciente
         if (window.OpticaStorage.actualizarPaciente) {
             pacienteGuardado = window.OpticaStorage.actualizarPaciente(AppState.pacienteEditingId, pacienteData);
         } else {
-            pacienteGuardado = window.OpticaStorage.crearOActualizarPaciente({ id: AppState.pacienteEditingId, ...pacienteData });
-        }
-        showAdminToast(`Datos de ${nombre} actualizados con exito.`);
-    } else {
-        // Try registrarPaciente first, fall back to crearOActualizarPaciente
-        if (window.OpticaStorage.registrarPaciente) {
-            pacienteGuardado = window.OpticaStorage.registrarPaciente(pacienteData);
-        } else {
             pacienteGuardado = window.OpticaStorage.crearOActualizarPaciente(pacienteData);
         }
-        showAdminToast(`Paciente ${nombre} registrado satisfactoriamente.`);
+        showAdminToast(`Datos de ${nombre} actualizados con éxito.`);
+    } else {
+        if (window.OpticaStorage.crearOActualizarPaciente) {
+            pacienteGuardado = window.OpticaStorage.crearOActualizarPaciente(pacienteData);
+        } else if (window.OpticaStorage.registrarPaciente) {
+            pacienteGuardado = window.OpticaStorage.registrarPaciente(pacienteData);
+        }
+        showAdminToast(`Paciente ${nombre} registrado con éxito.`);
     }
 
     window.cerrarModalFormPaciente();
@@ -945,16 +1051,26 @@ window.guardarFormPaciente = function(e) {
 
 function initEventForms() {
     const fPac = document.getElementById('formRegistroPaciente');
-    if (fPac) fPac.addEventListener('submit', window.guardarFormPaciente);
+    if (fPac) {
+        fPac.onsubmit = window.guardarFormPaciente;
+    }
 
     const fRec = document.getElementById('formEmisionRecipe');
-    if (fRec) fRec.addEventListener('submit', window.guardarFormRecipe);
+    if (fRec) fRec.onsubmit = window.guardarFormRecipe;
 
     const fInf = document.getElementById('formRedactarInforme');
-    if (fInf) fInf.addEventListener('submit', window.guardarFormInforme);
+    if (fInf) fInf.onsubmit = window.guardarFormInforme;
 
     const fAbo = document.getElementById('formRegistrarAbono');
-    if (fAbo) fAbo.addEventListener('submit', window.procesarAbonoRecibo);
+    if (fAbo) fAbo.onsubmit = window.procesarAbonoRecibo;
+
+    // Vinculación reactiva para cálculo instantáneo de edad al ingresar fecha de nacimiento
+    const inpNac = document.getElementById('pacienteNacimientoInput');
+    if (inpNac) {
+        ['input', 'change', 'blur', 'keyup'].forEach(evt => {
+            inpNac.addEventListener(evt, window.calcularEdadDesdeNacimiento);
+        });
+    }
 }
 
 // =============================================================================
@@ -967,14 +1083,16 @@ function initWizardCatalog() {
         { nombre: "Montura Metálica Semi al Aire", precio: 40 },
         { nombre: "Montura Deportiva TR-90 Ultra", precio: 50 },
         { nombre: "Montura Kids Antigolpes Flex", precio: 35 },
-        { nombre: "Montura Carey Redonda Vintage", precio: 45 }
+        { nombre: "Montura Carey Redonda Vintage", precio: 45 },
+        { nombre: "Montura Propia del Paciente", precio: 0 }
     ];
 
     const tagsRow = document.getElementById('catalogTagsRow');
     if (tagsRow) {
         tagsRow.innerHTML = catalogo.map(m => `
-            <button type="button" class="catalog-tag" onclick="seleccionarMonturaCatalogo('${m.nombre}', ${m.precio})">
-                <i class="fa-solid fa-glasses"></i> ${m.nombre} ($${m.precio})
+            <button type="button" class="catalog-chip-btn ${m.precio === 0 ? 'chip-patient-own' : ''}" onclick="seleccionarMonturaCatalogo('${m.nombre}', ${m.precio})">
+                <span class="chip-name"><i class="fa-solid fa-glasses"></i> ${m.nombre}</span>
+                <span class="chip-price-badge">${m.precio === 0 ? 'Sin Costo' : '$' + m.precio}</span>
             </button>
         `).join('');
     }
@@ -1042,6 +1160,7 @@ window.seleccionarPacienteEnWizardById = function(pacienteId) {
 };
 
 window.seleccionarPacienteEnWizard = function(paciente) {
+    if (!paciente) return;
     AppState.wizard.paciente = paciente;
 
     const card = document.getElementById('wizardPacienteSeleccionadoCard');
@@ -1052,14 +1171,31 @@ window.seleccionarPacienteEnWizard = function(paciente) {
     const searchRes = document.getElementById('wizardResultadosBusquedaPacientes');
     const btnAvanzar = document.getElementById('btnAvanzarPaso2');
 
-    if (nom) nom.innerText = `${paciente.nombre} ${paciente.apellido || ''}`;
-    if (ced) ced.innerText = paciente.cedula;
-    if (tel) tel.innerText = paciente.telefono;
-    if (sede) sede.innerText = paciente.sede;
+    const fullName = `${paciente.nombre || ''} ${paciente.apellido || ''}`.trim() || 'Paciente Seleccionado';
+    if (nom) nom.innerText = fullName;
+    if (ced) ced.innerText = paciente.cedula || '';
+    if (tel) tel.innerText = paciente.telefono || '';
+    if (sede) sede.innerText = paciente.sede || 'Maracay';
+
+    // Sincronizar contexto clínico visible en Paso 2 y Resumen
+    const p2Nom = document.getElementById('wizStep2PatientName');
+    const p2Ced = document.getElementById('wizStep2PatientCedula');
+    const p2Tel = document.getElementById('wizStep2PatientTelefono');
+    const p2Sede = document.getElementById('wizStep2PatientSede');
+    const sumNom = document.getElementById('wizSummaryPatientName');
+
+    if (p2Nom) p2Nom.innerText = fullName;
+    if (p2Ced) p2Ced.innerText = paciente.cedula || 'Sin Cédula';
+    if (p2Tel) p2Tel.innerText = paciente.telefono || 'Sin Teléfono';
+    if (p2Sede) p2Sede.innerText = paciente.sede || 'Sede Maracay';
+    if (sumNom) sumNom.innerText = fullName + (paciente.cedula ? ` (${paciente.cedula})` : '');
 
     if (card) card.style.display = 'block';
     if (searchRes) searchRes.style.display = 'none';
-    if (btnAvanzar) btnAvanzar.disabled = false;
+    if (btnAvanzar) {
+        btnAvanzar.disabled = false;
+        btnAvanzar.removeAttribute('disabled');
+    }
 
     window.copiarFormulaPacienteAWizard();
 };
@@ -1079,33 +1215,39 @@ window.deseleccionarPacienteWizard = function() {
 };
 
 window.copiarFormulaPacienteAWizard = function() {
-    const p = AppState.wizard.paciente;
-    if (!p || !p.ultima_formula) return;
+    try {
+        const p = AppState.wizard.paciente;
+        if (!p) return;
 
-    const f = p.ultima_formula;
-    const od = f.od || {};
-    const os = f.os || {};
+        const f = p.ultima_formula || p.formula;
+        if (!f) return;
 
-    const setVal = (id, val) => {
-        const el = document.getElementById(id);
-        if (el) el.value = val !== undefined && val !== null ? val : '';
-    };
+        const od = f.od || {};
+        const os = f.os || {};
 
-    setVal('wizRxOdSph', od.sph);
-    setVal('wizRxOdCyl', od.cyl);
-    setVal('wizRxOdAxis', od.axis);
-    setVal('wizRxOdAdd', od.add);
-    setVal('wizRxOdAv', od.av);
+        const setVal = (id, val) => {
+            const el = document.getElementById(id);
+            if (el && val !== undefined && val !== null && val !== '') el.value = val;
+        };
 
-    setVal('wizRxOsSph', os.sph);
-    setVal('wizRxOsCyl', os.cyl);
-    setVal('wizRxOsAxis', os.axis);
-    setVal('wizRxOsAdd', os.add);
-    setVal('wizRxOsAv', os.av);
+        setVal('wizRxOdSph', od.sph || f.od_esfera);
+        setVal('wizRxOdCyl', od.cyl || f.od_cilindro);
+        setVal('wizRxOdAxis', od.axis || f.od_eje);
+        setVal('wizRxOdAdd', od.add || f.od_adicion);
+        setVal('wizRxOdAv', od.av || f.od_av);
 
-    setVal('wizRxDp', f.dp);
-    setVal('wizRxAlt', f.alt);
-    setVal('wizTipoLente', f.tipo_lente || 'Monofocal');
+        setVal('wizRxOsSph', os.sph || f.os_esfera);
+        setVal('wizRxOsCyl', os.cyl || f.os_cilindro);
+        setVal('wizRxOsAxis', os.axis || f.os_eje);
+        setVal('wizRxOsAdd', os.add || f.os_adicion);
+        setVal('wizRxOsAv', os.av || f.os_av);
+
+        setVal('wizRxDp', f.dp);
+        setVal('wizRxAlt', f.alt);
+        setVal('wizTipoLente', f.tipo_lente);
+    } catch (e) {
+        console.warn('copiarFormulaPacienteAWizard error:', e);
+    }
 };
 
 window.avanzarWizardPaso2 = function() {
@@ -1114,49 +1256,114 @@ window.avanzarWizardPaso2 = function() {
         return;
     }
 
-    document.getElementById('wizardStep1')?.classList.remove('active');
-    document.getElementById('wizardStep2')?.classList.add('active');
-    document.getElementById('wizardStep3')?.classList.remove('active');
+    const s1 = document.getElementById('wizardStep1');
+    const s2 = document.getElementById('wizardStep2');
+    const s3 = document.getElementById('wizardStep3');
 
-    document.getElementById('stepIndicator1')?.classList.remove('active');
-    document.getElementById('stepIndicator2')?.classList.add('active');
-    document.getElementById('stepIndicator3')?.classList.remove('active');
+    if (s1) { s1.style.display = 'none'; s1.classList.remove('active'); }
+    if (s2) { s2.style.display = 'block'; s2.classList.add('active'); }
+    if (s3) { s3.style.display = 'none'; s3.classList.remove('active'); }
+
+    const ind1 = document.getElementById('stepIndicator1');
+    const ind2 = document.getElementById('stepIndicator2');
+    const ind3 = document.getElementById('stepIndicator3');
+    const line1 = document.getElementById('stepLine1');
+    const line2 = document.getElementById('stepLine2');
+
+    if (ind1) { ind1.classList.remove('active'); ind1.classList.add('completed'); }
+    if (line1) { line1.classList.add('active'); }
+    if (ind2) { ind2.classList.add('active'); ind2.classList.remove('completed'); }
+    if (line2) { line2.classList.remove('active'); }
+    if (ind3) { ind3.classList.remove('active', 'completed'); }
+
+    // Sincronizar contexto clínico del paciente en el banner del Paso 2
+    const p = AppState.wizard.paciente;
+    if (p) {
+        const fullName = `${p.nombre || ''} ${p.apellido || ''}`.trim() || 'Paciente Seleccionado';
+        const p2Nom = document.getElementById('wizStep2PatientName');
+        const p2Ced = document.getElementById('wizStep2PatientCedula');
+        const p2Tel = document.getElementById('wizStep2PatientTelefono');
+        const p2Sede = document.getElementById('wizStep2PatientSede');
+        const sumNom = document.getElementById('wizSummaryPatientName');
+
+        if (p2Nom) p2Nom.innerText = fullName;
+        if (p2Ced) p2Ced.innerText = p.cedula || 'Sin Cédula';
+        if (p2Tel) p2Tel.innerText = p.telefono || 'Sin Teléfono';
+        if (p2Sede) p2Sede.innerText = p.sede || 'Sede Maracay';
+        if (sumNom) sumNom.innerText = fullName + (p.cedula ? ` (${p.cedula})` : '');
+    }
 
     window.recalcularTotalesWizard();
 };
 
 window.volverWizardPaso1 = function() {
-    document.getElementById('wizardStep1')?.classList.add('active');
-    document.getElementById('wizardStep2')?.classList.remove('active');
-    document.getElementById('wizardStep3')?.classList.remove('active');
+    const s1 = document.getElementById('wizardStep1');
+    const s2 = document.getElementById('wizardStep2');
+    const s3 = document.getElementById('wizardStep3');
 
-    document.getElementById('stepIndicator1')?.classList.add('active');
-    document.getElementById('stepIndicator2')?.classList.remove('active');
-    document.getElementById('stepIndicator3')?.classList.remove('active');
+    if (s1) { s1.style.display = 'block'; s1.classList.add('active'); }
+    if (s2) { s2.style.display = 'none'; s2.classList.remove('active'); }
+    if (s3) { s3.style.display = 'none'; s3.classList.remove('active'); }
+
+    const ind1 = document.getElementById('stepIndicator1');
+    const ind2 = document.getElementById('stepIndicator2');
+    const ind3 = document.getElementById('stepIndicator3');
+    const line1 = document.getElementById('stepLine1');
+    const line2 = document.getElementById('stepLine2');
+
+    if (ind1) { ind1.classList.add('active'); ind1.classList.remove('completed'); }
+    if (line1) { line1.classList.remove('active'); }
+    if (ind2) { ind2.classList.remove('active', 'completed'); }
+    if (line2) { line2.classList.remove('active'); }
+    if (ind3) { ind3.classList.remove('active', 'completed'); }
 };
 
 window.avanzarWizardPaso3 = function() {
     window.recalcularTotalesWizard();
 
-    document.getElementById('wizardStep1')?.classList.remove('active');
-    document.getElementById('wizardStep2')?.classList.remove('active');
-    document.getElementById('wizardStep3')?.classList.add('active');
+    const s1 = document.getElementById('wizardStep1');
+    const s2 = document.getElementById('wizardStep2');
+    const s3 = document.getElementById('wizardStep3');
 
-    document.getElementById('stepIndicator1')?.classList.remove('active');
-    document.getElementById('stepIndicator2')?.classList.remove('active');
-    document.getElementById('stepIndicator3')?.classList.add('active');
+    if (s1) { s1.style.display = 'none'; s1.classList.remove('active'); }
+    if (s2) { s2.style.display = 'none'; s2.classList.remove('active'); }
+    if (s3) { s3.style.display = 'block'; s3.classList.add('active'); }
+
+    const ind1 = document.getElementById('stepIndicator1');
+    const ind2 = document.getElementById('stepIndicator2');
+    const ind3 = document.getElementById('stepIndicator3');
+    const line1 = document.getElementById('stepLine1');
+    const line2 = document.getElementById('stepLine2');
+
+    if (ind1) { ind1.classList.remove('active'); ind1.classList.add('completed'); }
+    if (line1) { line1.classList.add('active'); }
+    if (ind2) { ind2.classList.remove('active'); ind2.classList.add('completed'); }
+    if (line2) { line2.classList.add('active'); }
+    if (ind3) { ind3.classList.add('active'); ind3.classList.remove('completed'); }
 
     recalcularPagosPaso3();
 };
 
 window.volverWizardPaso2 = function() {
-    document.getElementById('wizardStep1')?.classList.remove('active');
-    document.getElementById('wizardStep2')?.classList.add('active');
-    document.getElementById('wizardStep3')?.classList.remove('active');
+    const s1 = document.getElementById('wizardStep1');
+    const s2 = document.getElementById('wizardStep2');
+    const s3 = document.getElementById('wizardStep3');
 
-    document.getElementById('stepIndicator1')?.classList.remove('active');
-    document.getElementById('stepIndicator2')?.classList.add('active');
-    document.getElementById('stepIndicator3')?.classList.remove('active');
+    if (s1) { s1.style.display = 'none'; s1.classList.remove('active'); }
+    if (s2) { s2.style.display = 'block'; s2.classList.add('active'); }
+    if (s3) { s3.style.display = 'none'; s3.classList.remove('active'); }
+
+    const ind1 = document.getElementById('stepIndicator1');
+    const ind2 = document.getElementById('stepIndicator2');
+    const ind3 = document.getElementById('stepIndicator3');
+    const line1 = document.getElementById('stepLine1');
+    const line2 = document.getElementById('stepLine2');
+
+    if (ind1) { ind1.classList.remove('active'); ind1.classList.add('completed'); }
+    if (line1) { line1.classList.add('active'); }
+    if (ind2) { ind2.classList.add('active'); ind2.classList.remove('completed'); }
+    if (line2) { line2.classList.remove('active'); }
+    if (ind3) { ind3.classList.remove('active', 'completed'); }
 };
 
 window.actualizarPrecioConsultaWizard = function() {
@@ -1164,12 +1371,15 @@ window.actualizarPrecioConsultaWizard = function() {
     const inp = document.getElementById('wizConsultaPrecio');
     if (!sel || !inp) return;
 
-    if (sel.value === 'Sin Consulta (Solo Montura / Cristales)') {
-        inp.value = 0;
-    } else if (sel.value === 'Control y Fondo de Ojo de Cortesía') {
-        inp.value = 0;
-    } else if (inp.value == 0) {
-        inp.value = 15;
+    const val = (sel.value || '').toLowerCase();
+    if (val === 'gratis' || val.includes('incluido') || val.includes('cortesía') || val === 'ninguno' || val.includes('sin consulta')) {
+        inp.value = "0.00";
+    } else if (val === 'consulta_sola' || val.includes('especializada')) {
+        inp.value = "35.00";
+    } else if (val === 'fondo_ojo' || val.includes('fondo de ojo')) {
+        inp.value = "40.00";
+    } else if (parseFloat(inp.value) === 0) {
+        inp.value = "25.00";
     }
 
     window.recalcularTotalesWizard();

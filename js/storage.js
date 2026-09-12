@@ -208,6 +208,25 @@ class OpticaStorageManager {
             }
         }
 
+        // Si ya existe un paciente con la misma cédula, actualizarlo en vez de duplicarlo
+        if (data.cedula) {
+            const cleanNew = data.cedula.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+            const existingIdx = list.findIndex(p => {
+                const c = (p.cedula || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+                return c && c === cleanNew;
+            });
+            if (existingIdx !== -1) {
+                list[existingIdx] = {
+                    ...list[existingIdx],
+                    ...data,
+                    id: list[existingIdx].id,
+                    updated_at: now
+                };
+                this.savePacientes(list);
+                return list[existingIdx];
+            }
+        }
+
         const newId = 'PAC-' + Date.now().toString(36).toUpperCase() + '-' + Math.floor(Math.random() * 1000);
         const newPaciente = {
             id: newId,
