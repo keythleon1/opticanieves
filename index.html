@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centro Óptico Nieves | Especialistas en el Cuidado de tus Ojos</title>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%230284C7%22><path d=%22M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z%22/></svg>">
+    <!-- Google Fonts: Plus Jakarta Sans & Space Grotesk -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <!-- ==========================================================================
+         BARRA DE NAVEGACIÓN (LOGO Y ACCESO AL SISTEMA)
+         ========================================================================== -->
+    <header class="main-header">
+        <div class="container nav-wrapper" style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="index.html" class="logo-brand">
+                <div class="logo-text">
+                    <h1 class="logo-title-friendly">CENTRO OPTICO <span class="brand-accent">NIEVES</span></h1>
+                    <span class="logo-subtitle">Especialistas en el Cuidado de tus Ojos</span>
+                </div>
+            </a>
+            <div class="nav-admin-access">
+                <a href="admin.html" class="btn-admin-header" title="Ingresar al Panel de Gestión Administrativa">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <span>Panel Administrativo</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==========================================================================
+         PÁGINA 1: FONDO DUAL DE SEDES (MARACAY & SAN JUAN DE LOS MORROS)
+         ========================================================================== -->
+    <main class="main-content">
+        <!-- ==========================================================================
+             PÁGINA 1: FONDO DUAL DE SEDES (MARACAY & SAN JUAN DE LOS MORROS)
+             ========================================================================== -->
+        <section id="page-1" class="page-section hero-dual-section">
+            <div class="dual-bg-container">
+                <!-- Panel Maracay -->
+                <div class="city-panel city-maracay">
+                    <div class="city-bg-image" style="background-image: url('images/MRCY.jpg');"></div>
+                    <div class="city-color-mood mood-maracay"></div>
+                    <div class="city-overlay"></div>
+                    <div class="city-info">
+                        <span class="city-badge">
+                            <i class="fa-solid fa-store"></i> Centro Comercial las Americas
+                        </span>
+                        <h2 class="city-name">Maracay</h2>
+                        <span class="city-state">Estado Aragua</span>
+                    </div>
+                </div>
+
+                <!-- Divisor Central (Línea pura sin icono) -->
+                <div class="dual-divider">
+                    <div class="divider-line"></div>
+                </div>
+
+                <!-- Panel San Juan de los Morros -->
+                <div class="city-panel city-sanjuan">
+                    <div class="city-bg-image" style="background-image: url('images/SJM.jpeg');"></div>
+                    <div class="city-color-mood mood-sanjuan"></div>
+                    <div class="city-overlay"></div>
+                    <div class="city-info">
+                        <span class="city-badge">
+                            <i class="fa-solid fa-store"></i> Centro Comercial Galería
+                        </span>
+                        <h2 class="city-name">San Juan de los Morros</h2>
+                        <span class="city-state">Estado Guárico</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             PÁGINA 2: CASILLA PARA AGENDAR CITA (ARAGUA & GUÁRICO)
+             ========================================================================== -->
+        <section id="page-2" class="page-section booking-page-section">
+            <div class="container booking-container">
+                <div class="booking-card-modern">
+                    <div class="booking-card-header">
+                        <span class="badge-tag badge-blue">
+                            <i class="fa-solid fa-calendar-check"></i> Cita oftalmológica
+                        </span>
+                        <h2>Agenda tu Cita en el centro el Óptico Nieves</h2>
+                        <p>Complete sus datos para registrar su atención personalizada.</p>
+                    </div>
+
+                    <form id="simpleBookingForm" class="simple-booking-form">
+                        <div class="form-grid-simple">
+                            <!-- Nombre y Apellido -->
+                            <div class="form-group-item">
+                                <label for="fullName" class="form-label">
+                                    Nombre y Apellido
+                                </label>
+                                <input type="text" id="fullName" name="fullName" class="form-control-simple" placeholder="Ej: Carlos Mendoza" required>
+                            </div>
+
+                            <!-- Cédula de Identidad -->
+                            <div class="form-group-item">
+                                <label for="idNumber" class="form-label">
+                                    Cédula de Identidad
+                                </label>
+                                <div class="input-cedula-wrapper">
+                                    <select id="idPrefix" name="idPrefix" class="form-select-prefix">
+                                        <option value="V-">V-</option>
+                                        <option value="E-">E-</option>
+                                    </select>
+                                    <input type="text" id="idNumber" name="idNumber" class="form-control-simple" placeholder="Ej: 21.345.678" required>
+                                </div>
+                            </div>
+
+                            <!-- Teléfono / WhatsApp -->
+                            <div class="form-group-item">
+                                <label for="phoneNumber" class="form-label">
+                                    Número Telefónico / WhatsApp
+                                </label>
+                                <input type="tel" id="phoneNumber" name="phoneNumber" class="form-control-simple" placeholder="Ej: 0412-1234567" required>
+                            </div>
+
+                            <!-- Estado (Solo Aragua y Guárico) -->
+                            <div class="form-group-item">
+                                <label for="stateSelectSimple" class="form-label">
+                                    Estado
+                                </label>
+                                <select id="stateSelectSimple" name="state" class="form-select-simple" required>
+                                    <option value="" disabled selected>-- Seleccione el Estado --</option>
+                                    <option value="Aragua">Aragua (CC Las Américas - Maracay)</option>
+                                    <option value="Guarico">Guárico (CC Galería - San Juan de los Morros)</option>
+                                </select>
+                            </div>
+
+                            <!-- Botón de Envío -->
+                            <div class="form-group-full" style="margin-top: 1rem; text-align: center;">
+                                <button type="submit" class="btn btn-booking-submit">
+                                    Confirmar Cita
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             PÁGINA 3: CONSULTA Y RASTREO DE ESTATUS DE LENTES
+             ========================================================================== -->
+        <section id="page-3" class="page-section tracker-page-section">
+            <div class="container tracker-container">
+                <div class="tracker-card-modern">
+                    <div class="tracker-card-header">
+                        <span class="badge-tag badge-blue">
+                            <i class="fa-solid fa-glasses"></i> Laboratorio Óptico
+                        </span>
+                        <h2>Estatus de tus Lentes</h2>
+                        <p>Ingresa tu número de cédula para consultar en tiempo real la fase de elaboración técnica y fecha de retiro en tienda.</p>
+                    </div>
+
+                    <form id="lensTrackerForm" class="lens-tracker-form">
+                        <div class="tracker-search-bar">
+                            <div class="input-cedula-wrapper" style="flex: 1;">
+                                <select id="searchCedulaPrefix" class="form-select-prefix">
+                                    <option value="V-">V-</option>
+                                    <option value="E-">E-</option>
+                                </select>
+                                <input type="text" id="searchCedulaNumber" class="form-control-simple" placeholder="Número de Cédula (Ej: 19.452.880)" required>
+                            </div>
+                            <button type="submit" class="btn btn-tracker-submit">
+                                <i class="fa-solid fa-magnifying-glass"></i> Consultar Estatus
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Resultado de la Búsqueda -->
+                    <div id="trackerResultBox" class="tracker-result-box" style="display: none;">
+                        <!-- Contenido dinámico renderizado por JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Scripts -->
+    <script src="js/venezuela-data.js"></script>
+    <script src="js/products-data.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
