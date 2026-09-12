@@ -9,13 +9,14 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- html2pdf.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <!-- Estilos Unificados -->
+    <!-- Estilos Base y Tema Ejecutivo Clínico -->
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/admin-theme.css">
 </head>
 <body class="admin-body">
 
@@ -27,68 +28,80 @@
              SIDEBAR LATERAL
              ========================================================================== -->
         <aside class="admin-sidebar" id="adminSidebar">
+            <!-- Cabecera de Marca Clínica -->
             <div class="sidebar-brand">
                 <div class="brand-logo-circle">
                     <i class="fa-solid fa-glasses"></i>
                 </div>
                 <div class="brand-titles">
-                    <h1 class="brand-name">CENTRO ÓPTICO <span class="brand-highlight">NIEVES</span></h1>
-                    <span class="brand-tagline">Sistema Clínico & Administrativo</span>
+                    <div class="brand-title-line">
+                        <h1 class="brand-name">ÓPTICA <span class="brand-highlight">NIEVES</span></h1>
+                        <span class="brand-badge-pro">CLÍNICO</span>
+                    </div>
+                    <span class="brand-tagline">Sistema Médico & Administrativo</span>
                 </div>
             </div>
 
-            <!-- Navegación -->
+            <!-- Navegación Ejecutiva -->
             <nav class="admin-sidebar-nav">
+                <!-- Botón de Acción Rápida: Nueva Venta & Wizard -->
+                <div class="nav-action-wrapper">
+                    <button type="button" class="admin-nav-item nav-quick-sale" data-tab="venta-wizard" title="Iniciar venta y formulación asistida">
+                        <div class="quick-sale-icon"><i class="fa-solid fa-cart-plus"></i></div>
+                        <div class="quick-sale-text">
+                            <strong>Nueva Venta</strong>
+                            <small>Wizard & Presupuesto</small>
+                        </div>
+                        <i class="fa-solid fa-chevron-right quick-sale-arrow"></i>
+                    </button>
+                </div>
+
                 <div class="nav-section-label">OPERACIONES PRINCIPALES</div>
                 
                 <button type="button" class="admin-nav-item active" data-tab="dashboard">
-                    <i class="fa-solid fa-chart-line nav-icon"></i>
+                    <i class="fa-solid fa-gauge-high nav-icon"></i>
                     <span>Dashboard & Control</span>
                 </button>
 
                 <button type="button" class="admin-nav-item" data-tab="pacientes360">
-                    <i class="fa-solid fa-users nav-icon"></i>
+                    <i class="fa-solid fa-id-card-clip nav-icon"></i>
                     <span>Pacientes 360</span>
-                    <span class="nav-counter" id="navCountPacientes">0</span>
-                </button>
-
-                <button type="button" class="admin-nav-item highlight-btn" data-tab="venta-wizard">
-                    <i class="fa-solid fa-cart-plus nav-icon"></i>
-                    <span>Nueva Venta & Wizard</span>
+                    <span class="nav-counter zero-badge" id="navCountPacientes" style="display: none;">0</span>
                 </button>
 
                 <button type="button" class="admin-nav-item" data-tab="recibos">
                     <i class="fa-solid fa-file-invoice-dollar nav-icon"></i>
                     <span>Recibos & Facturación</span>
-                    <span class="nav-counter" id="navCountRecibos">0</span>
+                    <span class="nav-counter zero-badge" id="navCountRecibos" style="display: none;">0</span>
                 </button>
 
                 <button type="button" class="admin-nav-item" data-tab="laboratorio">
                     <i class="fa-solid fa-microscope nav-icon"></i>
                     <span>Taller & Cristales</span>
-                    <span class="nav-counter" id="navCountLaboratorio">0</span>
+                    <span class="nav-counter zero-badge" id="navCountLaboratorio" style="display: none;">0</span>
                 </button>
 
-                <div class="nav-section-label" style="margin-top: 1.25rem;">MÓDULO CLÍNICO & DOCUMENTAL</div>
+                <div class="nav-section-label" style="margin-top: 1rem;">MÓDULO CLÍNICO & DOCUMENTAL</div>
 
                 <button type="button" class="admin-nav-item" data-tab="recipes">
                     <i class="fa-solid fa-prescription nav-icon"></i>
                     <span>Récipes Oftalmológicos</span>
-                    <span class="nav-counter" id="navCountRecipes">0</span>
+                    <span class="nav-counter zero-badge" id="navCountRecipes" style="display: none;">0</span>
                 </button>
 
                 <button type="button" class="admin-nav-item" data-tab="informes">
                     <i class="fa-solid fa-file-medical nav-icon"></i>
                     <span>Informes Médicos</span>
-                    <span class="nav-counter" id="navCountInformes">0</span>
+                    <span class="nav-counter zero-badge" id="navCountInformes" style="display: none;">0</span>
                 </button>
 
                 <button type="button" class="admin-nav-item" data-tab="whatsapp">
-                    <i class="fa-brands fa-whatsapp nav-icon text-emerald"></i>
+                    <i class="fa-brands fa-whatsapp nav-icon nav-wa-accent"></i>
                     <span>Centro WhatsApp</span>
+                    <span class="nav-live-dot" title="Servicio activo"></span>
                 </button>
 
-                <div class="nav-section-label" style="margin-top: 1.25rem;">ADMINISTRACIÓN & CITAS</div>
+                <div class="nav-section-label" style="margin-top: 1rem;">ADMINISTRACIÓN & CITAS</div>
 
                 <button type="button" class="admin-nav-item" data-tab="caja">
                     <i class="fa-solid fa-cash-register nav-icon"></i>
@@ -98,7 +111,7 @@
                 <button type="button" class="admin-nav-item" data-tab="citas">
                     <i class="fa-solid fa-calendar-check nav-icon"></i>
                     <span>Agenda de Citas</span>
-                    <span class="nav-counter" id="navCountCitas">0</span>
+                    <span class="nav-counter zero-badge" id="navCountCitas" style="display: none;">0</span>
                 </button>
 
                 <button type="button" class="admin-nav-item" data-tab="configuracion">
@@ -113,10 +126,10 @@
                     <span class="status-indicator-dot online"></span>
                     <div class="user-status-info">
                         <span class="user-name">Sedes Aragua & Guárico</span>
-                        <span class="user-role">Centro Óptico Nieves</span>
+                        <span class="user-role">En línea &bull; Centro Óptico Nieves</span>
                     </div>
                 </div>
-                <a href="index.html" class="btn-portal-return" title="Ver portal público">
+                <a href="index.html" class="btn-portal-return" title="Ver portal público de pacientes">
                     <i class="fa-solid fa-arrow-up-right-from-square"></i>
                     <span>Ver Portal de Pacientes</span>
                 </a>
@@ -233,11 +246,11 @@
                     <div class="dashboard-grid-dual">
                         <div class="dash-panel">
                             <div class="panel-header">
-                                <h3 class="panel-title"><i class="fa-solid fa-bolt text-amber"></i> Acciones Inmediatas</h3>
+                                <h3 class="panel-title"><i class="fa-solid fa-layer-group"></i> Acciones Operativas Inmediatas</h3>
                             </div>
                             <div class="quick-actions-list">
                                 <button type="button" class="quick-btn btn-action-wizard" onclick="switchAdminTab('venta-wizard')">
-                                    <div class="quick-btn-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                                    <div class="quick-btn-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div>
                                     <div class="quick-btn-info">
                                         <strong>Facturar Venta Óptica (Wizard)</strong>
                                         <span>Seleccionar montura, cristales, cobrar e imprimir recibo</span>
@@ -285,7 +298,7 @@
 
                         <div class="dash-panel">
                             <div class="panel-header">
-                                <h3 class="panel-title"><i class="fa-solid fa-receipt text-blue"></i> Últimos Recibos Emitidos</h3>
+                                <h3 class="panel-title"><i class="fa-solid fa-receipt"></i> Últimos Recibos Emitidos</h3>
                                 <button type="button" class="btn-panel-link" onclick="switchAdminTab('recibos')">Ver todos los recibos</button>
                             </div>
                             <div id="dashUltimosRecibosBox" class="recent-list-container">
@@ -336,7 +349,7 @@
                             </table>
                         </div>
                         <div id="pacientesEmptyState" class="empty-state-view" style="display: none;">
-                            <div class="empty-state-icon text-blue"><i class="fa-solid fa-users"></i></div>
+                            <div class="empty-state-icon"><i class="fa-solid fa-users"></i></div>
                             <h3>Base de Datos de Pacientes Vacía</h3>
                             <p>Registra el primer paciente para guardar su expediente clínico y fórmulas oftalmológicas.</p>
                             <button type="button" class="btn btn-primary" onclick="abrirModalNuevoPaciente()">
@@ -379,7 +392,7 @@
                         </div>
 
                         <!-- PASO 1 -->
-                        <div class="wizard-step-content" id="wizardStep1" style="display: block;">
+                        <div class="wizard-step-content active" id="wizardStep1">
                             <div class="wizard-card">
                                 <div class="wizard-card-header">
                                     <h3>Paso 1: Seleccione o Registre al Paciente</h3>
@@ -423,13 +436,13 @@
                         </div>
 
                         <!-- PASO 2 -->
-                        <div class="wizard-step-content" id="wizardStep2" style="display: none;">
+                        <div class="wizard-step-content" id="wizardStep2">
                             <div class="wizard-grid-layout">
                                 <div class="wizard-products-col">
                                     <!-- Montura -->
                                     <div class="wizard-section-card">
                                         <div class="section-card-title">
-                                            <h4><i class="fa-solid fa-glasses text-purple"></i> 1. Montura / Armazón</h4>
+                                            <h4><i class="fa-solid fa-glasses"></i> 1. Montura / Armazón</h4>
                                             <span class="badge-tag badge-gray">Opcional si el paciente aporta su montura</span>
                                         </div>
                                         <div class="form-row">
@@ -451,7 +464,7 @@
                                     <!-- Cristales -->
                                     <div class="wizard-section-card">
                                         <div class="section-card-title">
-                                            <h4><i class="fa-solid fa-circle-dot text-blue"></i> 2. Cristales Oftalmológicos</h4>
+                                            <h4><i class="fa-solid fa-circle-dot"></i> 2. Cristales Oftalmológicos</h4>
                                             <button type="button" class="btn btn-xs btn-outline-primary" onclick="copiarFormulaPacienteAWizard()">
                                                 <i class="fa-solid fa-clipboard-check"></i> Cargar Fórmula del Paciente
                                             </button>
@@ -551,7 +564,7 @@
                                     <!-- Consulta -->
                                     <div class="wizard-section-card">
                                         <div class="section-card-title">
-                                            <h4><i class="fa-solid fa-user-doctor text-emerald"></i> 3. Consulta / Examen Oftalmológico</h4>
+                                            <h4><i class="fa-solid fa-user-doctor"></i> 3. Consulta / Examen Oftalmológico</h4>
                                         </div>
                                         <div class="form-row">
                                             <div class="form-group flex-2">
@@ -616,7 +629,7 @@
                         </div>
 
                         <!-- PASO 3 -->
-                        <div class="wizard-step-content" id="wizardStep3" style="display: none;">
+                        <div class="wizard-step-content" id="wizardStep3">
                             <div class="wizard-card">
                                 <div class="wizard-card-header">
                                     <h3>Paso 3: Cobro Multimoneda & Emisión de Recibo</h3>
@@ -747,7 +760,7 @@
                             </table>
                         </div>
                         <div id="recibosEmptyState" class="empty-state-view" style="display: none;">
-                            <div class="empty-state-icon text-amber"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                            <div class="empty-state-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div>
                             <h3>Sin Recibos Emitidos</h3>
                             <p>Todos los recibos emitidos desde el Asistente de Venta aparecerán organizados aquí con correlativo consecutivo.</p>
                             <button type="button" class="btn btn-primary" onclick="switchAdminTab('venta-wizard')">
@@ -847,7 +860,7 @@
                             </table>
                         </div>
                         <div id="recipesEmptyState" class="empty-state-view" style="display: none;">
-                            <div class="empty-state-icon text-blue"><i class="fa-solid fa-prescription"></i></div>
+                            <div class="empty-state-icon"><i class="fa-solid fa-prescription"></i></div>
                             <h3>Sin Récipes Emitidos</h3>
                             <p>Presiona "Emitir Nuevo Récipe" para generar una hoja dual oficial con prescripción de lentes y tratamiento farmacológico.</p>
                             <button type="button" class="btn btn-primary" onclick="abrirModalNuevoRecipe()">
@@ -894,7 +907,7 @@
                             </table>
                         </div>
                         <div id="informesEmptyState" class="empty-state-view" style="display: none;">
-                            <div class="empty-state-icon text-blue"><i class="fa-solid fa-file-medical"></i></div>
+                            <div class="empty-state-icon"><i class="fa-solid fa-file-medical"></i></div>
                             <h3>Sin Informes Médicos Registrados</h3>
                             <p>Redacta un informe clínico completo para consultas laborales, preoperatorias o referencias especializadas.</p>
                             <button type="button" class="btn btn-primary" onclick="abrirModalNuevoInforme()">
@@ -1075,7 +1088,7 @@
 
                     <div class="table-card" style="margin-top: 1.5rem;">
                         <div class="panel-header" style="padding: 1rem 1.25rem; border-bottom: 1px solid #E2E8F0;">
-                            <h4 style="font-weight: 700; font-size: 1rem;"><i class="fa-solid fa-list-check text-blue"></i> Movimientos Registrados Hoy</h4>
+                            <h4 style="font-weight: 700; font-size: 1rem;"><i class="fa-solid fa-list-check"></i> Movimientos Registrados Hoy</h4>
                         </div>
                         <div class="table-responsive">
                             <table class="modern-table">
@@ -1097,7 +1110,7 @@
                             </table>
                         </div>
                         <div id="cajaEmptyState" class="empty-state-view" style="display: none;">
-                            <div class="empty-state-icon text-emerald"><i class="fa-solid fa-cash-register"></i></div>
+                            <div class="empty-state-icon"><i class="fa-solid fa-cash-register"></i></div>
                             <h3>Sin Movimientos de Caja Hoy</h3>
                             <p>Las ventas y abonos generarán los ingresos automáticos correspondientes.</p>
                         </div>
@@ -1146,7 +1159,7 @@
                             </table>
                         </div>
                         <div id="citasEmptyState" class="empty-state-view" style="display: none;">
-                            <div class="empty-state-icon text-blue"><i class="fa-solid fa-calendar-xmark"></i></div>
+                            <div class="empty-state-icon"><i class="fa-solid fa-calendar-xmark"></i></div>
                             <h3>No Hay Citas Agendadas</h3>
                             <p>Las citas registradas desde el portal público o agregadas manualmente aparecerán aquí.</p>
                         </div>
@@ -1160,7 +1173,7 @@
                     <div class="settings-grid">
                         <div class="settings-card">
                             <div class="settings-card-header">
-                                <h3><i class="fa-solid fa-store text-blue"></i> Datos de la Óptica & Sedes</h3>
+                                <h3><i class="fa-solid fa-store"></i> Datos de la Óptica & Sedes</h3>
                             </div>
                             <div class="settings-card-body">
                                 <div class="form-group">
@@ -1216,7 +1229,7 @@
 
                         <div class="settings-card">
                             <div class="settings-card-header">
-                                <h3><i class="fa-solid fa-coins text-amber"></i> Tasa Oficial BCV</h3>
+                                <h3><i class="fa-solid fa-coins"></i> Tasa Oficial BCV</h3>
                             </div>
                             <div class="settings-card-body">
                                 <div class="form-group">
@@ -1249,21 +1262,21 @@
          MODALES PRINCIPALES
          ========================================================================== -->
 
-    <!-- MODAL: REGISTRAR / EDITAR PACIENTE (COMPLETO CON REFRACCIÓN Y DATOS CLÍNICOS) -->
+    <!-- MODAL: REGISTRAR / EDITAR PACIENTE -->
     <div class="modal-backdrop" id="modalFormPaciente" style="display: none;">
-        <div class="modal-dialog modal-dialog-lg">
+        <div class="modal-dialog modal-dialog-lg" style="max-width: 680px;">
             <div class="modal-content">
-                <div class="modal-header header-blue">
+                <div class="modal-header">
                     <div>
-                        <h3 id="modalPacienteTitle"><i class="fa-solid fa-user-plus"></i> Expediente del Paciente</h3>
-                        <span style="font-size: 0.8rem; color: rgba(255,255,255,0.8);">Registro completo de datos demográficos y prescripción óptica</span>
+                        <h3 id="modalPacienteTitle"><i class="fa-solid fa-user-plus"></i> Registrar Paciente</h3>
+                        <span style="font-size: 0.8rem; color: rgba(255,255,255,0.85);">Ficha de identificación, contacto y demografía</span>
                     </div>
                     <button type="button" class="btn-modal-close" onclick="cerrarModalFormPaciente()">&times;</button>
                 </div>
-                <form id="formRegistroPaciente" onsubmit="guardarFormPaciente(event)">
+                <form id="formRegistroPaciente">
                     <input type="hidden" id="pacienteIdHidden">
-                    <div class="modal-body" style="padding: 1.5rem 2rem;">
-                        <!-- Fila 1: Cédula, Nombres, Apellidos -->
+                    <div class="modal-body" style="padding: 1.5rem 1.75rem;">
+                        <!-- Fila 1: Cédula y Nombre Completo -->
                         <div class="form-row">
                             <div class="form-group flex-1">
                                 <label class="form-label">Cédula de Identidad *</label>
@@ -1271,124 +1284,74 @@
                                     <select id="pacienteCedulaPrefix" class="form-select-prefix">
                                         <option value="V-">V-</option>
                                         <option value="E-">E-</option>
+                                        <option value="J-">J-</option>
+                                        <option value="P-">P-</option>
                                     </select>
                                     <input type="text" id="pacienteCedulaNum" class="form-control" placeholder="18.450.920" required>
                                 </div>
                             </div>
-                            <div class="form-group flex-1">
-                                <label class="form-label">Nombres *</label>
-                                <input type="text" id="pacienteNombreInput" class="form-control" placeholder="Carlos Alberto" required>
-                            </div>
-                            <div class="form-group flex-1">
-                                <label class="form-label">Apellidos *</label>
-                                <input type="text" id="pacienteApellidoInput" class="form-control" placeholder="Mendoza Pérez" required>
+                            <div class="form-group flex-2">
+                                <label class="form-label">Nombre Completo *</label>
+                                <input type="text" id="pacienteNombreInput" class="form-control" placeholder="Ej: Carlos Alberto Mendoza Pérez" required>
                             </div>
                         </div>
 
-                        <!-- Fila 2: Teléfono, Sede, Edad, Sexo -->
+                        <!-- Fila 2: Teléfono y WhatsApp -->
                         <div class="form-row">
                             <div class="form-group flex-1">
-                                <label class="form-label">Teléfono / WhatsApp *</label>
-                                <input type="tel" id="pacienteTelefonoInput" class="form-control" placeholder="0412-1234567" required>
+                                <label class="form-label">Teléfono (Llamadas) *</label>
+                                <input type="tel" id="pacienteTelefonoInput" class="form-control" placeholder="Ej: 0412-1234567" onblur="autoCopiarTelefonoAWhatsapp()" required>
                             </div>
                             <div class="form-group flex-1">
-                                <label class="form-label">Sede de Atención *</label>
-                                <select id="pacienteSedeSelect" class="form-control" required>
-                                    <option value="Maracay">Sede Maracay (CC Las Américas)</option>
-                                    <option value="San Juan de los Morros">Sede San Juan (CC Galería)</option>
-                                </select>
-                            </div>
-                            <div class="form-group flex-1">
-                                <label class="form-label">Edad / Sexo</label>
-                                <div style="display: flex; gap: 0.5rem;">
-                                    <input type="number" id="pacienteEdadInput" class="form-control" placeholder="Edad" style="width: 70px;">
-                                    <select id="pacienteSexoSelect" class="form-control">
-                                        <option value="M">Masc.</option>
-                                        <option value="F">Fem.</option>
-                                    </select>
-                                </div>
+                                <label class="form-label">WhatsApp (Avisos) *</label>
+                                <input type="tel" id="pacienteWhatsappInput" class="form-control" placeholder="Ej: 0412-1234567" required>
                             </div>
                         </div>
 
-                        <!-- Fila 3: Ocupación, Dirección -->
+                        <!-- Fila 3: Email -->
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label class="form-label">Email / Correo Electrónico</label>
+                                <input type="email" id="pacienteEmailInput" class="form-control" placeholder="Ej: paciente@correo.com">
+                            </div>
+                        </div>
+
+                        <!-- Fila 4: Nacimiento, Edad, Sexo -->
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label class="form-label">Fecha de Nacimiento</label>
+                                <input type="date" id="pacienteNacimientoInput" class="form-control" oninput="calcularEdadDesdeNacimiento()" onchange="calcularEdadDesdeNacimiento()" onblur="calcularEdadDesdeNacimiento()">
+                            </div>
+                            <div class="form-group" style="width: 100px;">
+                                <label class="form-label">Edad</label>
+                                <input type="number" id="pacienteEdadInput" class="form-control" placeholder="Años" min="0" max="125">
+                            </div>
+                            <div class="form-group flex-1">
+                                <label class="form-label">Sexo</label>
+                                <select id="pacienteSexoSelect" class="form-control">
+                                    <option value="M">Masculino</option>
+                                    <option value="F">Femenino</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Fila 5: Ocupación y Dirección Corta -->
                         <div class="form-row">
                             <div class="form-group flex-1">
                                 <label class="form-label">Ocupación / Profesión</label>
-                                <input type="text" id="pacienteOcupacionInput" class="form-control" placeholder="Ej: Ingeniero de Sistemas">
+                                <input type="text" id="pacienteOcupacionInput" class="form-control" placeholder="Ej: Administrador, Docente, Comerciante">
                             </div>
                             <div class="form-group flex-2">
-                                <label class="form-label">Dirección de Habitación</label>
-                                <input type="text" id="pacienteDireccionInput" class="form-control" placeholder="Ej: Urb. Calicanto, Calle 3, Casa 12, Maracay">
+                                <label class="form-label">Dirección Corta</label>
+                                <input type="text" id="pacienteDireccionInput" class="form-control" placeholder="Ej: Urb. Calicanto, Maracay / CC Galería, SJM">
                             </div>
-                        </div>
-
-                        <!-- Fila 4: Antecedentes & Alergias -->
-                        <div class="form-row">
-                            <div class="form-group flex-1">
-                                <label class="form-label">Antecedentes Médicos / Oculares</label>
-                                <input type="text" id="pacienteAntecedentesInput" class="form-control" placeholder="Ej: Diabetes, Glaucoma en familiar, Miopía previa">
-                            </div>
-                            <div class="form-group flex-1">
-                                <label class="form-label">Alergias Conocidas</label>
-                                <input type="text" id="pacienteAlergiasInput" class="form-control" placeholder="Ej: Alergia a metales, polen">
-                            </div>
-                        </div>
-
-                        <!-- Fila 5: Graduación / Refracción Oftalmológica -->
-                        <div class="rx-mini-table-box" style="margin-top: 1rem;">
-                            <div class="rx-mini-title">Graduación / Refracción Oftalmológica Vigente:</div>
-                            <div class="rx-input-grid">
-                                <div class="rx-cell-header">Ojo</div>
-                                <div class="rx-cell-header">Esfera</div>
-                                <div class="rx-cell-header">Cilindro</div>
-                                <div class="rx-cell-header">Eje</div>
-                                <div class="rx-cell-header">Adición</div>
-                                <div class="rx-cell-header">Agudeza</div>
-
-                                <div class="rx-eye-label">OD (Der.)</div>
-                                <div><input type="text" id="pacienteOdSph" class="rx-field" placeholder="0.00"></div>
-                                <div><input type="text" id="pacienteOdCyl" class="rx-field" placeholder="0.00"></div>
-                                <div><input type="text" id="pacienteOdAxis" class="rx-field" placeholder="0°"></div>
-                                <div><input type="text" id="pacienteOdAdd" class="rx-field" placeholder="+0.00"></div>
-                                <div><input type="text" id="pacienteOdAv" class="rx-field" placeholder="20/20"></div>
-
-                                <div class="rx-eye-label">OS (Izq.)</div>
-                                <div><input type="text" id="pacienteOsSph" class="rx-field" placeholder="0.00"></div>
-                                <div><input type="text" id="pacienteOsCyl" class="rx-field" placeholder="0.00"></div>
-                                <div><input type="text" id="pacienteOsAxis" class="rx-field" placeholder="0°"></div>
-                                <div><input type="text" id="pacienteOsAdd" class="rx-field" placeholder="+0.00"></div>
-                                <div><input type="text" id="pacienteOsAv" class="rx-field" placeholder="20/20"></div>
-                            </div>
-                            <div class="form-row" style="margin-top: 0.65rem;">
-                                <div class="form-group flex-1">
-                                    <label class="form-label" style="font-size: 0.75rem;">Distancia Pupilar (DP mm)</label>
-                                    <input type="text" id="pacienteDpInput" class="form-control form-control-sm" placeholder="Ej: 63">
-                                </div>
-                                <div class="form-group flex-1">
-                                    <label class="form-label" style="font-size: 0.75rem;">Altura Focal (ALT mm)</label>
-                                    <input type="text" id="pacienteAltInput" class="form-control form-control-sm" placeholder="Ej: 19">
-                                </div>
-                                <div class="form-group flex-1">
-                                    <label class="form-label" style="font-size: 0.75rem;">Tipo de Cristal</label>
-                                    <select id="pacienteTipoLenteInput" class="form-control form-control-sm">
-                                        <option value="Monofocal">Monofocal</option>
-                                        <option value="Bifocal Flattop">Bifocal Flattop</option>
-                                        <option value="Progresivo Digital">Progresivo Digital</option>
-                                        <option value="Neutro / Descanso">Descanso / Neutro</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group" style="margin-top: 0.85rem;">
-                            <label class="form-label">Notas Clínicas Adicionales</label>
-                            <textarea id="pacienteNotasInput" class="form-control" rows="2" placeholder="Observaciones de la lámpara de hendidura, síntomas reportados o tratamiento"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" onclick="cerrarModalFormPaciente()">Cancelar</button>
                         <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="fa-solid fa-floppy-disk"></i> Guardar Expediente
+                            <i class="fa-solid fa-floppy-disk"></i> Guardar Paciente
                         </button>
                     </div>
                 </form>
@@ -1493,8 +1456,12 @@
                             <div class="info-meta-grid">
                                 <div class="meta-item"><span class="meta-label">Teléfono:</span><span class="meta-val" id="f360Tel">--</span></div>
                                 <div class="meta-item"><span class="meta-label">WhatsApp:</span><span class="meta-val" id="f360Wa">--</span></div>
-                                <div class="meta-item"><span class="meta-label">Sede Preferida:</span><span class="meta-val" id="f360Sede">--</span></div>
+                                <div class="meta-item"><span class="meta-label">Email:</span><span class="meta-val" id="f360Email">--</span></div>
+                                <div class="meta-item"><span class="meta-label">Edad / Sexo:</span><span class="meta-val" id="f360EdadSexo">--</span></div>
+                                <div class="meta-item"><span class="meta-label">Nacimiento:</span><span class="meta-val" id="f360Nacimiento">--</span></div>
                                 <div class="meta-item"><span class="meta-label">Ocupación:</span><span class="meta-val" id="f360Ocupacion">--</span></div>
+                                <div class="meta-item"><span class="meta-label">Sede Preferida:</span><span class="meta-val" id="f360Sede">--</span></div>
+                                <div class="meta-item" style="grid-column: span 2;"><span class="meta-label">Dirección Corta:</span><span class="meta-val" id="f360Direccion">--</span></div>
                             </div>
                             <div class="clinical-notes-box" style="margin-top: 1rem;">
                                 <h4>Antecedentes & Alergias:</h4>
@@ -1524,10 +1491,10 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <div>
-                        <h3 style="color: var(--color-primary-dark);"><i class="fa-solid fa-receipt text-emerald"></i> Comprobante Oficial de Compra</h3>
-                        <span class="text-muted">Documento para impresión de cliente y respaldo contable</span>
+                        <h3><i class="fa-solid fa-receipt"></i> Comprobante Oficial de Compra</h3>
+                        <span style="font-size: 0.8rem; color: rgba(255,255,255,0.85);">Documento para impresión de cliente y respaldo contable</span>
                     </div>
-                    <button type="button" class="btn-modal-close" onclick="cerrarModalRecibo()">&times;</button>
+                    <button type="button" class="btn-close-modal" onclick="cerrarModalRecibo()">&times;</button>
                 </div>
                 <div class="modal-body" style="background: #F8FAFC;">
                     <div class="receipt-paper" id="receiptPrintArea">
@@ -2115,6 +2082,8 @@
                 </div>
             </div>
         </div>
+    </div>
+
     <!-- MODAL: AGENDAR CITA CLÍNICA -->
     <div class="modal-backdrop" id="modalFormCita" style="display: none;">
         <div class="modal-dialog modal-dialog-sm">
