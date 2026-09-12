@@ -437,53 +437,102 @@
 
                         <!-- PASO 2 -->
                         <div class="wizard-step-content" id="wizardStep2">
+                            <!-- Banner de Contexto Clínico del Paciente -->
+                            <div class="wizard-patient-context-banner" id="wizardPatientContextBanner">
+                                <div class="context-patient-identity">
+                                    <div class="context-patient-avatar"><i class="fa-solid fa-user-doctor"></i></div>
+                                    <div class="context-patient-info">
+                                        <span class="context-kicker"><i class="fa-solid fa-clipboard-user"></i> Expediente Clínico en Proceso</span>
+                                        <h4 class="context-name" id="wizStep2PatientName">Paciente Seleccionado</h4>
+                                        <div class="context-meta">
+                                            <span class="meta-tag"><i class="fa-solid fa-id-card"></i> <span id="wizStep2PatientCedula">V-00.000.000</span></span>
+                                            <span class="meta-tag"><i class="fa-solid fa-phone"></i> <span id="wizStep2PatientTelefono">0412-0000000</span></span>
+                                            <span class="meta-tag badge-subtle-blue"><i class="fa-solid fa-location-dot"></i> <span id="wizStep2PatientSede">Sede Maracay</span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="context-actions">
+                                    <button type="button" class="btn-context-change" onclick="volverWizardPaso1()" title="Volver al Paso 1 para cambiar paciente">
+                                        <i class="fa-solid fa-user-pen"></i> Cambiar Paciente
+                                    </button>
+                                </div>
+                            </div>
+
                             <div class="wizard-grid-layout">
                                 <div class="wizard-products-col">
-                                    <!-- Montura -->
+                                    <!-- 1. Montura / Armazón -->
                                     <div class="wizard-section-card">
-                                        <div class="section-card-title">
-                                            <h4><i class="fa-solid fa-glasses"></i> 1. Montura / Armazón</h4>
-                                            <span class="badge-tag badge-gray">Opcional si el paciente aporta su montura</span>
+                                        <div class="section-card-header-pro">
+                                            <div class="section-header-left">
+                                                <div class="section-icon-badge"><i class="fa-solid fa-glasses"></i></div>
+                                                <div>
+                                                    <h4 class="section-title">1. Selección de Armazón / Montura</h4>
+                                                    <p class="section-subtitle">Seleccione un modelo en stock o registre la montura que aporta el paciente</p>
+                                                </div>
+                                            </div>
+                                            <span class="badge-tag-clinical badge-tag-neutral"><i class="fa-solid fa-circle-info"></i> Opcional</span>
                                         </div>
-                                        <div class="form-row">
+                                        
+                                        <div class="catalog-quick-section">
+                                            <div class="catalog-header-line">
+                                                <span class="catalog-label"><i class="fa-solid fa-sparkles"></i> Modelos sugeridos en exhibición (Clic para cargar):</span>
+                                            </div>
+                                            <div class="catalog-tags-row" id="catalogTagsRow"></div>
+                                        </div>
+
+                                        <div class="form-row-pro">
                                             <div class="form-group flex-2">
-                                                <label class="form-label">Descripción de Montura</label>
-                                                <input type="text" id="wizMonturaDesc" class="form-control" placeholder="Ej: Ray-Ban Aviator Dorada o Montura del Paciente">
+                                                <label class="form-label-pro" for="wizMonturaDesc">
+                                                    <i class="fa-solid fa-tag"></i> Descripción de la Montura
+                                                </label>
+                                                <input type="text" id="wizMonturaDesc" class="form-control-pro" placeholder="Ej: Ray-Ban Aviator Dorada, Acetato Classic o Montura del Paciente">
                                             </div>
                                             <div class="form-group flex-1">
-                                                <label class="form-label">Precio Montura ($ USD)</label>
-                                                <input type="number" id="wizMonturaPrecio" class="form-control" placeholder="0.00" min="0" step="0.5" value="0.00" oninput="recalcularTotalesWizard()">
+                                                <label class="form-label-pro" for="wizMonturaPrecio">
+                                                    <i class="fa-solid fa-dollar-sign"></i> Precio Montura ($ USD)
+                                                </label>
+                                                <div class="input-currency-wrapper">
+                                                    <span class="currency-symbol">$</span>
+                                                    <input type="number" id="wizMonturaPrecio" class="form-control-pro input-has-prefix" placeholder="0.00" min="0" step="0.5" value="0.00" oninput="recalcularTotalesWizard()">
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="quick-catalog-picker">
-                                            <span class="text-muted-sm">Modelos sugeridos del catálogo:</span>
-                                            <div class="catalog-tags-row" id="catalogTagsRow"></div>
                                         </div>
                                     </div>
 
-                                    <!-- Cristales -->
+                                    <!-- 2. Cristales Oftalmológicos -->
                                     <div class="wizard-section-card">
-                                        <div class="section-card-title">
-                                            <h4><i class="fa-solid fa-circle-dot"></i> 2. Cristales Oftalmológicos</h4>
-                                            <button type="button" class="btn btn-xs btn-outline-primary" onclick="copiarFormulaPacienteAWizard()">
+                                        <div class="section-card-header-pro">
+                                            <div class="section-header-left">
+                                                <div class="section-icon-badge badge-blue-icon"><i class="fa-solid fa-microscope"></i></div>
+                                                <div>
+                                                    <h4 class="section-title">2. Cristales Oftalmológicos & Laboratorio</h4>
+                                                    <p class="section-subtitle">Tipo de lente, sustrato, tratamientos y prescripción dióptrica para taller</p>
+                                                </div>
+                                            </div>
+                                            <button type="button" class="btn-sync-formula" onclick="copiarFormulaPacienteAWizard()" title="Importar última fórmula de refracción guardada del paciente">
                                                 <i class="fa-solid fa-clipboard-check"></i> Cargar Fórmula del Paciente
                                             </button>
                                         </div>
 
-                                        <div class="form-row">
+                                        <!-- Tipo y Material -->
+                                        <div class="form-row-pro">
                                             <div class="form-group flex-1">
-                                                <label class="form-label">Tipo de Lente</label>
-                                                <select id="wizTipoLente" class="form-control">
+                                                <label class="form-label-pro" for="wizTipoLente">
+                                                    <i class="fa-solid fa-shapes"></i> Tipo de Lente (Geometría)
+                                                </label>
+                                                <select id="wizTipoLente" class="form-control-pro" onchange="recalcularTotalesWizard()">
                                                     <option value="Monofocal">Monofocal (Visión Lejana / Lectura)</option>
-                                                    <option value="Bifocal Flattop">Bifocal Flattop (Con línea divisoria)</option>
-                                                    <option value="Bifocal Invisible">Bifocal Invisible / Blend</option>
+                                                    <option value="Bifocal Flattop">Bifocal Flattop (Con línea divisoria / ventana)</option>
+                                                    <option value="Bifocal Invisible">Bifocal Invisible / Blend (Transición suave)</option>
                                                     <option value="Progresivo Digital">Progresivo Digital de Alta Definición</option>
                                                     <option value="Neutro / Descanso">Lentes de Descanso / Neutros</option>
                                                 </select>
                                             </div>
                                             <div class="form-group flex-1">
-                                                <label class="form-label">Material del Cristal</label>
-                                                <select id="wizMaterialCristal" class="form-control">
+                                                <label class="form-label-pro" for="wizMaterialCristal">
+                                                    <i class="fa-solid fa-layer-group"></i> Material del Cristal (Sustrato)
+                                                </label>
+                                                <select id="wizMaterialCristal" class="form-control-pro" onchange="recalcularTotalesWizard()">
                                                     <option value="Policarbonato">Policarbonato (Anti-impacto, liviano)</option>
                                                     <option value="CR-39 (Orgánico)">CR-39 (Orgánico Estándar)</option>
                                                     <option value="Alto Índice 1.67">Alto Índice 1.67 (Ultradelgado)</option>
@@ -492,84 +541,164 @@
                                             </div>
                                         </div>
 
-                                        <label class="form-label" style="margin-top: 0.5rem;">Tratamientos Especiales</label>
-                                        <div class="treatments-checkbox-grid">
-                                            <label class="treatment-pill">
-                                                <input type="checkbox" id="wizTratAntirreflejo" value="Antirreflejo AR Verde" onchange="recalcularTotalesWizard()">
-                                                <span>Antirreflejo AR Verde</span>
+                                        <!-- Tratamientos Especiales -->
+                                        <div class="treatments-section-wrapper">
+                                            <label class="form-label-pro treatments-heading">
+                                                <i class="fa-solid fa-shield-halved"></i> Tratamientos Especiales de Laboratorio
                                             </label>
-                                            <label class="treatment-pill">
-                                                <input type="checkbox" id="wizTratFiltroAzul" value="Filtro Azul (Blue Defense)" checked onchange="recalcularTotalesWizard()">
-                                                <span>Filtro Azul (Blue Defense)</span>
-                                            </label>
-                                            <label class="treatment-pill">
-                                                <input type="checkbox" id="wizTratFotocromatico" value="Fotocromático / Transition" onchange="recalcularTotalesWizard()">
-                                                <span>Fotocromático (Oscurece al Sol)</span>
-                                            </label>
-                                            <label class="treatment-pill">
-                                                <input type="checkbox" id="wizTratAntirayas" value="Capa Dura Antirayas" onchange="recalcularTotalesWizard()">
-                                                <span>Capa Extra Antirayas</span>
-                                            </label>
+                                            <div class="treatments-checkbox-grid">
+                                                <label class="treatment-card">
+                                                    <input type="checkbox" id="wizTratAntirreflejo" value="Antirreflejo AR Verde" onchange="recalcularTotalesWizard()">
+                                                    <div class="treatment-card-content">
+                                                        <div class="treatment-card-icon"><i class="fa-solid fa-sparkles"></i></div>
+                                                        <div class="treatment-card-text">
+                                                            <span class="treatment-title">Antirreflejo AR Verde</span>
+                                                            <span class="treatment-desc">Elimina reflejos molestos y destellos lumínicos</span>
+                                                        </div>
+                                                    </div>
+                                                </label>
+
+                                                <label class="treatment-card">
+                                                    <input type="checkbox" id="wizTratFiltroAzul" value="Filtro Azul (Blue Defense)" checked onchange="recalcularTotalesWizard()">
+                                                    <div class="treatment-card-content">
+                                                        <div class="treatment-card-icon"><i class="fa-solid fa-laptop"></i></div>
+                                                        <div class="treatment-card-text">
+                                                            <span class="treatment-title">Filtro Azul (Blue Defense)</span>
+                                                            <span class="treatment-desc">Protección contra luz azul de pantallas y fatiga visual</span>
+                                                        </div>
+                                                    </div>
+                                                </label>
+
+                                                <label class="treatment-card">
+                                                    <input type="checkbox" id="wizTratFotocromatico" value="Fotocromático / Transition" onchange="recalcularTotalesWizard()">
+                                                    <div class="treatment-card-content">
+                                                        <div class="treatment-card-icon"><i class="fa-solid fa-sun"></i></div>
+                                                        <div class="treatment-card-text">
+                                                            <span class="treatment-title">Fotocromático (Oscurece al Sol)</span>
+                                                            <span class="treatment-desc">Transición reactiva con radiación exterior UV400</span>
+                                                        </div>
+                                                    </div>
+                                                </label>
+
+                                                <label class="treatment-card">
+                                                    <input type="checkbox" id="wizTratAntirayas" value="Capa Dura Antirayas" onchange="recalcularTotalesWizard()">
+                                                    <div class="treatment-card-content">
+                                                        <div class="treatment-card-icon"><i class="fa-solid fa-shield-virus"></i></div>
+                                                        <div class="treatment-card-text">
+                                                            <span class="treatment-title">Capa Extra Antirayas</span>
+                                                            <span class="treatment-desc">Barniz endurecido protector contra roces diarios</span>
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                            </div>
                                         </div>
 
-                                        <div class="form-row" style="margin-top: 0.75rem;">
+                                        <!-- Notas para Taller y Precio Cristales -->
+                                        <div class="form-row-pro" style="margin-top: 1rem;">
                                             <div class="form-group flex-2">
-                                                <label class="form-label">Notas Técnicas para Taller</label>
-                                                <input type="text" id="wizCristalesNotas" class="form-control" placeholder="Ej: Reducción de bordes, bisel pulido, etc.">
+                                                <label class="form-label-pro" for="wizCristalesNotas">
+                                                    <i class="fa-solid fa-screwdriver-wrench"></i> Notas Técnicas para Taller
+                                                </label>
+                                                <input type="text" id="wizCristalesNotas" class="form-control-pro" placeholder="Ej: Reducción de bordes, bisel pulido, ranurado, etc.">
                                             </div>
                                             <div class="form-group flex-1">
-                                                <label class="form-label">Precio Cristales ($ USD)</label>
-                                                <input type="number" id="wizCristalesPrecio" class="form-control" placeholder="0.00" min="0" step="0.5" value="45.00" oninput="recalcularTotalesWizard()">
+                                                <label class="form-label-pro" for="wizCristalesPrecio">
+                                                    <i class="fa-solid fa-dollar-sign"></i> Precio Cristales ($ USD)
+                                                </label>
+                                                <div class="input-currency-wrapper">
+                                                    <span class="currency-symbol">$</span>
+                                                    <input type="number" id="wizCristalesPrecio" class="form-control-pro input-has-prefix" placeholder="0.00" min="0" step="0.5" value="45.00" oninput="recalcularTotalesWizard()">
+                                                </div>
                                             </div>
                                         </div>
 
-                                        <!-- Tabla de Refracción -->
-                                        <div class="rx-mini-table-box" style="margin-top: 0.75rem;">
-                                            <div class="rx-mini-title">Prescripción Adjunta para Recibo y Laboratorio:</div>
-                                            <div class="rx-input-grid">
-                                                <div class="rx-cell-header">Ojo</div>
-                                                <div class="rx-cell-header">Esfera</div>
-                                                <div class="rx-cell-header">Cilindro</div>
-                                                <div class="rx-cell-header">Eje</div>
-                                                <div class="rx-cell-header">Adición</div>
-                                                <div class="rx-cell-header">Agudeza</div>
-
-                                                <div class="rx-eye-label">OD (Der.)</div>
-                                                <div><input type="text" id="wizRxOdSph" class="rx-field" placeholder="0.00"></div>
-                                                <div><input type="text" id="wizRxOdCyl" class="rx-field" placeholder="0.00"></div>
-                                                <div><input type="text" id="wizRxOdAxis" class="rx-field" placeholder="0°"></div>
-                                                <div><input type="text" id="wizRxOdAdd" class="rx-field" placeholder="+0.00"></div>
-                                                <div><input type="text" id="wizRxOdAv" class="rx-field" placeholder="20/20"></div>
-
-                                                <div class="rx-eye-label">OS (Izq.)</div>
-                                                <div><input type="text" id="wizRxOsSph" class="rx-field" placeholder="0.00"></div>
-                                                <div><input type="text" id="wizRxOsCyl" class="rx-field" placeholder="0.00"></div>
-                                                <div><input type="text" id="wizRxOsAxis" class="rx-field" placeholder="0°"></div>
-                                                <div><input type="text" id="wizRxOsAdd" class="rx-field" placeholder="+0.00"></div>
-                                                <div><input type="text" id="wizRxOsAv" class="rx-field" placeholder="20/20"></div>
-                                            </div>
-                                            <div class="form-row" style="margin-top: 0.5rem;">
-                                                <div class="form-group flex-1">
-                                                    <label class="form-label" style="font-size: 0.75rem;">Distancia Pupilar (DP mm)</label>
-                                                    <input type="text" id="wizRxDp" class="form-control form-control-sm" placeholder="Ej: 62">
+                                        <!-- Tabla de Refracción Oftálmica -->
+                                        <div class="rx-mini-table-box">
+                                            <div class="rx-box-header">
+                                                <div class="rx-box-header-title">
+                                                    <i class="fa-solid fa-file-prescription"></i>
+                                                    <span>Prescripción Adjunta para Recibo y Laboratorio:</span>
                                                 </div>
-                                                <div class="form-group flex-1">
-                                                    <label class="form-label" style="font-size: 0.75rem;">Altura Focal (ALT mm)</label>
-                                                    <input type="text" id="wizRxAlt" class="form-control form-control-sm" placeholder="Ej: 18">
+                                                <span class="rx-box-tag">Parámetros en Dioptrías (D)</span>
+                                            </div>
+
+                                            <div class="rx-table-container">
+                                                <table class="rx-table-pro">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="rx-th-eye">Ojo</th>
+                                                            <th>Esfera</th>
+                                                            <th>Cilindro</th>
+                                                            <th>Eje</th>
+                                                            <th>Adición</th>
+                                                            <th>Agudeza</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td class="rx-td-label">
+                                                                <span class="eye-pill eye-pill-od">OD (Der.)</span>
+                                                            </td>
+                                                            <td><input type="text" id="wizRxOdSph" class="rx-field-pro" placeholder="0.00"></td>
+                                                            <td><input type="text" id="wizRxOdCyl" class="rx-field-pro" placeholder="0.00"></td>
+                                                            <td><input type="text" id="wizRxOdAxis" class="rx-field-pro" placeholder="0°"></td>
+                                                            <td><input type="text" id="wizRxOdAdd" class="rx-field-pro" placeholder="+0.00"></td>
+                                                            <td><input type="text" id="wizRxOdAv" class="rx-field-pro" placeholder="20/20"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="rx-td-label">
+                                                                <span class="eye-pill eye-pill-os">OS (Izq.)</span>
+                                                            </td>
+                                                            <td><input type="text" id="wizRxOsSph" class="rx-field-pro" placeholder="0.00"></td>
+                                                            <td><input type="text" id="wizRxOsCyl" class="rx-field-pro" placeholder="0.00"></td>
+                                                            <td><input type="text" id="wizRxOsAxis" class="rx-field-pro" placeholder="0°"></td>
+                                                            <td><input type="text" id="wizRxOsAdd" class="rx-field-pro" placeholder="+0.00"></td>
+                                                            <td><input type="text" id="wizRxOsAv" class="rx-field-pro" placeholder="20/20"></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                            <div class="rx-metrics-row">
+                                                <div class="rx-metric-card">
+                                                    <label class="rx-metric-label" for="wizRxDp">
+                                                        <i class="fa-solid fa-arrows-left-right"></i> Distancia Pupilar (DP mm)
+                                                    </label>
+                                                    <div class="rx-metric-input-wrap">
+                                                        <input type="text" id="wizRxDp" class="form-control-pro rx-metric-input" placeholder="Ej: 62">
+                                                        <span class="rx-metric-unit">mm</span>
+                                                    </div>
+                                                </div>
+                                                <div class="rx-metric-card">
+                                                    <label class="rx-metric-label" for="wizRxAlt">
+                                                        <i class="fa-solid fa-arrows-up-down"></i> Altura Focal (ALT mm)
+                                                    </label>
+                                                    <div class="rx-metric-input-wrap">
+                                                        <input type="text" id="wizRxAlt" class="form-control-pro rx-metric-input" placeholder="Ej: 18">
+                                                        <span class="rx-metric-unit">mm</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <!-- Consulta -->
+                                    <!-- 3. Consulta / Examen Oftalmológico -->
                                     <div class="wizard-section-card">
-                                        <div class="section-card-title">
-                                            <h4><i class="fa-solid fa-user-doctor"></i> 3. Consulta / Examen Oftalmológico</h4>
+                                        <div class="section-card-header-pro">
+                                            <div class="section-header-left">
+                                                <div class="section-icon-badge badge-emerald-icon"><i class="fa-solid fa-user-doctor"></i></div>
+                                                <div>
+                                                    <h4 class="section-title">3. Consulta / Examen Oftalmológico</h4>
+                                                    <p class="section-subtitle">Examen visual de refracción o consulta especializada</p>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="form-row">
+                                        <div class="form-row-pro">
                                             <div class="form-group flex-2">
-                                                <label class="form-label">Servicio de Consulta</label>
-                                                <select id="wizConsultaTipo" class="form-control" onchange="actualizarPrecioConsultaWizard()">
+                                                <label class="form-label-pro" for="wizConsultaTipo">
+                                                    <i class="fa-solid fa-stethoscope"></i> Servicio de Consulta
+                                                </label>
+                                                <select id="wizConsultaTipo" class="form-control-pro" onchange="actualizarPrecioConsultaWizard()">
                                                     <option value="gratis">Examen Visual Incluido con Compra ($0.00)</option>
                                                     <option value="consulta_sola">Consulta Oftalmológica Especializada ($35.00)</option>
                                                     <option value="fondo_ojo">Evaluación de Fondo de Ojo & Refracción ($40.00)</option>
@@ -577,51 +706,92 @@
                                                 </select>
                                             </div>
                                             <div class="form-group flex-1">
-                                                <label class="form-label">Costo Consulta ($ USD)</label>
-                                                <input type="number" id="wizConsultaPrecio" class="form-control" placeholder="0.00" min="0" step="0.5" value="0.00" oninput="recalcularTotalesWizard()">
+                                                <label class="form-label-pro" for="wizConsultaPrecio">
+                                                    <i class="fa-solid fa-dollar-sign"></i> Costo Consulta ($ USD)
+                                                </label>
+                                                <div class="input-currency-wrapper">
+                                                    <span class="currency-symbol">$</span>
+                                                    <input type="number" id="wizConsultaPrecio" class="form-control-pro input-has-prefix" placeholder="0.00" min="0" step="0.5" value="0.00" oninput="recalcularTotalesWizard()">
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Resumen Lateral -->
+                                <!-- Resumen Lateral Sticky POS -->
                                 <div class="wizard-summary-col">
                                     <div class="summary-floating-card">
-                                        <h3 class="summary-card-title">Resumen de la Venta</h3>
-                                        <div class="summary-breakdown">
-                                            <div class="summary-row">
-                                                <span>Montura / Armazón:</span>
-                                                <span id="sumMonturaVal">$0.00</span>
-                                            </div>
-                                            <div class="summary-row">
-                                                <span>Cristales & Tratamientos:</span>
-                                                <span id="sumCristalesVal">$45.00</span>
-                                            </div>
-                                            <div class="summary-row">
-                                                <span>Consulta / Examen:</span>
-                                                <span id="sumConsultaVal">$0.00</span>
-                                            </div>
-                                            <div class="summary-row" style="margin-top: 0.5rem;">
-                                                <label for="wizDescuentoUsd" style="font-size: 0.85rem; color: var(--color-gray-600);">Descuento ($):</label>
-                                                <input type="number" id="wizDescuentoUsd" class="form-control form-control-sm" style="width: 85px; text-align: right;" value="0.00" min="0" step="1" oninput="recalcularTotalesWizard()">
-                                            </div>
-                                            <div class="summary-divider"></div>
-                                            <div class="summary-total-row">
-                                                <div>
-                                                    <span class="total-label">TOTAL A PAGAR:</span>
-                                                    <span class="total-ves" id="sumTotalVes">0.00 Bs</span>
-                                                </div>
-                                                <div class="total-usd-amount" id="sumTotalUsd">$45.00</div>
+                                        <div class="summary-card-header-pro">
+                                            <span class="summary-kicker"><i class="fa-solid fa-receipt"></i> LIQUIDACIÓN & FACTURACIÓN</span>
+                                            <h3 class="summary-card-title">Resumen de la Venta</h3>
+                                        </div>
+
+                                        <!-- Mini Paciente Activo en Resumen -->
+                                        <div class="summary-patient-preview">
+                                            <div class="summary-patient-icon"><i class="fa-solid fa-user-check"></i></div>
+                                            <div class="summary-patient-meta">
+                                                <span class="summary-patient-label">Paciente Asignado:</span>
+                                                <strong class="summary-patient-name" id="wizSummaryPatientName">Paciente Seleccionado</strong>
                                             </div>
                                         </div>
 
-                                        <div class="wizard-buttons-row">
-                                            <button type="button" class="btn btn-secondary flex-1" onclick="volverWizardPaso1()">
-                                                <i class="fa-solid fa-arrow-left"></i> Volver
+                                        <div class="summary-breakdown-pro">
+                                            <div class="summary-line-item">
+                                                <span class="summary-item-label"><i class="fa-solid fa-glasses"></i> Montura / Armazón:</span>
+                                                <span class="summary-item-val" id="sumMonturaVal">$0.00</span>
+                                            </div>
+                                            <div class="summary-line-item">
+                                                <span class="summary-item-label"><i class="fa-solid fa-microscope"></i> Cristales & Tratamientos:</span>
+                                                <span class="summary-item-val" id="sumCristalesVal">$45.00</span>
+                                            </div>
+                                            <div class="summary-line-item">
+                                                <span class="summary-item-label"><i class="fa-solid fa-user-doctor"></i> Consulta / Examen:</span>
+                                                <span class="summary-item-val" id="sumConsultaVal">$0.00</span>
+                                            </div>
+                                            <div class="summary-line-discount">
+                                                <label for="wizDescuentoUsd" class="summary-discount-label">
+                                                    <i class="fa-solid fa-tag"></i> Descuento ($):
+                                                </label>
+                                                <div class="discount-input-wrapper">
+                                                    <span class="discount-minus">- $</span>
+                                                    <input type="number" id="wizDescuentoUsd" class="form-control-pro discount-input" value="0.00" min="0" step="1" oninput="recalcularTotalesWizard()">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Card Total Ejecutivo Obsidian -->
+                                        <div class="summary-total-executive-card">
+                                            <div class="total-executive-header">
+                                                <span class="total-executive-label">TOTAL A PAGAR</span>
+                                                <span class="total-executive-badge">USD & VES</span>
+                                            </div>
+                                            <div class="total-executive-usd" id="sumTotalUsd">$45.00</div>
+                                            <div class="total-executive-divider"></div>
+                                            <div class="total-executive-ves-box">
+                                                <span class="total-ves-title">Equivalente Tasa Oficial BCV:</span>
+                                                <div class="total-ves-figure">
+                                                    <i class="fa-solid fa-building-columns"></i>
+                                                    <span class="total-ves-amount" id="sumTotalVes">0.00 Bs</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Botones de Navegación -->
+                                        <div class="wizard-actions-stack">
+                                            <button type="button" class="btn-wizard-action-primary" onclick="avanzarWizardPaso3()">
+                                                <span>Ir al Cobro</span>
+                                                <i class="fa-solid fa-arrow-right"></i>
                                             </button>
-                                            <button type="button" class="btn btn-primary flex-2" onclick="avanzarWizardPaso3()">
-                                                Ir al Cobro <i class="fa-solid fa-arrow-right"></i>
+                                            <button type="button" class="btn-wizard-action-secondary" onclick="volverWizardPaso1()">
+                                                <i class="fa-solid fa-arrow-left"></i>
+                                                <span>Volver</span>
                                             </button>
+                                        </div>
+
+                                        <!-- Garantía y Seguridad -->
+                                        <div class="summary-security-footer">
+                                            <i class="fa-solid fa-shield-check"></i>
+                                            <span>Emisión oficial con correlativo único & garantía de óptica</span>
                                         </div>
                                     </div>
                                 </div>

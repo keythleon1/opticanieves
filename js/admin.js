@@ -1083,14 +1083,16 @@ function initWizardCatalog() {
         { nombre: "Montura Metálica Semi al Aire", precio: 40 },
         { nombre: "Montura Deportiva TR-90 Ultra", precio: 50 },
         { nombre: "Montura Kids Antigolpes Flex", precio: 35 },
-        { nombre: "Montura Carey Redonda Vintage", precio: 45 }
+        { nombre: "Montura Carey Redonda Vintage", precio: 45 },
+        { nombre: "Montura Propia del Paciente", precio: 0 }
     ];
 
     const tagsRow = document.getElementById('catalogTagsRow');
     if (tagsRow) {
         tagsRow.innerHTML = catalogo.map(m => `
-            <button type="button" class="catalog-tag" onclick="seleccionarMonturaCatalogo('${m.nombre}', ${m.precio})">
-                <i class="fa-solid fa-glasses"></i> ${m.nombre} ($${m.precio})
+            <button type="button" class="catalog-chip-btn ${m.precio === 0 ? 'chip-patient-own' : ''}" onclick="seleccionarMonturaCatalogo('${m.nombre}', ${m.precio})">
+                <span class="chip-name"><i class="fa-solid fa-glasses"></i> ${m.nombre}</span>
+                <span class="chip-price-badge">${m.precio === 0 ? 'Sin Costo' : '$' + m.precio}</span>
             </button>
         `).join('');
     }
@@ -1169,10 +1171,24 @@ window.seleccionarPacienteEnWizard = function(paciente) {
     const searchRes = document.getElementById('wizardResultadosBusquedaPacientes');
     const btnAvanzar = document.getElementById('btnAvanzarPaso2');
 
-    if (nom) nom.innerText = `${paciente.nombre || ''} ${paciente.apellido || ''}`.trim() || 'Paciente Seleccionado';
+    const fullName = `${paciente.nombre || ''} ${paciente.apellido || ''}`.trim() || 'Paciente Seleccionado';
+    if (nom) nom.innerText = fullName;
     if (ced) ced.innerText = paciente.cedula || '';
     if (tel) tel.innerText = paciente.telefono || '';
     if (sede) sede.innerText = paciente.sede || 'Maracay';
+
+    // Sincronizar contexto clínico visible en Paso 2 y Resumen
+    const p2Nom = document.getElementById('wizStep2PatientName');
+    const p2Ced = document.getElementById('wizStep2PatientCedula');
+    const p2Tel = document.getElementById('wizStep2PatientTelefono');
+    const p2Sede = document.getElementById('wizStep2PatientSede');
+    const sumNom = document.getElementById('wizSummaryPatientName');
+
+    if (p2Nom) p2Nom.innerText = fullName;
+    if (p2Ced) p2Ced.innerText = paciente.cedula || 'Sin Cédula';
+    if (p2Tel) p2Tel.innerText = paciente.telefono || 'Sin Teléfono';
+    if (p2Sede) p2Sede.innerText = paciente.sede || 'Sede Maracay';
+    if (sumNom) sumNom.innerText = fullName + (paciente.cedula ? ` (${paciente.cedula})` : '');
 
     if (card) card.style.display = 'block';
     if (searchRes) searchRes.style.display = 'none';
@@ -1260,6 +1276,23 @@ window.avanzarWizardPaso2 = function() {
     if (line2) { line2.classList.remove('active'); }
     if (ind3) { ind3.classList.remove('active', 'completed'); }
 
+    // Sincronizar contexto clínico del paciente en el banner del Paso 2
+    const p = AppState.wizard.paciente;
+    if (p) {
+        const fullName = `${p.nombre || ''} ${p.apellido || ''}`.trim() || 'Paciente Seleccionado';
+        const p2Nom = document.getElementById('wizStep2PatientName');
+        const p2Ced = document.getElementById('wizStep2PatientCedula');
+        const p2Tel = document.getElementById('wizStep2PatientTelefono');
+        const p2Sede = document.getElementById('wizStep2PatientSede');
+        const sumNom = document.getElementById('wizSummaryPatientName');
+
+        if (p2Nom) p2Nom.innerText = fullName;
+        if (p2Ced) p2Ced.innerText = p.cedula || 'Sin Cédula';
+        if (p2Tel) p2Tel.innerText = p.telefono || 'Sin Teléfono';
+        if (p2Sede) p2Sede.innerText = p.sede || 'Sede Maracay';
+        if (sumNom) sumNom.innerText = fullName + (p.cedula ? ` (${p.cedula})` : '');
+    }
+
     window.recalcularTotalesWizard();
 };
 
@@ -1338,12 +1371,15 @@ window.actualizarPrecioConsultaWizard = function() {
     const inp = document.getElementById('wizConsultaPrecio');
     if (!sel || !inp) return;
 
-    if (sel.value === 'Sin Consulta (Solo Montura / Cristales)') {
-        inp.value = 0;
-    } else if (sel.value === 'Control y Fondo de Ojo de Cortesía') {
-        inp.value = 0;
-    } else if (inp.value == 0) {
-        inp.value = 15;
+    const val = (sel.value || '').toLowerCase();
+    if (val === 'gratis' || val.includes('incluido') || val.includes('cortesía') || val === 'ninguno' || val.includes('sin consulta')) {
+        inp.value = "0.00";
+    } else if (val === 'consulta_sola' || val.includes('especializada')) {
+        inp.value = "35.00";
+    } else if (val === 'fondo_ojo' || val.includes('fondo de ojo')) {
+        inp.value = "40.00";
+    } else if (parseFloat(inp.value) === 0) {
+        inp.value = "25.00";
     }
 
     window.recalcularTotalesWizard();
