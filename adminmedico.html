@@ -1,0 +1,2760 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centro Óptico Nieves | Portal Médico LiteFarma</title>
+    <!-- Favicon SVG sin emojis -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%230284C7%22><path d=%22M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z%22/></svg>">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2pdf.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Estilos Base y Tema Ejecutivo Clínico -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/admin-theme.css">
+</head>
+<body class="role-admin2">
+    <div id="adminRoot" class="admin-app-root">
+    
+
+    <!-- Notificación Toast Flotante -->
+    <div id="adminToastBox" class="toast-notification" style="display: none;"></div>
+        <div class="admin-app-layout" id="adminAppWrapper">
+        <!-- ==========================================================================
+             BARRA LATERAL / SIDEBAR DE NAVEGACIÓN (PORTAL MÉDICO)
+             ========================================================================== -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <div class="admin-sidebar-header">
+                <a href="adminmedico.html" class="sidebar-brand">
+                    <img src="images/LOGO.jpg" alt="Centro Óptico Nieves" class="brand-logo-img" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+                    <div class="brand-text">
+                        <h1 class="brand-name">Centro Óptico <span class="brand-highlight">Nieves</span></h1>
+                        <span class="brand-portal-badge" style="background: rgba(0, 128, 234, 0.15); color: #0080EA; padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase;">Portal Médico</span>
+                    </div>
+                </a>
+            </div>
+
+            <nav class="admin-nav-menu">
+                <div class="nav-section-label">ATENCIÓN CLÍNICA</div>
+
+                <button type="button" class="admin-nav-item active" data-tab="dashboard-medico">
+                    <i class="fa-solid fa-users-medical nav-icon"></i>
+                    <span>Base de Datos de Pacientes</span>
+                </button>
+
+                <button type="button" class="admin-nav-item" data-tab="historia-optometrica">
+                    <i class="fa-solid fa-eye nav-icon"></i>
+                    <span>Historia Optométrica</span>
+                </button>
+
+                <button type="button" class="admin-nav-item" data-tab="ficha-consulta">
+                    <i class="fa-solid fa-file-medical nav-icon"></i>
+                    <span>Consulta Oftalmológica</span>
+                </button>
+
+                <button type="button" class="admin-nav-item" data-tab="ficha-consulta-rapida">
+                    <i class="fa-solid fa-receipt nav-icon"></i>
+                    <span>Ficha de Consulta</span>
+                </button>
+
+                <button type="button" class="admin-nav-item" data-tab="recipes">
+                    <i class="fa-solid fa-file-prescription nav-icon"></i>
+                    <span>Récipes</span>
+                </button>
+
+                <button type="button" class="admin-nav-item" data-tab="farmacos">
+                    <i class="fa-solid fa-pills nav-icon"></i>
+                    <span>LiteFarma</span>
+                </button>
+
+                <div class="nav-section-label" style="margin-top: 1rem;">SISTEMA</div>
+
+                <a href="admin.html" class="admin-nav-item" style="color: #64748B; text-decoration: none;">
+                    <i class="fa-solid fa-cash-register nav-icon"></i>
+                    <span>Ir a Panel Administrativo</span>
+                </a>
+            </nav>
+
+            <div class="admin-sidebar-footer">
+                <div class="user-status-card">
+                    <span class="status-indicator-dot online"></span>
+                    <div class="user-status-info">
+                        <span class="user-name">Área Médica</span>
+                        <span class="user-role">En línea &bull; Centro Óptico Nieves</span>
+                    </div>
+                </div>
+                <button type="button" class="btn-logout-sidebar" onclick="cerrarSesionAdmin()">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Cerrar Sesión</span>
+                </button>
+            </div>
+        </aside>
+            <main class="admin-main">
+<header class="admin-topbar">
+                <!-- TOPBAR IZQUIERDA -->
+                <div class="topbar-left">
+                    <button type="button" class="btn-menu-toggle" id="btnMenuToggle" aria-label="Abrir Menú">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="topbar-titles-box">
+                        <h2 id="topbarTitle" class="topbar-heading">Inicio</h2>
+                    </div>
+                </div>
+
+                <!-- TOPBAR DERECHA -->
+                <div class="topbar-right">
+                    <!-- Selector de Sede Global (Común para ambos) -->
+                    <div class="sede-filter-widget" title="Filtrar datos por sede activa">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <select id="globalSedeSelect" class="sede-select-dropdown">
+                            <option value="todas">Todas las Sedes</option>
+                            <option value="Maracay">Sede Maracay (CC Las Américas)</option>
+                            <option value="San Juan de los Morros">Sede San Juan (CC Galería)</option>
+                        </select>
+                    </div>
+
+                    <!-- Indicador Tasa Oficial BCV con sincronización en vivo: EXCLUSIVO ADMIN 1 -->
+                    <div class="bcv-rate-pill" id="btnEditarTasa" data-role="admin1" title="Tasa Oficial del Banco Central de Venezuela. Clic para editar o sincronizar.">
+                        <span class="rate-source-tag">BCV</span>
+                        <span class="rate-val" id="topbarTasaVal">847.44 Bs/$</span>
+                        <button type="button" class="btn-refresh-tasa" id="btnSyncTasaTopbar" title="Sincronizar tasa BCV en vivo" onclick="event.stopPropagation(); sincronizarTasaBCV(false);">
+                            <i class="fa-solid fa-arrows-rotate" id="iconSyncTasa"></i>
+                        </button>
+                        <i class="fa-solid fa-pen-to-square rate-edit-icon" title="Editar manualmente"></i>
+                    </div>
+
+                    <!-- Admin 1: Botón Nueva Venta -->
+                    <button type="button" class="btn-topbar-action" id="topbarDynamicActionBtn" data-role="admin1" onclick="onTopbarActionClick()">
+                        <i class="fa-solid fa-cart-plus" id="topbarActionIcon"></i>
+                        <span id="topbarActionText">Nueva Venta</span>
+                    </button>
+
+                    <!-- Admin 2: Perfil Médico del Doctor -->
+                    <div class="medic-doctor-chip" data-role="admin2" style="display: none;" title="Médico Activo en Consultas">
+                        <div class="medic-chip-avatar">
+                            <i class="fa-solid fa-user-doctor" id="topbarDoctorAvatarIcon"></i>
+                        </div>
+                        <div class="medic-chip-info">
+                            <strong id="topbarDoctorName">Médico Tratante</strong>
+                            <small id="topbarDoctorCreds">Oftalmología</small>
+                        </div>
+                    </div>
+                                                            
+
+                                                            <!-- Enlace directo al Panel Administrativo -->
+                    <a href="admin.html" class="btn btn-outline-secondary btn-sm" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.85rem; border-radius: 8px; font-weight: 600; font-size: 0.82rem; color: #475569;" title="Ir al Panel Administrativo">
+                        <i class="fa-solid fa-cash-register"></i>
+                        <span>Panel Administrativo</span>
+                    </a>
+
+                    <!-- Botón Salir / Cerrar Sesión en Topbar -->
+                    <button type="button" class="btn-logout-topbar" onclick="cerrarSesionAdmin()" title="Cerrar sesión del sistema">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>Salir</span>
+                    </button>
+                </div>
+            </header>
+                <div class="admin-content-area" style="padding: 1.5rem 2rem;">
+<section class="tab-view" id="view-dashboard-medico">
+                    <!-- Barra Superior: Título, Especialista Activo y Registro Directo -->
+                    <div class="view-header-bar" style="margin-bottom: 1.25rem;">
+                        <div>
+                            <span class="badge-tag badge-blue" style="margin-bottom: 0.35rem; display: inline-flex; align-items: center; gap: 0.4rem;">
+                                <i class="fa-solid fa-user-doctor"></i> Directorio Clínico Profesional
+                            </span>
+                            <h2 style="font-size: 1.4rem; font-weight: 800; color: #0F172A; margin: 0;">Base de Datos de Pacientes</h2>
+                            <p style="font-size: 0.85rem; color: #64748B; margin: 0.2rem 0 0 0;">Historial clínico completo, fórmulas de refracción y accesos rápidos de atención médica.</p>
+                        </div>
+                        <div class="header-actions-group" style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                            <!-- Chip de Especialista Activo con botón de configuración -->
+                            <div class="doctor-active-pill-box" id="doctorActivePillBox" onclick="abrirModalRegistrarMedico()" title="Gestionar perfiles médicos y credenciales" style="cursor: pointer;">
+                                <div class="dap-avatar"><i class="fa-solid fa-user-doctor"></i></div>
+                                <div class="dap-info">
+                                    <span class="dap-lbl">Especialista Tratante</span>
+                                    <strong class="dap-name" id="doctorActiveStatusName">Dr. Sin Asignar</strong>
+                                </div>
+                                <button type="button" class="btn-dap-config" title="Cambiar o configurar médico"><i class="fa-solid fa-user-gear"></i></button>
+                            </div>
+                            <button type="button" class="btn btn-primary" onclick="abrirModalNuevoPaciente()">
+                                <i class="fa-solid fa-user-plus"></i> Registrar Paciente
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Métricas Rápidas Clínicas -->
+                    <div class="doctor-kpi-bar" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+                        <div class="kpi-mini-card">
+                            <div class="kpi-mini-icon blue"><i class="fa-solid fa-users"></i></div>
+                            <div class="kpi-mini-info">
+                                <span class="kpi-mini-num" id="statDoctorTotalPacientes">0</span>
+                                <span class="kpi-mini-label">Total Pacientes Registrados</span>
+                            </div>
+                        </div>
+                        <div class="kpi-mini-card">
+                            <div class="kpi-mini-icon emerald"><i class="fa-solid fa-location-dot"></i></div>
+                            <div class="kpi-mini-info">
+                                <span class="kpi-mini-num" id="statDoctorPacientesSede">0</span>
+                                <span class="kpi-mini-label">Pacientes en Sede Actual</span>
+                            </div>
+                        </div>
+                        <div class="kpi-mini-card">
+                            <div class="kpi-mini-icon indigo"><i class="fa-solid fa-file-medical"></i></div>
+                            <div class="kpi-mini-info">
+                                <span class="kpi-mini-num" id="statDoctorConsultas">0</span>
+                                <span class="kpi-mini-label">Consultas Registradas</span>
+                            </div>
+                        </div>
+                        <div class="kpi-mini-card">
+                            <div class="kpi-mini-icon purple"><i class="fa-solid fa-file-prescription"></i></div>
+                            <div class="kpi-mini-info">
+                                <span class="kpi-mini-num" id="statDoctorRecipes">0</span>
+                                <span class="kpi-mini-label">Récipes Emitidos</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Barra de Búsqueda y Filtros en Tiempo Real -->
+                    <div class="view-header-bar" style="background: #FFFFFF; padding: 0.85rem 1.25rem; border-radius: 12px; border: 1px solid #E2E8F0; margin-bottom: 1rem;">
+                        <div class="search-filter-box" style="flex: 1; min-width: 260px;">
+                            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                            <input type="text" id="inputBuscarPacienteDoctor" class="search-input" placeholder="Buscar por Nombre, Apellido, Cédula o Teléfono..." oninput="renderPacientesDoctorTable()">
+                        </div>
+                        <div class="header-actions-group" style="display: flex; align-items: center; gap: 0.75rem;">
+                            <select id="filtroSedePacienteDoctor" class="select-filter-sm" onchange="renderPacientesDoctorTable()">
+                                <option value="todas">Todas las Sedes</option>
+                                <option value="Maracay">Sede Maracay</option>
+                                <option value="San Juan de los Morros">Sede San Juan de los Morros</option>
+                            </select>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="renderPacientesDoctorTable()" title="Refrescar lista">
+                                <i class="fa-solid fa-arrows-rotate"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tabla Moderna de Base de Pacientes para el Doctor -->
+                    <div class="table-card">
+                        <div class="table-responsive">
+                            <table class="modern-table">
+                                <thead>
+                                    <tr>
+                                        <th>Paciente</th>
+                                        <th>Cédula</th>
+                                        <th>Contacto</th>
+                                        <th>Sede</th>
+                                        <th>Última Refracción (OD / OS)</th>
+                                        <th>Historial Clínico</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaPacientesDoctorBody">
+                                    <!-- Renderizado dinámico desde JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="pacientesDoctorEmptyState" class="empty-state-view" style="display: none;">
+                            <div class="empty-state-icon"><i class="fa-solid fa-user-slash"></i></div>
+                            <h3>No se encontraron pacientes</h3>
+                            <p>No hay pacientes que coincidan con los criterios de búsqueda o sede seleccionada.</p>
+                            <button type="button" class="btn btn-primary btn-sm" style="margin-top: 0.75rem;" onclick="abrirModalNuevoPaciente()">
+                                <i class="fa-solid fa-user-plus"></i> Registrar Primer Paciente
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==================================================================
+                     PLANTILLA 1: HISTORIA OPTOMÉTRICA (PDF 1)
+                     ================================================================== -->
+                <section class="tab-view" id="view-historia-optometrica">
+                    <!-- Barra de Navegación del Doctor -->
+                    <div class="doctor-workspace-nav">
+                        <button type="button" class="btn-back-to-hub" onclick="switchAdminTab('dashboard-medico')">
+                            <i class="fa-solid fa-arrow-left"></i> Volver a Base de Pacientes
+                        </button>
+                        <div class="workspace-breadcrumbs">
+                            <span onclick="switchAdminTab('dashboard-medico')">Base de Pacientes</span>
+                            <i class="fa-solid fa-chevron-right"></i>
+                            <strong>Historia Optométrica</strong>
+                        </div>
+                    </div>
+
+                    <div class="view-header-bar">
+                        <div>
+                            <span class="badge-tag badge-blue" style="margin-bottom: 0.4rem; display: inline-block;">
+                                <i class="fa-solid fa-eye"></i> Optometría & Luces de Worth
+                            </span>
+                            <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--color-primary-dark);">Historia Optométrica</h3>
+                            
+                        </div>
+                        <div class="header-actions-group">
+                            <button type="button" class="btn btn-secondary" onclick="limpiarHistoriaOptometrica()">
+                                <i class="fa-solid fa-rotate-left"></i> Limpiar
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" onclick="imprimirHistoriaOptometricaActual()">
+                                <i class="fa-solid fa-print"></i> Imprimir Oficial
+                            </button>
+                            <button type="button" class="btn btn-primary" onclick="guardarHistoriaOptometrica()">
+                                <i class="fa-solid fa-floppy-disk"></i> Guardar Historia
+                            </button>
+                        </div>
+                    </div>
+
+                    <form id="formHistoriaOptometrica" onsubmit="event.preventDefault(); guardarHistoriaOptometrica();">
+                        <div class="clinical-form-layout">
+                            
+                            <!-- 1. Identificación y Datos del Paciente -->
+                            <div class="clinical-section-card">
+                                <div class="clinical-section-header">
+                                    <div class="clinical-section-title">
+                                        <i class="fa-solid fa-id-card"></i>
+                                        <span>Identificación del Paciente & Antecedentes</span>
+                                    </div>
+                                    <button type="button" class="btn btn-xs btn-primary" onclick="abrirModalNuevoPacienteDesdeOptometria()">
+                                        <i class="fa-solid fa-user-plus"></i> Nuevo Paciente
+                                    </button>
+                                </div>
+
+                                <div class="form-row-pro">
+                                    <div class="form-group-item" style="flex: 2; position: relative;">
+                                        <label class="form-label-pro">Seleccionar Paciente</label>
+                                        <div class="patient-search-wrapper" style="position: relative;">
+                                            <span class="patient-search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                            <input type="text" id="hoSearchPacienteInput" class="form-control-pro patient-search-input" placeholder="Buscar por Cedula o Nombre..." autocomplete="off" oninput="filtrarPacientesSearch('ho')" onfocus="filtrarPacientesSearch('ho')" onblur="setTimeout(()=>cerrarDropdownSearch('ho'),200)">
+                                            <div id="hoPacienteSearchResults" class="patient-search-dropdown" style="display:none;"></div>
+                                        </div>
+                                        <select id="hoPacienteSelect" class="form-control-pro" style="display:none;" onchange="alSeleccionarPacienteOptometria(this.value)">
+                                            <option value="">-- Buscar Paciente Registrado --</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group-item">
+                                        <label class="form-label-pro">Sede de Evaluación</label>
+                                        <select id="hoSede" class="form-control-pro">
+                                            <option value="Maracay">Maracay (CC Las Américas)</option>
+                                            <option value="San Juan de los Morros">San Juan de los Morros (CC Galería)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group-item">
+                                        <label class="form-label-pro">Fecha</label>
+                                        <input type="date" id="hoFecha" class="form-control-pro">
+                                    </div>
+                                    <div class="form-group-item" style="flex: 1.5;">
+                                        <label class="form-label-pro"><i class="fa-solid fa-user-doctor" style="color:#0080EA;"></i> Especialista que Membreta</label>
+                                        <select id="hoDoctorSelect" class="form-control-pro medico-membrete-select"></select>
+                                    </div>
+                                </div>
+
+                                <!-- Datos del paciente autocompletados -->
+                                <div class="form-row-pro" style="margin-top: 0.5rem;">
+                                    <div class="form-group-item" style="flex: 2;">
+                                        <label class="form-label-pro">Nombre y Apellidos</label>
+                                        <input type="text" id="hoNombre" class="form-control-pro" placeholder="Nombre completo del paciente">
+                                    </div>
+                                    <div class="form-group-item">
+                                        <label class="form-label-pro">Cédula (C.I.)</label>
+                                        <input type="text" id="hoCedula" class="form-control-pro" placeholder="Ej: V-12345678">
+                                    </div>
+                                    <div class="form-group-item" style="max-width: 90px;">
+                                        <label class="form-label-pro">Edad</label>
+                                        <input type="number" id="hoEdad" class="form-control-pro" placeholder="Años">
+                                    </div>
+                                    <div class="form-group-item">
+                                        <label class="form-label-pro">Teléfono</label>
+                                        <input type="text" id="hoTelefono" class="form-control-pro" placeholder="0414-0000000">
+                                    </div>
+                                </div>
+
+                                <div class="form-row-pro" style="margin-top: 0.5rem;">
+                                    <div class="form-group-item" style="flex: 1;">
+                                        <label class="form-label-pro">Ocupación</label>
+                                        <input type="text" id="hoOcupacion" class="form-control-pro" placeholder="Ej: Administrador, Estudiante, Ingeniero">
+                                    </div>
+                                    <div class="form-group-item" style="flex: 2;">
+                                        <label class="form-label-pro">Dirección</label>
+                                        <input type="text" id="hoDireccion" class="form-control-pro" placeholder="Ciudad, Municipio / Sector">
+                                    </div>
+                                </div>
+
+                                <!-- Antecedentes del formato PDF 1 -->
+                                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 0.75rem 1rem; margin-top: 0.75rem;">
+                                    <div class="form-row-pro" style="align-items: center;">
+                                        <div class="form-group-item" style="flex: 1;">
+                                            <label class="form-label-pro">¿Es usuario de lentes?</label>
+                                            <select id="hoUsuarioLentes" class="form-control-pro">
+                                                <option value="No">No</option>
+                                                <option value="Sí">Sí</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group-item" style="flex: 2;">
+                                            <label class="form-label-pro">Antecedentes Médicos Sistémicos</label>
+                                            <div style="display: flex; gap: 1.25rem; align-items: center; margin-top: 0.4rem;">
+                                                <label style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.88rem; cursor: pointer; color: #1E293B;">
+                                                    <input type="checkbox" id="hoAntHta" value="HTA"> <strong>HTA</strong> (Hipertensión)
+                                                </label>
+                                                <label style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.88rem; cursor: pointer; color: #1E293B;">
+                                                    <input type="checkbox" id="hoAntDbt" value="DBT"> <strong>DBT</strong> (Diabetes)
+                                                </label>
+                                                <label style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.88rem; cursor: pointer; color: #1E293B;">
+                                                    <input type="checkbox" id="hoAntGlaucoma" value="Glaucoma"> <strong>Glaucoma</strong>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="form-group-item" style="flex: 2;">
+                                            <label class="form-label-pro">Medicamento Actual</label>
+                                            <input type="text" id="hoMedicamentoActual" class="form-control-pro" placeholder="Ej: Losartán 50mg, Metformina, Ninguno">
+                                        </div>
+                                    </div>
+                                    <div class="form-group-item" style="margin-top: 0.5rem;">
+                                        <label class="form-label-pro">Motivo de Consulta</label>
+                                        <input type="text" id="hoMotivoConsulta" class="form-control-pro" placeholder="Ej: Disminución de agudeza visual de lejos y fatiga ocular al leer" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 2. Lensometría -->
+                            <div class="clinical-section-card">
+                                <div class="clinical-section-header">
+                                    <div class="clinical-section-title">
+                                        <i class="fa-solid fa-glasses"></i>
+                                        <span>Lensometría (Lentes Anteriores)</span>
+                                    </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table-optometrica">
+                                        <thead>
+                                            <tr>
+                                                <th>Ojo</th>
+                                                <th>Esfera</th>
+                                                <th>Cilindro</th>
+                                                <th>Eje</th>
+                                                <th>Adición (ADD)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><strong style="color: #14197A;">OD (Derecho)</strong></td>
+                                                <td><input type="text" id="hoLensoOdEsf" class="form-control-pro input-sm text-center" placeholder="0.00"></td>
+                                                <td><input type="text" id="hoLensoOdCil" class="form-control-pro input-sm text-center" placeholder="0.00"></td>
+                                                <td><input type="text" id="hoLensoOdEje" class="form-control-pro input-sm text-center" placeholder="0°"></td>
+                                                <td><input type="text" id="hoLensoOdAdd" class="form-control-pro input-sm text-center" placeholder="+0.00"></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong style="color: #0080EA;">OI (Izquierdo)</strong></td>
+                                                <td><input type="text" id="hoLensoOiEsf" class="form-control-pro input-sm text-center" placeholder="0.00"></td>
+                                                <td><input type="text" id="hoLensoOiCil" class="form-control-pro input-sm text-center" placeholder="0.00"></td>
+                                                <td><input type="text" id="hoLensoOiEje" class="form-control-pro input-sm text-center" placeholder="0°"></td>
+                                                <td><input type="text" id="hoLensoOiAdd" class="form-control-pro input-sm text-center" placeholder="+0.00"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- 3. Pruebas Preliminares & Luces de Worth -->
+                            <div class="clinical-section-card">
+                                <div class="clinical-section-header">
+                                    <div class="clinical-section-title">
+                                        <i class="fa-solid fa-clipboard-check"></i>
+                                        <span>Pruebas Preliminares</span>
+                                    </div>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table class="table-optometrica" style="margin-bottom: 1rem;">
+                                        <thead>
+                                            <tr>
+                                                <th>Parámetro</th>
+                                                <th>OD (Ojo Derecho)</th>
+                                                <th>OI (Ojo Izquierdo)</th>
+                                                <th>Observaciones / Valor</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><strong>AV / SC (Sin Corrección)</strong></td>
+                                                <td><input type="text" id="hoAvScOd" class="form-control-pro input-sm text-center" placeholder="20/..."></td>
+                                                <td><input type="text" id="hoAvScOi" class="form-control-pro input-sm text-center" placeholder="20/..."></td>
+                                                <td class="text-muted" style="font-size: 0.8rem;">Agudeza visual habitual</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>AV / PH (Estenopeico)</strong></td>
+                                                <td><input type="text" id="hoAvPhOd" class="form-control-pro input-sm text-center" placeholder="20/..."></td>
+                                                <td><input type="text" id="hoAvPhOi" class="form-control-pro input-sm text-center" placeholder="20/..."></td>
+                                                <td class="text-muted" style="font-size: 0.8rem;">Potencial visual macular</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>PPC (Punto Próximo de Convergencia)</strong></td>
+                                                <td colspan="2"><input type="text" id="hoPpc" class="form-control-pro input-sm text-center" placeholder="Ej: 6 cm / A la nariz"></td>
+                                                <td class="text-muted" style="font-size: 0.8rem;">Ruptura y recobro</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>PPA (Punto Próximo de Acomodación)</strong></td>
+                                                <td><input type="text" id="hoPpaOd" class="form-control-pro input-sm text-center" placeholder="Ej: 12 cm / 8 D"></td>
+                                                <td><input type="text" id="hoPpaOi" class="form-control-pro input-sm text-center" placeholder="Ej: 12 cm / 8 D"></td>
+                                                <td class="text-muted" style="font-size: 0.8rem;">Amplitud acomodativa</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Cover Test Unilateral</strong></td>
+                                                <td><input type="text" id="hoCoverUniOd" class="form-control-pro input-sm text-center" placeholder="Ortotropia / Fijo"></td>
+                                                <td><input type="text" id="hoCoverUniOi" class="form-control-pro input-sm text-center" placeholder="Ortotropia / Fijo"></td>
+                                                <td class="text-muted" style="font-size: 0.8rem;">Detección de tropias</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Cover Test Alternantes</strong></td>
+                                                <td><input type="text" id="hoCoverAltOd" class="form-control-pro input-sm text-center" placeholder="Orto / Foria"></td>
+                                                <td><input type="text" id="hoCoverAltOi" class="form-control-pro input-sm text-center" placeholder="Orto / Foria"></td>
+                                                <td class="text-muted" style="font-size: 0.8rem;">Detección de forias</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Reflejos Pupilares</strong></td>
+                                                <td colspan="2"><input type="text" id="hoReflejosPupilares" class="form-control-pro input-sm text-center" placeholder="PIRRLA (Pupilas Isocóricas, Redondas, Reactivas a la Luz y Acomodación)"></td>
+                                                <td class="text-muted" style="font-size: 0.8rem;">Directo y consensual</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Motilidad Ocular</strong></td>
+                                                <td><input type="text" id="hoMotilidadOd" class="form-control-pro input-sm text-center" placeholder="Suave y continua"></td>
+                                                <td><input type="text" id="hoMotilidadOi" class="form-control-pro input-sm text-center" placeholder="Suave y continua"></td>
+                                                <td class="text-muted" style="font-size: 0.8rem;">9 posiciones de mirada</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Duocromo (Bicromático)</strong></td>
+                                                <td>
+                                                    <select id="hoDuocromoOd" class="form-control-pro input-sm text-center">
+                                                        <option value="Neutro">Neutro (Iguales)</option>
+                                                        <option value="Mejor en Rojo">Mejor en Rojo</option>
+                                                        <option value="Mejor en Verde">Mejor en Verde</option>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <select id="hoDuocromoOi" class="form-control-pro input-sm text-center">
+                                                        <option value="Neutro">Neutro (Iguales)</option>
+                                                        <option value="Mejor en Rojo">Mejor en Rojo</option>
+                                                        <option value="Mejor en Verde">Mejor en Verde</option>
+                                                    </select>
+                                                </td>
+                                                <td class="text-muted" style="font-size: 0.8rem;">Verificación esférica</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- LUCES DE WORTH INTERACTIVO (PDF 1) -->
+                                <div style="margin-top: 1rem;">
+                                    <label class="form-label-pro" style="display: flex; align-items: center; gap: 0.5rem; color: #14197A;">
+                                        <i class="fa-solid fa-circle-nodes"></i>
+                                        <strong>Luces de Worth (Visión Binocular & Supresión)</strong>
+                                    </label>
+                                    
+                                    <div class="worth-lights-container">
+                                        <!-- Rombo de 4 luces -->
+                                        <div class="worth-lights-diagram">
+                                            <div class="worth-dots-diamond">
+                                                <div></div>
+                                                <div class="worth-dot red" title="Luz Roja Superior"></div>
+                                                <div></div>
+                                                <div class="worth-dot green" title="Luz Verde Izquierda"></div>
+                                                <div></div>
+                                                <div class="worth-dot green" title="Luz Verde Derecha"></div>
+                                                <div></div>
+                                                <div class="worth-dot white" title="Luz Blanca Inferior"></div>
+                                                <div></div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Opciones diagnósticas de PDF 1 -->
+                                        <div class="worth-options-group">
+                                            <label class="worth-opt-label">
+                                                <input type="radio" name="hoLucesWorth" value="Fusión" checked>
+                                                <span><strong>Fusión</strong> (4 luces visibles)</span>
+                                            </label>
+                                            <label class="worth-opt-label">
+                                                <input type="radio" name="hoLucesWorth" value="Supresión OD">
+                                                <span><strong>Supresión OD</strong> (3 luces verdes)</span>
+                                            </label>
+                                            <label class="worth-opt-label">
+                                                <input type="radio" name="hoLucesWorth" value="Supresión OI">
+                                                <span><strong>Supresión OI</strong> (2 luces rojas)</span>
+                                            </label>
+                                            <label class="worth-opt-label">
+                                                <input type="radio" name="hoLucesWorth" value="Diplopía Homónima Desviación Endo">
+                                                <span><strong>Diplopía Homónima</strong> (Desviación Endo)</span>
+                                            </label>
+                                            <label class="worth-opt-label">
+                                                <input type="radio" name="hoLucesWorth" value="Diplopía Cruzada Desviación Exo">
+                                                <span><strong>Diplopía Cruzada</strong> (Desviación Exo)</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Biomicroscopía & Oftalmoscopía en PDF 1 -->
+                                <div class="form-row-pro" style="margin-top: 1rem;">
+                                    <div class="form-group-item" style="flex: 1;">
+                                        <label class="form-label-pro">Biomicroscopía (Polo Anterior)</label>
+                                        <textarea id="hoBiomicroscopia" class="form-control-pro" rows="2" placeholder="Córnea transparente, cámara anterior formada, cristalino claro sin opacidades."></textarea>
+                                    </div>
+                                    <div class="form-group-item" style="flex: 1;">
+                                        <label class="form-label-pro">Oftalmoscopía (Fondo de Ojo)</label>
+                                        <textarea id="hoOftalmoscopia" class="form-control-pro" rows="2" placeholder="Papila normal, excavación 0.3, mácula brillante, retina aplicada."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 4. RX Definitivo & Prescripción Técnica -->
+                            <div class="clinical-section-card">
+                                <div class="clinical-section-header">
+                                    <div class="clinical-section-title">
+                                        <i class="fa-solid fa-file-signature"></i>
+                                        <span>RX Definitivo & Prescripción</span>
+                                    </div>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table class="table-optometrica">
+                                        <thead>
+                                            <tr>
+                                                <th>Ojo</th>
+                                                <th>Esfera</th>
+                                                <th>Cilindro</th>
+                                                <th>ADD (Adición)</th>
+                                                <th>AV CC</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><strong style="color: #14197A;">OD (Derecho)</strong></td>
+                                                <td><input type="text" id="hoRxOdEsfera" class="form-control-pro input-sm text-center font-bold" placeholder="0.00"></td>
+                                                <td><input type="text" id="hoRxOdCilindro" class="form-control-pro input-sm text-center font-bold" placeholder="0.00"></td>
+                                                <td><input type="text" id="hoRxOdAdd" class="form-control-pro input-sm text-center font-bold" placeholder="+0.00"></td>
+                                                <td><input type="text" id="hoRxOdAvCc" class="form-control-pro input-sm text-center" placeholder="20/20"></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong style="color: #0080EA;">OI (Izquierdo)</strong></td>
+                                                <td><input type="text" id="hoRxOiEsfera" class="form-control-pro input-sm text-center font-bold" placeholder="0.00"></td>
+                                                <td><input type="text" id="hoRxOiCilindro" class="form-control-pro input-sm text-center font-bold" placeholder="0.00"></td>
+                                                <td><input type="text" id="hoRxOiAdd" class="form-control-pro input-sm text-center font-bold" placeholder="+0.00"></td>
+                                                <td><input type="text" id="hoRxOiAvCc" class="form-control-pro input-sm text-center" placeholder="20/20"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="form-row-pro" style="margin-top: 0.75rem;">
+                                    <div class="form-group-item" style="max-width: 140px;">
+                                        <label class="form-label-pro">DP (mm)</label>
+                                        <input type="text" id="hoRxDp" class="form-control-pro text-center" placeholder="Ej: 64">
+                                    </div>
+                                    <div class="form-group-item" style="flex: 2;">
+                                        <label class="form-label-pro">Observaciones Clínicas / Recomendaciones</label>
+                                        <input type="text" id="hoObservaciones" class="form-control-pro" placeholder="Ej: Se sugiere uso permanente de corrección óptica con protección antirreflejo y filtro azul.">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Botones de Acción -->
+                            <div style="display: flex; justify-content: flex-end; gap: 1rem; align-items: center; padding: 1rem 0;">
+                                <button type="button" class="btn btn-secondary" onclick="emitirRecipeDesdeHistoriaOptometrica()">
+                                    <i class="fa-solid fa-file-prescription"></i> Emitir Récipe con esta Fórmula
+                                </button>
+                            </div>
+
+                        </div>
+                    </form>
+                </section>
+
+                <!-- ==================================================================
+                     PLANTILLA 2: HISTORIA DE CONSULTA OFTALMOLÓGICA (PDF 2)
+                     ================================================================== -->
+                <section class="tab-view" id="view-ficha-consulta">
+                    <!-- Barra de Navegación del Doctor -->
+                    <div class="doctor-workspace-nav">
+                        <button type="button" class="btn-back-to-hub" onclick="switchAdminTab('dashboard-medico')">
+                            <i class="fa-solid fa-arrow-left"></i> Volver a Base de Pacientes
+                        </button>
+                        <div class="workspace-breadcrumbs">
+                            <span onclick="switchAdminTab('dashboard-medico')">Base de Pacientes</span>
+                            <i class="fa-solid fa-chevron-right"></i>
+                            <strong>Consulta Oftalmológica</strong>
+                        </div>
+                    </div>
+
+                    <div class="view-header-bar">
+                        <div>
+                            <span class="badge-tag badge-green" style="margin-bottom: 0.4rem; display: inline-block;">
+                                <i class="fa-solid fa-user-doctor"></i> Consulta Oftalmológica Formal
+                            </span>
+                            <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--color-primary-dark);">Consulta Oftalmológica</h3>
+                            
+                        </div>
+                        <div class="header-actions-group">
+                            <button type="button" class="btn btn-secondary" onclick="limpiarFichaConsulta()">
+                                <i class="fa-solid fa-rotate-left"></i> Limpiar Formulario
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" onclick="imprimirConsultaActual()">
+                                <i class="fa-solid fa-print"></i> Imprimir Consulta
+                            </button>
+                            <button type="button" class="btn btn-primary" onclick="guardarFichaConsulta()">
+                                <i class="fa-solid fa-floppy-disk"></i> Guardar Consulta
+                            </button>
+                        </div>
+                    </div>
+
+                    <form id="formFichaConsulta" onsubmit="event.preventDefault(); guardarFichaConsulta();">
+                        <div class="clinical-form-layout">
+                            
+                            <!-- 1. Identificación y Datos del Paciente -->
+                            <div class="clinical-section-card">
+                                <div class="clinical-section-header">
+                                    <div class="clinical-section-title">
+                                        <i class="fa-solid fa-id-card"></i>
+                                        <span>1. Identificación del Paciente & Sede</span>
+                                    </div>
+                                    <button type="button" class="btn btn-xs btn-primary" onclick="abrirModalNuevoPacienteDesdeConsulta()">
+                                        <i class="fa-solid fa-user-plus"></i> Registrar Nuevo Paciente
+                                    </button>
+                                </div>
+
+                                <div class="form-row-pro">
+                                    <div class="form-group-item" style="flex: 2; position: relative;">
+                                        <label class="form-label-pro">Seleccionar Paciente Registrado</label>
+                                        <div class="patient-search-wrapper" style="position: relative;">
+                                            <span class="patient-search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                            <input type="text" id="consultaSearchPacienteInput" class="form-control-pro patient-search-input" placeholder="Buscar por Cedula o Nombre..." autocomplete="off" oninput="filtrarPacientesSearch('consulta')" onfocus="filtrarPacientesSearch('consulta')" onblur="setTimeout(()=>cerrarDropdownSearch('consulta'),200)">
+                                            <div id="consultaPacienteSearchResults" class="patient-search-dropdown" style="display:none;"></div>
+                                        </div>
+                                        <select id="consultaPacienteSelect" class="form-control-pro" style="display:none;" onchange="alSeleccionarPacienteConsulta(this.value)">
+                                            <option value="">-- Buscar Paciente por Cedula o Nombre --</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group-item">
+                                        <label class="form-label-pro">Sede de Consulta</label>
+                                        <select id="consultaSede" class="form-control-pro">
+                                            <option value="Maracay">Maracay (CC Las Américas)</option>
+                                            <option value="San Juan de los Morros">San Juan de los Morros (CC Galería)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group-item" style="flex: 1.5;">
+                                        <label class="form-label-pro"><i class="fa-solid fa-user-doctor" style="color:#0080EA;"></i> Especialista que Membreta</label>
+                                        <select id="consultaDoctorSelect" class="form-control-pro medico-membrete-select"></select>
+                                        <input type="hidden" id="consultaProfesional" value="">
+                                    </div>
+                                </div>
+
+                                <!-- Banner con datos del paciente cargado -->
+                                <div id="consultaPacienteBanner" class="clinical-patient-banner" style="display: none;">
+                                    <div class="clinical-patient-meta">
+                                        <span><strong>Paciente:</strong> <span id="cpBannerNombre">--</span></span>
+                                        <span><strong>Cédula:</strong> <span id="cpBannerCedula">--</span></span>
+                                        <span><strong>Edad:</strong> <span id="cpBannerEdad">--</span> años</span>
+                                        <span><strong>Teléfono:</strong> <span id="cpBannerTel">--</span></span>
+                                    </div>
+                                    <button type="button" class="btn btn-xs btn-secondary" onclick="verFicha360DesdeConsulta()">
+                                        <i class="fa-solid fa-eye"></i> Ver Historial 360
+                                    </button>
+                                </div>
+
+                                <div class="form-row-pro" style="margin-top: 0.5rem;">
+                                    <div class="form-group-item">
+                                        <label class="form-label-pro">Fecha de Nacimiento</label>
+                                        <input type="date" id="consultaFechaNacimiento" class="form-control-pro">
+                                    </div>
+                                    <div class="form-group-item">
+                                        <label class="form-label-pro">Ocupación</label>
+                                        <input type="text" id="consultaOcupacion" class="form-control-pro" placeholder="Ej: Docente, Comerciante, Estudiante">
+                                    </div>
+                                    <div class="form-group-item" style="flex: 2;">
+                                        <label class="form-label-pro">Dirección</label>
+                                        <input type="text" id="consultaDireccion" class="form-control-pro" placeholder="Residencia actual">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 2. Motivo de Consulta & Anamnesis / Enfermedad Actual -->
+                            <div class="clinical-section-card">
+                                <div class="clinical-section-header">
+                                    <div class="clinical-section-title">
+                                        <i class="fa-solid fa-notes-medical"></i>
+                                        <span>2. Motivo de Consulta & Enfermedad Actual</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-row-pro">
+                                    <div class="form-group-item" style="flex: 1;">
+                                        <label class="form-label-pro">Motivo de Consulta Principal</label>
+                                        <input type="text" id="consultaMotivo" class="form-control-pro" placeholder="Ej: Control de agudeza visual, astenopía vespertina" required>
+                                    </div>
+                                </div>
+                                <div class="form-group-item" style="margin-top: 0.5rem;">
+                                    <label class="form-label-pro">Enfermedad Actual / Anamnesis Detallada</label>
+                                    <textarea id="consultaEnfermedad" class="form-control-pro" rows="2" placeholder="Paciente refiere inicio de síntomas hace aproximadamente... caracterizado por..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- 3. Antecedentes (PDF 2: Personales Patológicos, Oftalmológicos, Familiares) -->
+                            <div class="clinical-section-card">
+                                <div class="clinical-section-header">
+                                    <div class="clinical-section-title">
+                                        <i class="fa-solid fa-heart-pulse"></i>
+                                        <span>3. Antecedentes Clínicos</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-row-pro">
+                                    <div class="form-group-item" style="flex: 1;">
+                                        <label class="form-label-pro">Personales Patológicos</label>
+                                        <textarea id="consultaAntPersonales" class="form-control-pro" rows="2" placeholder="HTA, DBT, Alergias, Cardiopatías, Medicación actual..."></textarea>
+                                    </div>
+                                    <div class="form-group-item" style="flex: 1;">
+                                        <label class="form-label-pro">Oftalmológicos</label>
+                                        <textarea id="consultaAntOftalmologicos" class="form-control-pro" rows="2" placeholder="Cirugías oculares previas, traumatismos, uso de colirios, glaucoma..."></textarea>
+                                    </div>
+                                    <div class="form-group-item" style="flex: 1;">
+                                        <label class="form-label-pro">Familiares</label>
+                                        <textarea id="consultaAntFamiliares" class="form-control-pro" rows="2" placeholder="Glaucoma en familiares de primer grado, ceguera, miopía magna, diabetes..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 4. Agudeza Visual Lejana (AVL) & Agudeza Visual Cercana (AVC) -->
+                            <div class="clinical-section-card">
+                                <div class="clinical-section-header">
+                                    <div class="clinical-section-title">
+                                        <i class="fa-solid fa-eye-low-vision"></i>
+                                        <span>4. Agudeza Visual Lejana (AVL) & Cercana (AVC)</span>
+                                    </div>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table class="table-optometrica">
+                                        <thead>
+                                            <tr>
+                                                <th>Ojo</th>
+                                                <th>AVL Sin Corrección (SC)</th>
+                                                <th>AVL Con Corrección (CC)</th>
+                                                <th>AVL Estenopeico (PH)</th>
+                                                <th>AVC (Cercana)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><strong style="color: #14197A;">OD (Derecho)</strong></td>
+                                                <td><input type="text" id="consultaAvlScOd" class="form-control-pro input-sm text-center" placeholder="20/50"></td>
+                                                <td><input type="text" id="consultaAvlCcOd" class="form-control-pro input-sm text-center" placeholder="20/20"></td>
+                                                <td><input type="text" id="consultaAvlPhOd" class="form-control-pro input-sm text-center" placeholder="20/20"></td>
+                                                <td><input type="text" id="consultaAvcOd" class="form-control-pro input-sm text-center" placeholder="J1 / 20/25"></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong style="color: #0080EA;">OI (Izquierdo)</strong></td>
+                                                <td><input type="text" id="consultaAvlScOi" class="form-control-pro input-sm text-center" placeholder="20/70"></td>
+                                                <td><input type="text" id="consultaAvlCcOi" class="form-control-pro input-sm text-center" placeholder="20/20"></td>
+                                                <td><input type="text" id="consultaAvlPhOi" class="form-control-pro input-sm text-center" placeholder="20/20"></td>
+                                                <td><input type="text" id="consultaAvcOi" class="form-control-pro input-sm text-center" placeholder="J1 / 20/25"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- 5. Refracción Subjetiva & Parámetros Ópticos -->
+                            <div class="clinical-section-card">
+                                <div class="clinical-section-header">
+                                    <div class="clinical-section-title">
+                                        <i class="fa-solid fa-sliders"></i>
+                                        <span>5. Refracción Subjetiva Definitiva</span>
+                                    </div>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table class="table-optometrica">
+                                        <thead>
+                                            <tr>
+                                                <th>Ojo</th>
+                                                <th>Esfera</th>
+                                                <th>Cilindro</th>
+                                                <th>Eje</th>
+                                                <th>Adición (ADD)</th>
+                                                <th>AVL Final</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><strong style="color: #14197A;">OD (Derecho)</strong></td>
+                                                <td><input type="text" id="cRxOdEsfera" class="form-control-pro input-sm text-center font-bold" placeholder="0.00"></td>
+                                                <td><input type="text" id="cRxOdCilindro" class="form-control-pro input-sm text-center font-bold" placeholder="0.00"></td>
+                                                <td><input type="text" id="cRxOdEje" class="form-control-pro input-sm text-center" placeholder="0°"></td>
+                                                <td><input type="text" id="cRxOdAdicion" class="form-control-pro input-sm text-center font-bold" placeholder="+0.00"></td>
+                                                <td><input type="text" id="cRxOdAv" class="form-control-pro input-sm text-center" placeholder="20/20"></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong style="color: #0080EA;">OI (Izquierdo)</strong></td>
+                                                <td><input type="text" id="cRxOsEsfera" class="form-control-pro input-sm text-center font-bold" placeholder="0.00"></td>
+                                                <td><input type="text" id="cRxOsCilindro" class="form-control-pro input-sm text-center font-bold" placeholder="0.00"></td>
+                                                <td><input type="text" id="cRxOsEje" class="form-control-pro input-sm text-center" placeholder="0°"></td>
+                                                <td><input type="text" id="cRxOsAdicion" class="form-control-pro input-sm text-center font-bold" placeholder="+0.00"></td>
+                                                <td><input type="text" id="cRxOsAv" class="form-control-pro input-sm text-center" placeholder="20/20"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="form-row-pro" style="margin-top: 0.85rem;">
+                                    <div class="form-group-item">
+                                        <label class="form-label-pro">DP (mm)</label>
+                                        <input type="text" id="cRxDp" class="form-control-pro text-center" placeholder="Ej: 64">
+                                    </div>
+                                    <div class="form-group-item">
+                                        <label class="form-label-pro">Altura (mm)</label>
+                                        <input type="text" id="cRxAlt" class="form-control-pro text-center" placeholder="Ej: 18">
+                                    </div>
+                                    <div class="form-group-item">
+                                        <label class="form-label-pro">Tipo de Lente</label>
+                                        <select id="cRxTipoLente" class="form-control-pro">
+                                            <option value="Monofocal">Monofocal</option>
+                                            <option value="Bifocal Flat-Top">Bifocal Flat-Top</option>
+                                            <option value="Bifocal Invisible">Bifocal Invisible</option>
+                                            <option value="Progresivo Convencional">Progresivo Convencional</option>
+                                            <option value="Progresivo Digital FreeForm">Progresivo Digital FreeForm</option>
+                                            <option value="Ocupacional">Ocupacional</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group-item">
+                                        <label class="form-label-pro">Material</label>
+                                        <select id="cRxMaterial" class="form-control-pro">
+                                            <option value="CR-39 Orgánico">CR-39 Orgánico</option>
+                                            <option value="Policarbonato (Alto Impacto)">Policarbonato (Alto Impacto)</option>
+                                            <option value="Alto Índice 1.56">Alto Índice 1.56</option>
+                                            <option value="Alto Índice 1.61">Alto Índice 1.61</option>
+                                            <option value="Alto Índice 1.67 (Ultra Delgado)">Alto Índice 1.67 (Ultra Delgado)</option>
+                                            <option value="Mineral / Cristal">Mineral / Cristal</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group-item" style="margin-top: 0.65rem;">
+                                    <label class="form-label-pro">Tratamientos Recomendados</label>
+                                    <div class="checkbox-group-pro">
+                                        <label class="checkbox-item-pro"><input type="checkbox" name="cTratamiento" value="Antirreflejo Estándar"> Antirreflejo</label>
+                                        <label class="checkbox-item-pro"><input type="checkbox" name="cTratamiento" value="Filtro Azul (Blue Defense)"> Filtro Azul</label>
+                                        <label class="checkbox-item-pro"><input type="checkbox" name="cTratamiento" value="Fotocromático (Transitions)"> Fotocromático</label>
+                                        <label class="checkbox-item-pro"><input type="checkbox" name="cTratamiento" value="Protección UV400"> UV400</label>
+                                        <label class="checkbox-item-pro"><input type="checkbox" name="cTratamiento" value="Capa Hidrofóbica"> Hidrofóbico</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 6. Refracción Ciclopléjica & Balance Muscular -->
+                            <div class="clinical-section-card">
+                                <div class="clinical-section-header">
+                                    <div class="clinical-section-title">
+                                        <i class="fa-solid fa-droplet"></i>
+                                        <span>6. Refracción Ciclopléjica & Balance Muscular</span>
+                                    </div>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table class="table-optometrica">
+                                        <thead>
+                                            <tr>
+                                                <th>Ojo</th>
+                                                <th>Esfera Ciclopléjica</th>
+                                                <th>Cilindro Ciclopléjico</th>
+                                                <th>Eje</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><strong style="color: #14197A;">OD (Derecho)</strong></td>
+                                                <td><input type="text" id="consultaCicloOdEsf" class="form-control-pro input-sm text-center" placeholder="0.00"></td>
+                                                <td><input type="text" id="consultaCicloOdCil" class="form-control-pro input-sm text-center" placeholder="0.00"></td>
+                                                <td><input type="text" id="consultaCicloOdEje" class="form-control-pro input-sm text-center" placeholder="0°"></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong style="color: #0080EA;">OI (Izquierdo)</strong></td>
+                                                <td><input type="text" id="consultaCicloOiEsf" class="form-control-pro input-sm text-center" placeholder="0.00"></td>
+                                                <td><input type="text" id="consultaCicloOiCil" class="form-control-pro input-sm text-center" placeholder="0.00"></td>
+                                                <td><input type="text" id="consultaCicloOiEje" class="form-control-pro input-sm text-center" placeholder="0°"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="form-group-item" style="margin-top: 0.75rem;">
+                                    <label class="form-label-pro">Balance Muscular (Ortotropia / Tropias / Forias)</label>
+                                    <input type="text" id="consultaBalanceMuscular" class="form-control-pro" placeholder="Ej: Ortotropia de lejos y cerca. Ducciones y versiones completas sin restricciones.">
+                                </div>
+                            </div>
+
+                            <!-- 7. Biomicroscopía, PIO & Fondo de Ojo -->
+                            <div class="clinical-section-card">
+                                <div class="clinical-section-header">
+                                    <div class="clinical-section-title">
+                                        <i class="fa-solid fa-microscope"></i>
+                                        <span>7. Biomicroscopía, Presión Intraocular (PIO) & Fondo de Ojo</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-row-pro">
+                                    <div class="form-group-item" style="flex: 1;">
+                                        <label class="form-label-pro">Biomicroscopía OD (Lámpara de Hendidura)</label>
+                                        <textarea id="consultaBioOd" class="form-control-pro" rows="2" placeholder="Párpados, conjuntiva, córnea, CA, iris y cristalino OD"></textarea>
+                                    </div>
+                                    <div class="form-group-item" style="flex: 1;">
+                                        <label class="form-label-pro">Biomicroscopía OI (Lámpara de Hendidura)</label>
+                                        <textarea id="consultaBioOi" class="form-control-pro" rows="2" placeholder="Párpados, conjuntiva, córnea, CA, iris y cristalino OI"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="form-row-pro" style="margin-top: 0.75rem;">
+                                    <div class="form-group-item">
+                                        <label class="form-label-pro">PIO OD (mmHg)</label>
+                                        <input type="text" id="consultaPioOd" class="form-control-pro text-center" placeholder="Ej: 14">
+                                    </div>
+                                    <div class="form-group-item">
+                                        <label class="form-label-pro">PIO OI (mmHg)</label>
+                                        <input type="text" id="consultaPioOi" class="form-control-pro text-center" placeholder="Ej: 15">
+                                    </div>
+                                    <div class="form-group-item" style="flex: 2;">
+                                        <label class="form-label-pro">Método Tonometría</label>
+                                        <input type="text" id="consultaTonometriaMetodo" class="form-control-pro" placeholder="Aplanación Goldmann / Rebote">
+                                    </div>
+                                </div>
+
+                                <div class="form-row-pro" style="margin-top: 0.75rem;">
+                                    <div class="form-group-item" style="flex: 1;">
+                                        <label class="form-label-pro">Fondo de Ojo OD (Papila, Mácula, Retina)</label>
+                                        <textarea id="consultaFondoOd" class="form-control-pro" rows="2" placeholder="Papila rosada, bordes netos, exc 0.3, mácula libre, retina aplicada OD."></textarea>
+                                    </div>
+                                    <div class="form-group-item" style="flex: 1;">
+                                        <label class="form-label-pro">Fondo de Ojo OI (Papila, Mácula, Retina)</label>
+                                        <textarea id="consultaFondoOi" class="form-control-pro" rows="2" placeholder="Papila rosada, bordes netos, exc 0.3, mácula libre, retina aplicada OI."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 8. Impresión Diagnóstica (Líneas 1 a 5) & Conducta -->
+                            <div class="clinical-section-card">
+                                <div class="clinical-section-header">
+                                    <div class="clinical-section-title">
+                                        <i class="fa-solid fa-list-check"></i>
+                                        <span>8. Impresión Diagnóstica & Conducta Terapéutica</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group-item">
+                                    <label class="form-label-pro">Impresión Diagnóstica (1 al 5)</label>
+                                    <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+                                        <input type="text" id="consultaDiag1" class="form-control-pro" placeholder="1. Ej: Vicio de Refracción (Astigmatismo Miópico Compuesto) AO" required>
+                                        <input type="text" id="consultaDiag2" class="form-control-pro" placeholder="2. Ej: Presbicia Corregida">
+                                        <input type="text" id="consultaDiag3" class="form-control-pro" placeholder="3.">
+                                        <input type="text" id="consultaDiag4" class="form-control-pro" placeholder="4.">
+                                        <input type="text" id="consultaDiag5" class="form-control-pro" placeholder="5.">
+                                    </div>
+                                </div>
+
+                                <div class="form-group-item" style="margin-top: 0.85rem;">
+                                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.35rem;">
+                                        <label class="form-label-pro" style="margin-bottom:0;">Conducta &amp; Tratamiento Recomendado</label>
+                                        <button type="button" class="btn btn-xs btn-outline-primary" onclick="abrirCargaMedicamentoConducta()" title="Cargar medicamento del catalogo a la conducta">
+                                            <i class="fa-solid fa-pills"></i> Cargar Medicamento
+                                        </button>
+                                    </div>
+                                    <textarea id="consultaConducta" class="form-control-pro" rows="3" placeholder="1. Prescripción óptica para uso continuo con protección antirreflejo y filtro azul.&#10;2. Higiene visual en pantallas.&#10;3. Control en 1 año."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Botonera de Acciones Finales -->
+                            <div style="display: flex; justify-content: flex-end; gap: 1rem; align-items: center; padding: 1rem 0;">
+                                <button type="button" class="btn btn-secondary" onclick="emitirRecipeDesdeConsulta()">
+                                    <i class="fa-solid fa-file-prescription"></i> Generar Récipe Oficial con esta Fórmula
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" onclick="imprimirConsultaActual()">
+                                    <i class="fa-solid fa-print"></i> Imprimir Consulta
+                                </button>
+                                <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.75rem; font-size: 0.95rem;">
+                                    <i class="fa-solid fa-floppy-disk"></i> Guardar Consulta Oftalmológica
+                                </button>
+                            </div>
+
+                        </div>
+                    </form>
+                </section>
+
+                <!-- ==================================================================
+                     PLANTILLA 3: FICHA DE CONSULTA (PDF 3 - FORMATO RÁPIDO)
+                     ================================================================== -->
+                <section class="tab-view" id="view-ficha-consulta-rapida">
+                    <!-- Barra de Navegación del Doctor -->
+                    <div class="doctor-workspace-nav">
+                        <button type="button" class="btn-back-to-hub" onclick="switchAdminTab('dashboard-medico')">
+                            <i class="fa-solid fa-arrow-left"></i> Volver a Base de Pacientes
+                        </button>
+                        <div class="workspace-breadcrumbs">
+                            <span onclick="switchAdminTab('dashboard-medico')">Base de Pacientes</span>
+                            <i class="fa-solid fa-chevron-right"></i>
+                            <strong>Ficha de Consulta</strong>
+                        </div>
+                    </div>
+
+                    <div class="view-header-bar">
+                        <div>
+                            <span class="badge-tag badge-amber" style="margin-bottom: 0.4rem; display: inline-block;">
+                                <i class="fa-solid fa-receipt"></i> Ficha de Consulta Rápida
+                            </span>
+                            <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--color-primary-dark);">Ficha de Consulta</h3>
+                            
+                        </div>
+                        <div class="header-actions-group">
+                            <button type="button" class="btn btn-secondary" onclick="limpiarFichaConsultaRapida()">
+                                <i class="fa-solid fa-rotate-left"></i> Limpiar
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" onclick="imprimirFichaConsultaRapidaActual()">
+                                <i class="fa-solid fa-print"></i> Imprimir Ficha Oficial
+                            </button>
+                            <button type="button" class="btn btn-primary" onclick="guardarFichaConsultaRapida()">
+                                <i class="fa-solid fa-floppy-disk"></i> Guardar Ficha
+                            </button>
+                        </div>
+                    </div>
+
+                    <form id="formFichaConsultaRapida" onsubmit="event.preventDefault(); guardarFichaConsultaRapida();">
+                        <div class="clinical-form-layout" style="max-width: 820px; margin: 0 auto;">
+                            
+                            <!-- Tarjeta de Ficha Rápida -->
+                            <div class="clinical-section-card">
+                                <div class="clinical-section-header">
+                                    <div class="clinical-section-title">
+                                        <i class="fa-solid fa-file-invoice"></i>
+                                        <span>Ficha de Consulta & Datos del Paciente</span>
+                                    </div>
+                                    <button type="button" class="btn btn-xs btn-primary" onclick="abrirModalNuevoPacienteDesdeFichaRapida()">
+                                        <i class="fa-solid fa-user-plus"></i> Nuevo Paciente
+                                    </button>
+                                </div>
+
+                                <div class="form-row-pro">
+                                    <div class="form-group-item" style="flex: 2; position: relative;">
+                                        <label class="form-label-pro">Seleccionar Paciente</label>
+                                        <div class="patient-search-wrapper" style="position: relative;">
+                                            <span class="patient-search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                            <input type="text" id="fchSearchPacienteInput" class="form-control-pro patient-search-input" placeholder="Buscar por Cedula o Nombre..." autocomplete="off" oninput="filtrarPacientesSearch('fch')" onfocus="filtrarPacientesSearch('fch')" onblur="setTimeout(()=>cerrarDropdownSearch('fch'),200)">
+                                            <div id="fchPacienteSearchResults" class="patient-search-dropdown" style="display:none;"></div>
+                                        </div>
+                                        <select id="fchPacienteSelect" class="form-control-pro" style="display:none;" onchange="alSeleccionarPacienteFichaRapida(this.value)">
+                                            <option value="">-- Buscar Paciente Registrado --</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group-item">
+                                        <label class="form-label-pro">Fecha</label>
+                                        <input type="date" id="fchFecha" class="form-control-pro">
+                                    </div>
+                                    <div class="form-group-item">
+                                        <label class="form-label-pro">Sede</label>
+                                        <select id="fchSede" class="form-control-pro">
+                                            <option value="Maracay">Maracay</option>
+                                            <option value="San Juan de los Morros">San Juan de los Morros</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-row-pro" style="margin-top: 0.5rem;">
+                                    <div class="form-group-item" style="flex: 2;">
+                                        <label class="form-label-pro">Nombre y Apellido</label>
+                                        <input type="text" id="fchNombre" class="form-control-pro" placeholder="Nombre del paciente" required>
+                                    </div>
+                                    <div class="form-group-item">
+                                        <label class="form-label-pro">Cédula</label>
+                                        <input type="text" id="fchCedula" class="form-control-pro" placeholder="Cédula de identidad">
+                                    </div>
+                                    <div class="form-group-item">
+                                        <label class="form-label-pro">Teléfono</label>
+                                        <input type="text" id="fchTelefono" class="form-control-pro" placeholder="Teléfono">
+                                    </div>
+                                    <div class="form-group-item" style="max-width: 80px;">
+                                        <label class="form-label-pro">Edad</label>
+                                        <input type="number" id="fchEdad" class="form-control-pro" placeholder="Edad">
+                                    </div>
+                                </div>
+
+                                <!-- Tabla DER / IZQ exacta de PDF 3 -->
+                                <div style="margin-top: 1.25rem;">
+                                    <label class="form-label-pro" style="font-size: 0.95rem; font-weight: 800; color: #14197A; margin-bottom: 0.5rem; display: block;">
+                                        Refracción (DER / IZQ)
+                                    </label>
+                                    <div class="table-responsive">
+                                        <table class="table-optometrica">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 120px;">OJO</th>
+                                                    <th>ESF</th>
+                                                    <th>CIL</th>
+                                                    <th>EJE</th>
+                                                    <th>ADD</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td><strong style="color: #14197A; font-size: 1rem;">DER</strong></td>
+                                                    <td><input type="text" id="fchDerEsf" class="form-control-pro input-sm text-center font-bold" placeholder="0.00"></td>
+                                                    <td><input type="text" id="fchDerCil" class="form-control-pro input-sm text-center font-bold" placeholder="0.00"></td>
+                                                    <td><input type="text" id="fchDerEje" class="form-control-pro input-sm text-center" placeholder="0°"></td>
+                                                    <td><input type="text" id="fchDerAdd" class="form-control-pro input-sm text-center font-bold" placeholder="+0.00"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong style="color: #0080EA; font-size: 1rem;">IZQ</strong></td>
+                                                    <td><input type="text" id="fchIzqEsf" class="form-control-pro input-sm text-center font-bold" placeholder="0.00"></td>
+                                                    <td><input type="text" id="fchIzqCil" class="form-control-pro input-sm text-center font-bold" placeholder="0.00"></td>
+                                                    <td><input type="text" id="fchIzqEje" class="form-control-pro input-sm text-center" placeholder="0°"></td>
+                                                    <td><input type="text" id="fchIzqAdd" class="form-control-pro input-sm text-center font-bold" placeholder="+0.00"></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div class="form-row-pro" style="margin-top: 0.75rem;">
+                                    <div class="form-group-item" style="max-width: 140px;">
+                                        <label class="form-label-pro">DP (mm)</label>
+                                        <input type="text" id="fchDp" class="form-control-pro text-center" placeholder="Ej: 63">
+                                    </div>
+                                </div>
+
+                                <!-- Observación -->
+                                <div class="form-group-item" style="margin-top: 1rem;">
+                                    <label class="form-label-pro">Observación</label>
+                                    <textarea id="fchObservacion" class="form-control-pro" rows="4" placeholder="Notas clínicas, recomendaciones de corrección, tipo de cristal o indicaciones especiales."></textarea>
+                                </div>
+
+                                <!-- Doble Doctor (Firmas de PDF 3) -->
+                                <div class="form-row-pro" style="margin-top: 1.25rem;">
+                                    <div class="form-group-item" style="flex: 1;">
+                                        <label class="form-label-pro"><i class="fa-solid fa-user-doctor" style="color:#0080EA;"></i> Especialista que Membreta</label>
+                                        <select id="fchDoctorSelect" class="form-control-pro medico-membrete-select"></select>
+                                        <input type="hidden" id="fchDoctor1" value="">
+                                    </div>
+                                    <div class="form-group-item" style="flex: 1;">
+                                        <label class="form-label-pro">Doctor(a) 2 / Optometrista</label>
+                                        <input type="text" id="fchDoctor2" class="form-control-pro" placeholder="Nombre del Segundo Especialista / Optometrista">
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- Botones -->
+                            <div style="display: flex; justify-content: flex-end; gap: 1rem; align-items: center; padding: 1rem 0;">
+                                <button type="button" class="btn btn-outline-primary" onclick="imprimirFichaConsultaRapidaActual()">
+                                    <i class="fa-solid fa-print"></i> Imprimir Ficha Oficial (PDF 3)
+                                </button>
+                                <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.75rem; font-size: 0.95rem;">
+                                    <i class="fa-solid fa-floppy-disk"></i> Guardar Ficha de Consulta
+                                </button>
+                            </div>
+
+                        </div>
+                    </form>
+                </section>
+
+                <!-- ==================================================================
+                     MÓDULO DE RÉCIPES MÉDICOS & INDICACIONES TERAPÉUTICAS (LITE MEDIC)
+                     ================================================================== -->
+                <section class="tab-view" id="view-recipes">
+                    <!-- Barra de Navegación del Doctor -->
+                    <div class="doctor-workspace-nav">
+                        <button type="button" class="btn-back-to-hub" onclick="switchAdminTab('dashboard-medico')">
+                            <i class="fa-solid fa-arrow-left"></i> Volver a Base de Pacientes
+                        </button>
+                        <div class="workspace-breadcrumbs">
+                            <span onclick="switchAdminTab('dashboard-medico')">Base de Pacientes</span>
+                            <i class="fa-solid fa-chevron-right"></i>
+                            <strong>Récipes Médicos & Indicaciones</strong>
+                        </div>
+                    </div>
+
+                    <!-- Pestañas de Sub-Navegación Lite Medic -->
+                    <div class="top-nav-tabs no-print" style="margin-bottom: 1.25rem;">
+                        <button type="button" class="tab-btn active-tab" onclick="loadRecipeView('nuevo')" id="tabRecipeNuevo">
+                            <i class="fa-solid fa-file-prescription"></i> Elaborar Récipe
+                        </button>
+                        <button type="button" class="tab-btn" onclick="loadRecipeView('historial')" id="tabRecipeHistorial">
+                            <i class="fa-solid fa-database"></i> Base de Datos
+                        </button>
+                    </div>
+
+                    <!-- SUB-VISTA 1: ELABORAR RÉCIPE -->
+                    <div id="viewRecipeNuevo" class="recipe-subview">
+                        <div class="clinical-form-container">
+                            <div class="clinical-card-header">
+                                <div class="cch-title-box">
+                                    <div class="cch-icon-badge" style="background: #7C3AED; color: #FFF;"><i class="fa-solid fa-file-prescription"></i></div>
+                                    <div>
+                                        <h3>Elaborar Récipe Médico & Indicaciones</h3>
+                                        <p>Genera prescripciones e indicaciones terapéuticas de forma rápida, estética y profesional.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <form id="recipeForm" onsubmit="event.preventDefault();" style="padding: 1.5rem;">
+                                <input type="hidden" id="reportId" value="">
+
+                                <!-- Selector Rápido de Paciente de la Base de Datos -->
+                                <div class="form-group-item" style="margin-bottom: 1.25rem; background: #F8FAFC; padding: 1rem; border-radius: 8px; border: 1px solid #E2E8F0;">
+                                    <label class="form-label-pro" style="color: #1E293B;">
+                                        <i class="fa-solid fa-users" style="color: #0080EA;"></i> Carga Rápida: Seleccionar Paciente Registrado
+                                    </label>
+                                    <select id="recSelectPaciente" class="form-control-pro" onchange="alSeleccionarPacienteRecipeLite(this.value)">
+                                        <option value="">-- Buscar Paciente por Nombre o Cédula --</option>
+                                    </select>
+                                </div>
+
+                                <!-- Fila 1: Datos Básicos del Paciente -->
+                                <div class="clinical-grid-3">
+                                    <div class="form-group-item autocomplete-container" style="position: relative;">
+                                        <label class="form-label-pro">Nombre Completo del Paciente *</label>
+                                        <div class="input-icon-wrapper" style="position: relative;">
+                                            <input type="text" id="recNombre" class="form-control-pro" required placeholder="Escriba nombre o seleccione del buscador..." autocomplete="off">
+                                        </div>
+                                        <div id="autocompleteDropdown" class="autocomplete-dropdown" style="display: none;"></div>
+                                    </div>
+                                    <div class="form-group-item">
+                                        <label class="form-label-pro">Cédula de Identidad *</label>
+                                        <input type="text" id="recCedula" class="form-control-pro" required placeholder="Ej. V-12345678">
+                                    </div>
+                                    <div class="form-group-item">
+                                        <label class="form-label-pro">Edad *</label>
+                                        <input type="text" id="recEdad" class="form-control-pro" required placeholder="Ej. 34 años">
+                                    </div>
+                                </div>
+
+                                <div class="clinical-grid-3" style="margin-top: 1rem;">
+                                    <div class="form-group-item">
+                                        <label class="form-label-pro">Fecha de Emisión *</label>
+                                        <input type="date" id="recFecha" class="form-control-pro" required>
+                                    </div>
+                                    <div class="form-group-item">
+                                        <label class="form-label-pro">Sede de Consulta</label>
+                                        <select id="recSede" class="form-control-pro">
+                                            <option value="Maracay">Sede Maracay (CC Las Américas)</option>
+                                            <option value="San Juan de los Morros">Sede San Juan de los Morros</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group-item">
+                                        <label class="form-label-pro"><i class="fa-solid fa-user-doctor" style="color:#0080EA;"></i> Médico que Membreta</label>
+                                        <select id="recDoctorSelect" class="form-control-pro medico-membrete-select"></select>
+                                    </div>
+                                </div>
+
+                                <!-- Prescripciones y Fármacos Dinámicos -->
+                                <div class="prescriptions-container" style="margin-top: 1.5rem;">
+                                    <div class="prescriptions-header">
+                                        <div>
+                                            <h4 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #0F172A;">
+                                                <i class="fa-solid fa-pills" style="color: #0080EA;"></i> Prescripciones Farmacológicas (Rp.)
+                                            </h4>
+                                            <small style="color: #64748B;">Agregue los fármacos e indicaciones terapéuticas correspondientes.</small>
+                                        </div>
+                                        <div class="header-actions" style="display: flex; gap: 0.5rem;">
+                                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="abrirModalMedicamentos()">
+                                                <i class="fa-solid fa-pills"></i> Catálogo de Medicamentos
+                                            </button>
+                                            <button type="button" class="btn btn-primary btn-sm" onclick="addMedRow()">
+                                                <i class="fa-solid fa-plus"></i> Agregar Fila
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div id="medsList" class="meds-list" style="margin-top: 1rem;">
+                                        <!-- Las filas de medicamentos se añaden dinámicamente con addMedRow() -->
+                                    </div>
+                                </div>
+
+                                <!-- Observaciones / Indicaciones Generales -->
+                                <div class="form-group-item" style="margin-top: 1.25rem;">
+                                    <label class="form-label-pro">Observaciones Adicionales / Indicaciones de Control (Opcional)</label>
+                                    <textarea id="recObservaciones" class="form-control-pro" rows="3" placeholder="Ej. Control oftalmológico al culminar el tratamiento, acudir a urgencias en caso de dolor ocular severo o pérdida súbita de visión..."></textarea>
+                                </div>
+
+                                <!-- Firma siempre incluida en impresión (sin opción de toggle) -->
+
+                                <!-- Barra de Acciones Finales -->
+                                <div class="form-action-bar" style="display: flex; justify-content: flex-end; gap: 0.75rem; align-items: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #E2E8F0;">
+                                    <button id="btnLimpiarRecipe" type="button" class="btn btn-secondary" onclick="limpiarFormularioRecipe()">
+                                        <i class="fa-solid fa-eraser"></i> Limpiar
+                                    </button>
+                                    <button id="btnGuardarSistemaRecipe" type="button" class="btn btn-outline-primary" onclick="procesarRecipe(false)">
+                                        <i class="fa-solid fa-floppy-disk"></i> Guardar en Sistema
+                                    </button>
+                                    <button type="button" class="btn btn-primary" onclick="procesarRecipe(true)" style="background: linear-gradient(135deg, #0080EA, #0060B2); padding: 0.75rem 1.5rem; font-weight: 700;">
+                                        <i class="fa-solid fa-print"></i> Guardar e Imprimir Récipe Directo
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- SUB-VISTA 2: BASE DE DATOS / HISTORIAL DE RÉCIPES -->
+                    <div id="viewRecipeHistorial" class="recipe-subview" style="display: none;">
+                        <div class="table-card">
+                            <div class="view-header-bar" style="margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                                <div>
+                                    <h3 style="font-size: 1.2rem; font-weight: 800; color: #0F172A; margin: 0;">Base de Datos de Récipes Emitidos</h3>
+                                    <p style="font-size: 0.85rem; color: #64748B; margin: 0.2rem 0 0 0;">Historial de prescripciones médicas e indicaciones terapéuticas.</p>
+                                </div>
+                                <div class="search-filter-box" style="min-width: 280px;">
+                                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                                    <input type="text" id="recipeSearchInput" class="search-input" placeholder="Buscar por paciente o fármaco..." oninput="renderHistory(this.value.trim().toLowerCase())">
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="modern-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Paciente</th>
+                                            <th>Cédula</th>
+                                            <th>Fecha</th>
+                                            <th>Fármacos Prescritos</th>
+                                            <th style="text-align: right;">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="historyList">
+                                        <!-- Filas generadas dinámicamente con renderHistory() -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div id="emptyHistoryState" class="empty-state-view" style="display: none; padding: 3rem 1.5rem; text-align: center;">
+                                <div class="empty-state-icon" style="font-size: 2.5rem; color: #94A3B8; margin-bottom: 1rem;">
+                                    <i class="fa-solid fa-file-prescription"></i>
+                                </div>
+                                <h3 style="font-size: 1.15rem; color: #1E293B; font-weight: 700;">No hay récipes registrados</h3>
+                                <p style="font-size: 0.88rem; color: #64748B;">Elabore un nuevo récipe médico para visualizar el historial aquí.</p>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="loadRecipeView('nuevo')" style="margin-top: 1rem;">
+                                    <i class="fa-solid fa-plus"></i> Elaborar Primer Récipe
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==================================================================
+                     MÓDULO DE FÁRMACOS & VADEMÉCUM MÉDICO
+                     ================================================================== -->
+                <section class="tab-view" id="view-farmacos">
+                    <div class="doctor-workspace-nav">
+                        <button type="button" class="btn-back-to-hub" onclick="switchAdminTab('dashboard-medico')">
+                            <i class="fa-solid fa-arrow-left"></i> Volver a Base de Pacientes
+                        </button>
+                        <div class="workspace-breadcrumbs">
+                            <span onclick="switchAdminTab('dashboard-medico')">Base de Pacientes</span>
+                            <i class="fa-solid fa-chevron-right"></i>
+                            <strong>Fármacos & LiteFarma</strong>
+                        </div>
+                    </div>
+
+                    <div class="view-header-bar" style="margin-bottom: 1.25rem;">
+                        <div>
+                            <span class="badge-tag badge-purple" style="margin-bottom: 0.35rem; display: inline-flex; align-items: center; gap: 0.4rem;">
+                                <i class="fa-solid fa-pills"></i> Catálogo Clínico
+                            </span>
+                            <h2 style="font-size: 1.4rem; font-weight: 800; color: #0F172A; margin: 0;">Fármacos & LiteFarma Médico</h2>
+                            <p style="font-size: 0.85rem; color: #64748B; margin: 0.2rem 0 0 0;">Gestión de medicamentos, principios activos, posologías y prescripciones frecuentes.</p>
+                        </div>
+                        <div class="header-actions-group">
+                            <button type="button" class="btn btn-primary" onclick="abrirModalNuevoFarmaco()">
+                                <i class="fa-solid fa-plus"></i> Agregar Fármaco
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="view-header-bar" style="background: #FFFFFF; padding: 0.85rem 1.25rem; border-radius: 12px; border: 1px solid #E2E8F0; margin-bottom: 1rem;">
+                        <div class="search-filter-box" style="flex: 1;">
+                            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                            <input type="text" id="buscarFarmacoInput" class="search-input" placeholder="Buscar por nombre, presentación o indicación terapéutica..." oninput="renderFarmacosTable()">
+                        </div>
+                    </div>
+
+                    <div class="table-card">
+                        <div class="table-responsive">
+                            <table class="modern-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 35%;">Medicamento & Presentación</th>
+                                        <th style="width: 50%;">Indicación / Posología Habitual</th>
+                                        <th style="text-align: right; width: 15%;">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaFarmacosBody"></tbody>
+                            </table>
+                        </div>
+                        <div id="farmacosEmptyState" class="empty-state-view" style="display: none; padding: 2.5rem; text-align: center;">
+                            <i class="fa-solid fa-pills" style="font-size: 2.5rem; color: #94A3B8; margin-bottom: 0.75rem;"></i>
+                            <h3>No se encontraron medicamentos</h3>
+                            <p style="color: #64748B;">No hay fármacos que coincidan con la búsqueda.</p>
+                        </div>
+                    </div>
+                </section>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    
+
+    <!-- MODAL: REGISTRAR / EDITAR PACIENTE -->
+    <div class="modal-backdrop" id="modalFormPaciente" style="display: none;">
+        <div class="modal-dialog modal-dialog-lg" style="max-width: 680px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <h3 id="modalPacienteTitle"><i class="fa-solid fa-user-plus"></i> Registrar Paciente</h3>
+                        <span style="font-size: 0.8rem; color: rgba(255,255,255,0.85);">Ficha de identificación, contacto y demografía</span>
+                    </div>
+                    <button type="button" class="btn-modal-close" onclick="cerrarModalFormPaciente()">&times;</button>
+                </div>
+                <form id="formRegistroPaciente">
+                    <input type="hidden" id="pacienteIdHidden">
+                    <div class="modal-body" style="padding: 1.5rem 1.75rem;">
+                        <!-- Fila 1: Cédula y Nombre Completo -->
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label class="form-label">Cédula de Identidad *</label>
+                                <div class="input-cedula-wrapper">
+                                    <select id="pacienteCedulaPrefix" class="form-select-prefix">
+                                        <option value="V-">V-</option>
+                                        <option value="E-">E-</option>
+                                        <option value="J-">J-</option>
+                                        <option value="P-">P-</option>
+                                    </select>
+                                    <input type="text" id="pacienteCedulaNum" class="form-control" placeholder="18.450.920" required>
+                                </div>
+                            </div>
+                            <div class="form-group flex-2">
+                                <label class="form-label">Nombre Completo *</label>
+                                <input type="text" id="pacienteNombreInput" class="form-control" placeholder="Ej: Carlos Alberto Mendoza Pérez" required>
+                            </div>
+                        </div>
+
+                        <!-- Fila 2: Teléfono y WhatsApp -->
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label class="form-label">Teléfono (Llamadas) *</label>
+                                <input type="tel" id="pacienteTelefonoInput" class="form-control" placeholder="Ej: 0412-1234567" onblur="autoCopiarTelefonoAWhatsapp()" required>
+                            </div>
+                            <div class="form-group flex-1">
+                                <label class="form-label">WhatsApp (Avisos) *</label>
+                                <input type="tel" id="pacienteWhatsappInput" class="form-control" placeholder="Ej: 0412-1234567" required>
+                            </div>
+                        </div>
+
+                        <!-- Fila 3: Email -->
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label class="form-label">Email / Correo Electrónico</label>
+                                <input type="email" id="pacienteEmailInput" class="form-control" placeholder="Ej: paciente@correo.com">
+                            </div>
+                        </div>
+
+                        <!-- Fila 4: Nacimiento, Edad, Sexo -->
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label class="form-label">Fecha de Nacimiento</label>
+                                <input type="date" id="pacienteNacimientoInput" class="form-control" oninput="calcularEdadDesdeNacimiento()" onchange="calcularEdadDesdeNacimiento()" onblur="calcularEdadDesdeNacimiento()">
+                            </div>
+                            <div class="form-group" style="width: 100px;">
+                                <label class="form-label">Edad</label>
+                                <input type="number" id="pacienteEdadInput" class="form-control" placeholder="Años" min="0" max="125">
+                            </div>
+                            <div class="form-group flex-1">
+                                <label class="form-label">Sexo</label>
+                                <select id="pacienteSexoSelect" class="form-control">
+                                    <option value="M">Masculino</option>
+                                    <option value="F">Femenino</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Fila 5: Ocupación y Dirección Corta -->
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label class="form-label">Ocupación / Profesión</label>
+                                <input type="text" id="pacienteOcupacionInput" class="form-control" placeholder="Ej: Administrador, Docente, Comerciante">
+                            </div>
+                            <div class="form-group flex-2">
+                                <label class="form-label">Dirección Corta</label>
+                                <input type="text" id="pacienteDireccionInput" class="form-control" placeholder="Ej: Urb. Calicanto, Maracay / CC Galería, SJM">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="cerrarModalFormPaciente()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fa-solid fa-floppy-disk"></i> Guardar Paciente
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="modalGestionMedico" style="display: none;">
+        <div class="modal-dialog modal-dialog-md">
+            <div class="modal-content">
+                <div class="modal-header header-blue">
+                    <h3><i class="fa-solid fa-user-doctor"></i> <span id="modalGestionMedicoTitle">Registrar Perfil Médico</span></h3>
+                    <button type="button" class="btn-modal-close" onclick="cerrarModalRegistrarMedico()">&times;</button>
+                </div>
+                <form id="formRegistrarMedico" onsubmit="guardarMedicoForm(event)">
+                    <div class="modal-body" style="padding: 1.5rem 1.75rem;">
+                        <input type="hidden" id="medicoFormId" value="">
+
+                        <!-- Campo 1: Tratamiento / Género Seleccionable (Dr. / Dra.) -->
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label class="form-label" style="font-weight: 700; color: #0F172A; display: block; margin-bottom: 0.5rem;">
+                                Tratamiento / Título Profesional *
+                            </label>
+                            <div class="prefijo-selector-grid">
+                                <label class="prefijo-radio-card active" id="labelPrefijoDr">
+                                    <input type="radio" name="medicoPrefijo" value="Dr." checked onchange="onPrefijoChange('Dr.')">
+                                    <div class="prefijo-card-content">
+                                        <i class="fa-solid fa-user-doctor"></i>
+                                        <div>
+                                            <strong>Dr.</strong>
+                                            <small>Masculino</small>
+                                        </div>
+                                    </div>
+                                </label>
+                                <label class="prefijo-radio-card" id="labelPrefijoDra">
+                                    <input type="radio" name="medicoPrefijo" value="Dra." onchange="onPrefijoChange('Dra.')">
+                                    <div class="prefijo-card-content">
+                                        <i class="fa-solid fa-user-doctor"></i>
+                                        <div>
+                                            <strong>Dra.</strong>
+                                            <small>Femenino</small>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Campos 2 y 3: Nombre y Apellido -->
+                        <div class="form-row" style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                            <div class="form-group" style="flex: 1;">
+                                <label class="form-label" for="medicoFormNombre">Nombre *</label>
+                                <input type="text" id="medicoFormNombre" class="form-control" placeholder="Ej. Carlos" oninput="actualizarPreviewMembreteModal()" required>
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label class="form-label" for="medicoFormApellido">Apellido *</label>
+                                <input type="text" id="medicoFormApellido" class="form-control" placeholder="Ej. Nieves" oninput="actualizarPreviewMembreteModal()" required>
+                            </div>
+                        </div>
+
+                        <!-- Campo 4: Cédula de Identidad -->
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label class="form-label" for="medicoFormCedula">Cédula de Identidad *</label>
+                            <input type="text" id="medicoFormCedula" class="form-control" placeholder="Ej. V-12.345.678" oninput="actualizarPreviewMembreteModal()" required>
+                        </div>
+
+                        <!-- Campos 5 y 6: Número MPPS y Colegio de Médicos -->
+                        <div class="form-row" style="display: flex; gap: 1rem; margin-bottom: 1.25rem;">
+                            <div class="form-group" style="flex: 1;">
+                                <label class="form-label" for="medicoFormMpps">Número MPPS *</label>
+                                <input type="text" id="medicoFormMpps" class="form-control" placeholder="Ej. 89.210" oninput="actualizarPreviewMembreteModal()" required>
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label class="form-label" for="medicoFormColegio">Colegio de Médicos (C.M.) *</label>
+                                <input type="text" id="medicoFormColegio" class="form-control" placeholder="Ej. 34.891" oninput="actualizarPreviewMembreteModal()" required>
+                            </div>
+                        </div>
+
+                        <!-- Previsualización del membrete resultante -->
+                        <div class="membrete-live-preview">
+                            <span class="preview-tag"><i class="fa-solid fa-stamp"></i> Previsualización de Membrete Oficial para Documentos:</span>
+                            <div class="preview-text" id="previewMembreteTexto">
+                                <em>Complete los datos del formulario para previsualizar el membrete oficial.</em>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="background: #F8FAFC; border-top: 1px solid #E2E8F0; padding: 1rem 1.75rem; display: flex; justify-content: flex-end; gap: 0.75rem;">
+                        <button type="button" class="btn btn-secondary" onclick="cerrarModalRegistrarMedico()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%); border: none; font-weight: 700;">
+                            <i class="fa-solid fa-floppy-disk"></i> Guardar Perfil Médico
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="modalHistoriaOptometricaOficial" style="display: none;">
+        <div class="modal-dialog modal-dialog-lg" style="max-width: 880px;">
+            <div class="modal-content">
+                <div class="modal-header header-blue">
+                    <div>
+                        <h3><i class="fa-solid fa-eye"></i> Historia Optométrica Oficial</h3>
+                        <span style="font-size: 0.8rem; color: rgba(255,255,255,0.85);">Documento Clínico Oficial &bull; Oftalmología</span>
+                    </div>
+                    <button type="button" class="btn-modal-close" onclick="cerrarModalHistoriaOptometrica()">&times;</button>
+                </div>
+                <div class="modal-body" style="background: #E2E8F0; padding: 1.5rem; overflow-y: auto; max-height: calc(88vh - 120px);">
+                    <div class="clinical-doc-sheet" id="historiaOptometricaPrintArea">
+                        <div class="clinical-doc-watermark"></div>
+                        <!-- Membrete Médico del Doctor (Sin Datos Corporativos) -->
+                        <div class="clinical-doc-header">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <img src="images/LOGO.jpg" alt="Centro Óptico Nieves" class="header-doc-logo-img">
+                                <div>
+                                    <div class="cdoc-brand-title" id="prnHoDocNombre" style="font-size: 1.25rem; font-weight: 800; color: #0F172A;"></div>
+                                    <div class="cdoc-brand-rif" id="prnHoDocEspecialidad" style="font-size: 0.85rem; font-weight: 700; color: #0080EA;">OFTALMOLOGÍA</div>
+                                    <div style="font-size: 0.8rem; color: #475569; margin-top: 2px;" id="prnHoDocCreds"></div>
+                                </div>
+                            </div>
+                            <div class="cdoc-meta-right">
+                                <div style="font-size: 1.15rem; font-weight: 800; color: #0F172A; text-align: right;">HISTORIA PACIENTE</div>
+                                <div style="margin-top: 4px;"><strong>Fecha:</strong> <span id="prnHoFecha">--</span></div>
+                                <div><strong>Sede:</strong> <span id="prnHoSede">--</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Datos del Paciente -->
+                        <div style="margin-bottom: 0.85rem;">
+                            <div class="cdoc-field-row">
+                                <div class="cdoc-field" style="flex: 2;">
+                                    <strong>Nombre y Apellidos:</strong>
+                                    <span class="cdoc-line-fill" style="flex: 1;" id="prnHoNombre">--</span>
+                                </div>
+                                <div class="cdoc-field">
+                                    <strong>C.I.:</strong>
+                                    <span class="cdoc-line-fill" style="min-width: 100px;" id="prnHoCedula">--</span>
+                                </div>
+                                <div class="cdoc-field">
+                                    <strong>Edad:</strong>
+                                    <span class="cdoc-line-fill" style="min-width: 50px;" id="prnHoEdad">--</span>
+                                </div>
+                            </div>
+
+                            <div class="cdoc-field-row">
+                                <div class="cdoc-field">
+                                    <strong>Teléfono:</strong>
+                                    <span class="cdoc-line-fill" style="min-width: 120px;" id="prnHoTelefono">--</span>
+                                </div>
+                                <div class="cdoc-field" style="flex: 1;">
+                                    <strong>Ocupación:</strong>
+                                    <span class="cdoc-line-fill" style="flex: 1;" id="prnHoOcupacion">--</span>
+                                </div>
+                            </div>
+
+                            <div class="cdoc-field-row">
+                                <div class="cdoc-field" style="width: 100%;">
+                                    <strong>Dirección:</strong>
+                                    <span class="cdoc-line-fill" style="flex: 1;" id="prnHoDireccion">--</span>
+                                </div>
+                            </div>
+
+                            <div class="cdoc-field-row" style="margin-top: 4px;">
+                                <div class="cdoc-field">
+                                    <strong>Usuario de Lentes:</strong>
+                                    <span class="cdoc-line-fill" id="prnHoUsuarioLentes">--</span>
+                                </div>
+                                <div class="cdoc-field">
+                                    <strong>Ant:</strong>
+                                    <span>HTA [<span id="prnHoAntHta"> </span>]</span>
+                                    <span>DBT [<span id="prnHoAntDbt"> </span>]</span>
+                                    <span>Glaucoma [<span id="prnHoAntGlaucoma"> </span>]</span>
+                                </div>
+                                <div class="cdoc-field" style="flex: 1;">
+                                    <strong>Medicamento Actual:</strong>
+                                    <span class="cdoc-line-fill" style="flex: 1;" id="prnHoMedicamento">--</span>
+                                </div>
+                            </div>
+
+                            <div class="cdoc-field-row" style="margin-top: 4px;">
+                                <div class="cdoc-field" style="width: 100%;">
+                                    <strong>Motivo de Consulta:</strong>
+                                    <span class="cdoc-line-fill" style="flex: 1;" id="prnHoMotivo">--</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lensometría -->
+                        <div class="cdoc-block-title">LENSOMETRÍA</div>
+                        <table class="cdoc-table">
+                            <thead>
+                                <tr>
+                                    <th>OJO</th>
+                                    <th>ESFERA</th>
+                                    <th>CILINDRO</th>
+                                    <th>EJE</th>
+                                    <th>ADD</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>OD</strong></td>
+                                    <td id="prnHoLensoOdEsf">--</td>
+                                    <td id="prnHoLensoOdCil">--</td>
+                                    <td id="prnHoLensoOdEje">--</td>
+                                    <td id="prnHoLensoOdAdd">--</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>OI</strong></td>
+                                    <td id="prnHoLensoOiEsf">--</td>
+                                    <td id="prnHoLensoOiCil">--</td>
+                                    <td id="prnHoLensoOiEje">--</td>
+                                    <td id="prnHoLensoOiAdd">--</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Pruebas Preliminares -->
+                        <div class="cdoc-block-title">PRUEBAS PRELIMINARES</div>
+                        <table class="cdoc-table">
+                            <thead>
+                                <tr>
+                                    <th>PRUEBA</th>
+                                    <th>OD</th>
+                                    <th>OI</th>
+                                    <th>OBSERVACIONES / VALOR</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>AV / SC</strong></td>
+                                    <td id="prnHoAvScOd">--</td>
+                                    <td id="prnHoAvScOi">--</td>
+                                    <td>Visión habitual sin corrección</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>AV / PH</strong></td>
+                                    <td id="prnHoAvPhOd">--</td>
+                                    <td id="prnHoAvPhOi">--</td>
+                                    <td>Potencial estenopeico</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>PPC</strong></td>
+                                    <td colspan="2" id="prnHoPpc">--</td>
+                                    <td>Punto Próximo de Convergencia</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>PPA</strong></td>
+                                    <td id="prnHoPpaOd">--</td>
+                                    <td id="prnHoPpaOi">--</td>
+                                    <td>Punto Próximo de Acomodación</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Cover Test Unilateral</strong></td>
+                                    <td id="prnHoCoverUniOd">--</td>
+                                    <td id="prnHoCoverUniOi">--</td>
+                                    <td>Detección de tropias</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Cover Test Alternantes</strong></td>
+                                    <td id="prnHoCoverAltOd">--</td>
+                                    <td id="prnHoCoverAltOi">--</td>
+                                    <td>Detección de forias</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Reflejos Pupilares</strong></td>
+                                    <td colspan="2" id="prnHoReflejos">--</td>
+                                    <td>PIRRLA / Normales</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Motilidad Ocular</strong></td>
+                                    <td id="prnHoMotilidadOd">--</td>
+                                    <td id="prnHoMotilidadOi">--</td>
+                                    <td>Suave y continua</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Duocromo</strong></td>
+                                    <td id="prnHoDuocromoOd">--</td>
+                                    <td id="prnHoDuocromoOi">--</td>
+                                    <td>Neutro / Balance bicromático</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>LUCES DE WORTH</strong></td>
+                                    <td colspan="3" style="font-weight: bold; font-size: 0.95rem; background: #F8FAFC;" id="prnHoLucesWorth">--</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Examen Físico Ocular -->
+                        <div class="cdoc-field-row" style="margin-top: 0.5rem;">
+                            <div class="cdoc-field" style="width: 100%;">
+                                <strong>Biomicroscopía:</strong>
+                                <span class="cdoc-line-fill" style="flex: 1;" id="prnHoBiomicroscopia">--</span>
+                            </div>
+                        </div>
+                        <div class="cdoc-field-row">
+                            <div class="cdoc-field" style="width: 100%;">
+                                <strong>Oftalmoscopía:</strong>
+                                <span class="cdoc-line-fill" style="flex: 1;" id="prnHoOftalmoscopia">--</span>
+                            </div>
+                        </div>
+
+                        <!-- RX Definitivo -->
+                        <div class="cdoc-block-title">RX DEFINITIVO</div>
+                        <table class="cdoc-table">
+                            <thead>
+                                <tr>
+                                    <th>OJO</th>
+                                    <th>ESFERA</th>
+                                    <th>CILINDRO</th>
+                                    <th>ADD</th>
+                                    <th>AV CC</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>OD</strong></td>
+                                    <td id="prnHoRxOdEsf" style="font-weight: bold;">--</td>
+                                    <td id="prnHoRxOdCil" style="font-weight: bold;">--</td>
+                                    <td id="prnHoRxOdAdd" style="font-weight: bold;">--</td>
+                                    <td id="prnHoRxOdAvCc">--</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>OI</strong></td>
+                                    <td id="prnHoRxOiEsf" style="font-weight: bold;">--</td>
+                                    <td id="prnHoRxOiCil" style="font-weight: bold;">--</td>
+                                    <td id="prnHoRxOiAdd" style="font-weight: bold;">--</td>
+                                    <td id="prnHoRxOiAvCc">--</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="cdoc-field-row">
+                            <div class="cdoc-field">
+                                <strong>DP:</strong>
+                                <span class="cdoc-line-fill" style="min-width: 60px;" id="prnHoRxDp">--</span> mm
+                            </div>
+                            <div class="cdoc-field" style="flex: 1;">
+                                <strong>Observaciones:</strong>
+                                <span class="cdoc-line-fill" style="flex: 1;" id="prnHoObservaciones">--</span>
+                            </div>
+                        </div>
+
+                        <!-- Firma -->
+                        <div style="margin-top: 2rem; display: flex; justify-content: flex-end; text-align: center;">
+                            <div style="width: 250px; border-top: 1px solid #0F172A; padding-top: 4px;">
+                                <strong style="font-size: 0.9rem;" id="prnHoFirma"></strong><br>
+                                <span style="font-size: 0.8rem; color: #475569;" id="prnHoFirmaEspecialidad">Oftalmología</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModalHistoriaOptometrica()">Cerrar</button>
+                    <button type="button" class="btn btn-primary" onclick="openModalAndPrint('modalHistoriaOptometricaOficial')">
+                        <i class="fa-solid fa-print"></i> Imprimir Documento
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================================
+         MODAL: IMPRESIÓN OFICIAL 2. HISTORIA DE CONSULTA OFTALMOLÓGICA (PDF 2)
+         ====================================================================== -->
+    <div class="modal-backdrop" id="modalConsultaOftalmologicaOficial" style="display: none;">
+        <div class="modal-dialog modal-dialog-lg" style="max-width: 900px;">
+            <div class="modal-content">
+                <div class="modal-header header-blue">
+                    <div>
+                        <h3><i class="fa-solid fa-file-medical"></i> Consulta Oftalmológica</h3>
+                        <span style="font-size: 0.8rem; color: rgba(255,255,255,0.85);">Expediente formal completo con protocolo oftalmológico</span>
+                    </div>
+                    <button type="button" class="btn-modal-close" onclick="cerrarModalConsultaOftalmologica()">&times;</button>
+                </div>
+                <div class="modal-body" style="background: #CBD5E1; padding: 1.5rem; overflow-y: auto; max-height: calc(88vh - 120px);">
+                    <div class="clinical-doc-sheet" id="consultaOftalmologicaPrintArea">
+                        <div class="clinical-doc-watermark"></div>
+                        
+                        <!-- PÁGINA 1 -->
+                        <div class="cdoc-page-1">
+                            <div class="clinical-doc-header">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                <img src="images/LOGO.jpg" alt="Centro Óptico Nieves" class="header-doc-logo-img">
+                                    <div>
+                                        <div class="cdoc-brand-title" id="prnCoDocNombre" style="font-size: 1.25rem; font-weight: 800; color: #0F172A;"></div>
+                                        <div class="cdoc-brand-rif" id="prnCoDocEspecialidad" style="font-size: 0.85rem; font-weight: 700; color: #0080EA;">OFTALMOLOGÍA</div>
+                                        <div style="font-size: 0.8rem; color: #475569; margin-top: 2px;" id="prnCoDocCreds"></div>
+                                    </div>
+                                </div>
+                                <div class="cdoc-meta-right">
+                                    <div style="font-size: 1.1rem; font-weight: 800; color: #0F172A; text-align: right;">CONSULTA OFTALMOLÓGICA</div>
+                                    <div><strong>Código:</strong> <span id="prnCoCodigo">CNS-0000</span></div>
+                                    <div><strong>Fecha:</strong> <span id="prnCoFecha">--</span></div>
+                                    <div><strong>Sede:</strong> <span id="prnCoSede">--</span></div>
+                                    
+                                </div>
+                            </div>
+
+                            <!-- Identificación del Paciente -->
+                            <div class="cdoc-field-row">
+                                <div class="cdoc-field" style="flex: 2;">
+                                    <strong>Paciente:</strong>
+                                    <span class="cdoc-line-fill" style="flex: 1;" id="prnCoNombre">--</span>
+                                </div>
+                                <div class="cdoc-field">
+                                    <strong>C.I.:</strong>
+                                    <span class="cdoc-line-fill" style="min-width: 90px;" id="prnCoCedula">--</span>
+                                </div>
+                                <div class="cdoc-field">
+                                    <strong>Edad:</strong>
+                                    <span class="cdoc-line-fill" style="min-width: 45px;" id="prnCoEdad">--</span>
+                                </div>
+                            </div>
+
+                            <div class="cdoc-field-row">
+                                <div class="cdoc-field">
+                                    <strong>F. Nacimiento:</strong>
+                                    <span class="cdoc-line-fill" style="min-width: 90px;" id="prnCoNacimiento">--</span>
+                                </div>
+                                <div class="cdoc-field">
+                                    <strong>Teléfono:</strong>
+                                    <span class="cdoc-line-fill" style="min-width: 110px;" id="prnCoTel">--</span>
+                                </div>
+                                <div class="cdoc-field" style="flex: 1;">
+                                    <strong>Ocupación:</strong>
+                                    <span class="cdoc-line-fill" style="flex: 1;" id="prnCoOcupacion">--</span>
+                                </div>
+                            </div>
+
+                            <div class="cdoc-field-row">
+                                <div class="cdoc-field" style="width: 100%;">
+                                    <strong>Dirección:</strong>
+                                    <span class="cdoc-line-fill" style="flex: 1;" id="prnCoDireccion">--</span>
+                                </div>
+                            </div>
+
+                            <!-- 1. Anamnesis y Enfermedad Actual -->
+                            <div class="cdoc-block-title">1. MOTIVO DE CONSULTA & ENFERMEDAD ACTUAL</div>
+                            <div class="cdoc-field-row">
+                                <div class="cdoc-field" style="width: 100%;">
+                                    <strong>Motivo:</strong>
+                                    <span class="cdoc-line-fill" style="flex: 1;" id="prnCoMotivo">--</span>
+                                </div>
+                            </div>
+                            <div style="font-size: 0.88rem; margin: 0.4rem 0; line-height: 1.35; text-align: justify;" id="prnCoEnfermedad">
+                                --
+                            </div>
+
+                            <!-- 2. Antecedentes -->
+                            <div class="cdoc-block-title">2. ANTECEDENTES</div>
+                            <div style="font-size: 0.86rem; margin-bottom: 0.5rem;">
+                                <div><strong>Personales Patológicos:</strong> <span id="prnCoAntPersonales">--</span></div>
+                                <div style="margin-top: 2px;"><strong>Oftalmológicos:</strong> <span id="prnCoAntOftalmologicos">--</span></div>
+                                <div style="margin-top: 2px;"><strong>Familiares:</strong> <span id="prnCoAntFamiliares">--</span></div>
+                            </div>
+
+                            <!-- 3. Agudeza Visual Lejana & Cercana -->
+                            <div class="cdoc-block-title">3. AGUDEZA VISUAL LEJANA (AVL) & CERCANA (AVC)</div>
+                            <table class="cdoc-table">
+                                <thead>
+                                    <tr>
+                                        <th>OJO</th>
+                                        <th>AVL (SC)</th>
+                                        <th>AVL (CC)</th>
+                                        <th>AVL (PH)</th>
+                                        <th>AVC (CERCANA)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>OD</strong></td>
+                                        <td id="prnCoAvlScOd">--</td>
+                                        <td id="prnCoAvlCcOd">--</td>
+                                        <td id="prnCoAvlPhOd">--</td>
+                                        <td id="prnCoAvcOd">--</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>OI</strong></td>
+                                        <td id="prnCoAvlScOi">--</td>
+                                        <td id="prnCoAvlCcOi">--</td>
+                                        <td id="prnCoAvlPhOi">--</td>
+                                        <td id="prnCoAvcOi">--</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- 4. Refracción Subjetiva Definitiva -->
+                            <div class="cdoc-block-title">4. REFRACCIÓN SUBJETIVA DEFINITIVA</div>
+                            <table class="cdoc-table">
+                                <thead>
+                                    <tr>
+                                        <th>OJO</th>
+                                        <th>ESFERA</th>
+                                        <th>CILINDRO</th>
+                                        <th>EJE</th>
+                                        <th>ADD</th>
+                                        <th>AV FINAL</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>OD</strong></td>
+                                        <td id="prnCoRxOdEsf" style="font-weight: bold;">--</td>
+                                        <td id="prnCoRxOdCil" style="font-weight: bold;">--</td>
+                                        <td id="prnCoRxOdEje">--</td>
+                                        <td id="prnCoRxOdAdd">--</td>
+                                        <td id="prnCoRxOdAv">--</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>OI</strong></td>
+                                        <td id="prnCoRxOiEsf" style="font-weight: bold;">--</td>
+                                        <td id="prnCoRxOiCil" style="font-weight: bold;">--</td>
+                                        <td id="prnCoRxOiEje">--</td>
+                                        <td id="prnCoRxOiAdd">--</td>
+                                        <td id="prnCoRxOiAv">--</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="cdoc-field-row" style="font-size: 0.84rem;">
+                                <div><strong>DP:</strong> <span id="prnCoDp">--</span> mm</div>
+                                <div><strong>Alt:</strong> <span id="prnCoAlt">--</span> mm</div>
+                                <div><strong>Tipo Lente:</strong> <span id="prnCoTipoLente">--</span></div>
+                                <div><strong>Material:</strong> <span id="prnCoMaterial">--</span></div>
+                                <div><strong>Tratamientos:</strong> <span id="prnCoTratamientos">--</span></div>
+                            </div>
+                        </div>
+
+                        <!-- SALTO DE PÁGINA PARA IMPRESIÓN -->
+                        <div class="page-break" style="margin-top: 2rem; border-top: 2px dashed #94A3B8; padding-top: 1.5rem;"></div>
+
+                        <!-- PÁGINA 2 -->
+                        <div class="cdoc-page-2">
+                            <div class="clinical-doc-header">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 4px; background: #0080EA; display: flex; align-items: center; justify-content: center; color: #FFF; font-size: 1.1rem;">
+                                        <i class="fa-solid fa-user-doctor"></i>
+                                    </div>
+                                    <div>
+                                        <div class="cdoc-brand-title" id="prnCoDocNombrePage2" style="font-size: 1rem; font-weight: 800; color: #0F172A;"></div>
+                                        <div style="font-size: 0.8rem; font-weight: 700; color: #0080EA;" id="prnCoDocEspecialidadPage2">OFTALMOLOGÍA</div>
+                                    </div>
+                                </div>
+                                <div class="cdoc-meta-right">
+                                    <div><strong>Paciente:</strong> <span id="prnCoNombre2">--</span></div>
+                                    <div style="font-size: 0.75rem; color: #64748B;">(Página 2 de 2)</div>
+                                </div>
+                            </div>
+
+                            <!-- 5. Refracción Ciclopléjica & Balance Muscular -->
+                            <div class="cdoc-block-title">5. REFRACCIÓN CICLOPLÉJICA & BALANCE MUSCULAR</div>
+                            <table class="cdoc-table">
+                                <thead>
+                                    <tr>
+                                        <th>OJO</th>
+                                        <th>ESFERA CICLOPLEJIA</th>
+                                        <th>CILINDRO CICLOPLEJIA</th>
+                                        <th>EJE</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>OD</strong></td>
+                                        <td id="prnCoCicloOdEsf">--</td>
+                                        <td id="prnCoCicloOdCil">--</td>
+                                        <td id="prnCoCicloOdEje">--</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>OI</strong></td>
+                                        <td id="prnCoCicloOiEsf">--</td>
+                                        <td id="prnCoCicloOiCil">--</td>
+                                        <td id="prnCoCicloOiEje">--</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="cdoc-field-row" style="margin-top: 4px;">
+                                <div class="cdoc-field" style="width: 100%;">
+                                    <strong>Balance Muscular:</strong>
+                                    <span class="cdoc-line-fill" style="flex: 1;" id="prnCoBalanceMuscular">--</span>
+                                </div>
+                            </div>
+
+                            <!-- 6. Biomicroscopía, PIO & Fondo de Ojos -->
+                            <div class="cdoc-block-title">6. BIOMICROSCOPÍA, PIO (mmHg) & FONDO DE OJOS</div>
+                            <div style="font-size: 0.86rem; margin-bottom: 0.5rem;">
+                                <div><strong>Biomicroscopía OD:</strong> <span id="prnCoBioOd">--</span></div>
+                                <div style="margin-top: 3px;"><strong>Biomicroscopía OI:</strong> <span id="prnCoBioOi">--</span></div>
+                                <div style="margin-top: 5px; background: #F8FAFC; padding: 4px 8px; border: 1px solid #E2E8F0; border-radius: 4px;">
+                                    <strong>Presión Intraocular (Tonometría):</strong>
+                                    OD: <span id="prnCoPioOd" style="font-weight: bold;">--</span> mmHg &bull;
+                                    OI: <span id="prnCoPioOi" style="font-weight: bold;">--</span> mmHg
+                                </div>
+                                <div style="margin-top: 5px;"><strong>Fondo de Ojo OD:</strong> <span id="prnCoFondoOd">--</span></div>
+                                <div style="margin-top: 3px;"><strong>Fondo de Ojo OI:</strong> <span id="prnCoFondoOi">--</span></div>
+                            </div>
+
+                            <!-- 7. Impresión Diagnóstica -->
+                            <div class="cdoc-block-title">7. IMPRESIÓN DIAGNÓSTICA</div>
+                            <ol style="margin: 0.35rem 0 0.75rem 1.5rem; padding: 0; font-size: 0.88rem; line-height: 1.4;">
+                                <li id="prnCoDiag1">--</li>
+                                <li id="prnCoDiag2" style="display: none;"></li>
+                                <li id="prnCoDiag3" style="display: none;"></li>
+                                <li id="prnCoDiag4" style="display: none;"></li>
+                                <li id="prnCoDiag5" style="display: none;"></li>
+                            </ol>
+
+                            <!-- 8. Conducta & Tratamiento -->
+                            <div class="cdoc-block-title">8. CONDUCTA & PLAN TERAPÉUTICO</div>
+                            <div style="font-size: 0.88rem; line-height: 1.4; text-align: justify; margin: 0.4rem 0;" id="prnCoConducta">
+                                --
+                            </div>
+
+                            <!-- Firma y Sello -->
+                            <div style="margin-top: 2.5rem; display: flex; justify-content: flex-end; text-align: center;">
+                                <div style="width: 280px; border-top: 1px solid #0F172A; padding-top: 4px;">
+                                    <strong style="font-size: 0.92rem;" id="prnCoDoctorFirma"></strong><br>
+                                    <span style="font-size: 0.8rem; color: #475569;" id="prnCoDoctorCreds">C.M. -- | M.P.P.S. --</span><br>
+                                    <span style="font-size: 0.75rem; color: #64748B;">Oftalmología</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModalConsultaOftalmologica()">Cerrar</button>
+                    <button type="button" class="btn btn-primary" onclick="openModalAndPrint('modalConsultaOftalmologicaOficial')">
+                        <i class="fa-solid fa-print"></i> Imprimir Consulta
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================================
+         MODAL: IMPRESIÓN OFICIAL 3. FICHA DE CONSULTA (PDF 3)
+         ====================================================================== -->
+    <div class="modal-backdrop" id="modalFichaConsultaOficial" style="display: none;">
+        <div class="modal-dialog" style="max-width: 650px;">
+            <div class="modal-content">
+                <div class="modal-header header-amber">
+                    <div>
+                        <h3><i class="fa-solid fa-receipt"></i> 3. Ficha de Consulta Oficial</h3>
+                        <span style="font-size: 0.8rem; color: rgba(255,255,255,0.85);">Formato compacto de refracción y observaciones</span>
+                    </div>
+                    <button type="button" class="btn-modal-close" onclick="cerrarModalFichaConsultaRapida()">&times;</button>
+                </div>
+                <div class="modal-body" style="background: #E2E8F0; padding: 1.5rem; overflow-y: auto; max-height: calc(88vh - 120px);">
+                    <div class="clinical-doc-sheet cdoc-ficha-rapida-sheet" id="fichaConsultaPrintArea">
+                        <div class="clinical-doc-watermark"></div>
+                        
+                        <!-- Encabezado Ficha Médica del Doctor (Sin Datos Corporativos) -->
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 14px; border-bottom: 2px solid #0F172A; padding-bottom: 0.5rem; margin-bottom: 0.85rem;">
+                                <img src="images/LOGO.jpg" alt="Centro Óptico Nieves" class="header-doc-logo-img">
+                            <div style="text-align: center;">
+                                <h2 style="font-size: 1.25rem; font-weight: 800; color: #0F172A; margin: 0; letter-spacing: 0.03em;" id="prnFchDocNombre"></h2>
+                                <div style="font-size: 0.85rem; font-weight: 700; color: #0080EA;" id="prnFchDocEspecialidad">OFTALMOLOGÍA</div>
+                                <div style="font-size: 0.78rem; color: #475569; margin-top: 2px;" id="prnFchDocCreds"></div>
+                                <div style="font-size: 0.9rem; font-weight: 800; color: #1E293B; margin-top: 4px;">FICHA DE CONSULTA OFTALMOLÓGICA</div>
+                            </div>
+                        </div>
+
+                        <!-- Datos del Paciente -->
+                        <div style="font-size: 0.88rem; margin-bottom: 0.85rem;">
+                            <div class="cdoc-field-row">
+                                <div class="cdoc-field" style="flex: 2;">
+                                    <strong>Fecha:</strong>
+                                    <span class="cdoc-line-fill" id="prnFchFecha" style="min-width: 90px;">--</span>
+                                </div>
+                                <div class="cdoc-field">
+                                    <strong>Sede:</strong>
+                                    <span class="cdoc-line-fill" id="prnFchSede">--</span>
+                                </div>
+                            </div>
+
+                            <div class="cdoc-field-row" style="margin-top: 4px;">
+                                <div class="cdoc-field" style="width: 100%;">
+                                    <strong>Nombre y Apellido:</strong>
+                                    <span class="cdoc-line-fill" style="flex: 1;" id="prnFchNombre">--</span>
+                                </div>
+                            </div>
+
+                            <div class="cdoc-field-row" style="margin-top: 4px;">
+                                <div class="cdoc-field">
+                                    <strong>Cédula:</strong>
+                                    <span class="cdoc-line-fill" style="min-width: 110px;" id="prnFchCedula">--</span>
+                                </div>
+                                <div class="cdoc-field">
+                                    <strong>Teléfono:</strong>
+                                    <span class="cdoc-line-fill" style="min-width: 110px;" id="prnFchTel">--</span>
+                                </div>
+                                <div class="cdoc-field">
+                                    <strong>Edad:</strong>
+                                    <span class="cdoc-line-fill" style="min-width: 45px;" id="prnFchEdad">--</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tabla DER / IZQ exacta de PDF 3 -->
+                        <table class="cdoc-table" style="margin: 0.75rem 0;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 80px;"></th>
+                                    <th>ESF</th>
+                                    <th>CIL</th>
+                                    <th>EJE</th>
+                                    <th>ADD</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong style="font-size: 1rem;">DER</strong></td>
+                                    <td id="prnFchDerEsf" style="font-weight: bold; font-size: 1.05rem;">--</td>
+                                    <td id="prnFchDerCil" style="font-weight: bold; font-size: 1.05rem;">--</td>
+                                    <td id="prnFchDerEje" style="font-size: 1rem;">--</td>
+                                    <td id="prnFchDerAdd" style="font-weight: bold; font-size: 1.05rem;">--</td>
+                                </tr>
+                                <tr>
+                                    <td><strong style="font-size: 1rem;">IZQ</strong></td>
+                                    <td id="prnFchIzqEsf" style="font-weight: bold; font-size: 1.05rem;">--</td>
+                                    <td id="prnFchIzqCil" style="font-weight: bold; font-size: 1.05rem;">--</td>
+                                    <td id="prnFchIzqEje" style="font-size: 1rem;">--</td>
+                                    <td id="prnFchIzqAdd" style="font-weight: bold; font-size: 1.05rem;">--</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="cdoc-field-row" style="margin-top: 4px;">
+                            <div class="cdoc-field">
+                                <strong>DP:</strong>
+                                <span class="cdoc-line-fill" style="min-width: 60px;" id="prnFchDp">--</span> mm
+                            </div>
+                        </div>
+
+                        <!-- Observación -->
+                        <div style="margin-top: 0.85rem;">
+                            <strong>Observación:</strong>
+                            <div style="border: 1px solid #0F172A; min-height: 85px; padding: 6px 10px; margin-top: 4px; font-size: 0.88rem; line-height: 1.35; white-space: pre-line;" id="prnFchObservacion">
+                                --
+                            </div>
+                        </div>
+
+                        <!-- Doble Doctor / Firmas de PDF 3 -->
+                        <div style="display: flex; justify-content: space-between; margin-top: 2.5rem; padding-top: 0.5rem;">
+                            <div style="width: 45%; text-align: center; border-top: 1px solid #0F172A; padding-top: 4px;">
+                                <strong style="font-size: 0.85rem;" id="prnFchDoc1">Doctor(a)</strong><br>
+                                <span style="font-size: 0.75rem; color: #475569;">Firma y Sello</span>
+                            </div>
+                            <div style="width: 45%; text-align: center; border-top: 1px solid #0F172A; padding-top: 4px;">
+                                <strong style="font-size: 0.85rem;" id="prnFchDoc2">Doctor(a) / Optometrista</strong><br>
+                                <span style="font-size: 0.75rem; color: #475569;">Firma y Sello</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModalFichaConsultaRapida()">Cerrar</button>
+                    <button type="button" class="btn btn-primary" onclick="openModalAndPrint('modalFichaConsultaOficial')">
+                        <i class="fa-solid fa-print"></i> Imprimir Ficha
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         MODAL: ASIGNAR / ACTUALIZAR FACETA DE LENTES (TALLER & LABORATORIO)
+         ========================================================================== -->
+    <!-- ==========================================================================
+         MODAL: ASIGNAR / ACTUALIZAR FACETA DE LENTES (TALLER & LABORATORIO)
+         ========================================================================== -->
+    <div class="modal-backdrop" id="modalAsignarFaceta" style="display: none;">
+        <div class="modal-dialog modal-dialog-md" style="max-width: 540px;">
+            <div class="modal-content">
+                <div class="modal-header header-blue">
+                    <div>
+                        <h3 id="modalAsignarFacetaTitle"><i class="fa-solid fa-glasses"></i> Asignar Cliente a Laboratorio</h3>
+                        <span style="font-size: 0.8rem; color: rgba(255,255,255,0.85);">Seleccione el cliente y su etapa técnica en el taller/laboratorio</span>
+                    </div>
+                    <button type="button" class="btn-modal-close" onclick="cerrarModalAsignarFaceta()">&times;</button>
+                </div>
+                <form id="formAsignarFaceta" onsubmit="guardarFacetaLaboratorio(event)">
+                    <input type="hidden" id="facetaOrdenIdHidden">
+                    <div class="modal-body" style="padding: 1.25rem;">
+                        <!-- Selector de Paciente (Organizado por Nombre, Apellido y Cédula) -->
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label class="form-label" style="font-weight: 800; font-size: 0.95rem; color: #14197A;">
+                                <i class="fa-solid fa-user"></i> Cliente / Paciente *
+                            </label>
+                            <select id="facetaPacienteSelect" class="form-control" onchange="onFacetaPacienteChange()" required style="font-size: 0.92rem; font-weight: 600; padding: 0.6rem 0.75rem; border: 2px solid #0080EA;">
+                                <option value="">-- Seleccionar Paciente (Ordenado A-Z) --</option>
+                            </select>
+                            <small style="color: #64748B; font-size: 0.78rem; margin-top: 3px; display: block;">
+                                Ordenados alfabéticamente por Nombre, Apellido y Cédula.
+                            </small>
+                        </div>
+
+                        <!-- Ficha Informativa Rápida del Cliente Seleccionado -->
+                        <div id="facetaPacienteInfoPill" style="display: none; background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1.15rem;">
+                            <div style="font-weight: 800; color: #1E40AF; font-size: 0.95rem; margin-bottom: 0.35rem;" id="facetaInfoNombre">
+                                Nombre del Cliente
+                            </div>
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.82rem; color: #334155;">
+                                <span><strong>C.I:</strong> <span id="facetaInfoCedula">-</span></span>
+                                <span><strong>WhatsApp:</strong> <span id="facetaInfoTelefono">-</span></span>
+                                <span><strong>Sede:</strong> <span id="facetaInfoSede">-</span></span>
+                            </div>
+                        </div>
+
+                        <!-- Campos ocultos auxiliares para datos automáticos -->
+                        <input type="hidden" id="facetaCedulaInput">
+                        <input type="hidden" id="facetaTelefonoInput">
+
+                        <!-- Faceta y Sede -->
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label class="form-label" style="font-weight: 800; color: #14197A;">Faceta o Etapa del Trabajo *</label>
+                                <select id="facetaFaseSelect" class="form-control" required style="font-weight: 700; height: 42px; border: 2px solid #0080EA;">
+                                    <option value="FASE_1">1. Enviado al Laboratorio</option>
+                                    <option value="FASE_2">2. En Proceso Laboratorio (Tallado)</option>
+                                    <option value="FASE_3">3. Listo en Laboratorio (Montaje)</option>
+                                    <option value="FASE_4">4. Listos para la Entrega en Sede</option>
+                                    <option value="FASE_5">5. Entregado al Paciente</option>
+                                </select>
+                            </div>
+                            <div class="form-group flex-1">
+                                <label class="form-label" style="font-weight: 700;">Sede Óptica *</label>
+                                <select id="facetaSedeSelect" class="form-control" required style="height: 42px;">
+                                    <option value="Maracay">Sede Maracay (CC Las Américas)</option>
+                                    <option value="San Juan de los Morros">Sede San Juan (CC Galería)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Detalles Adicionales Opcionales (Colapsable sin estorbar) -->
+                        <details style="margin-top: 0.75rem; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 0.6rem 0.85rem;">
+                            <summary style="cursor: pointer; font-size: 0.82rem; font-weight: 700; color: #475569;">
+                                <i class="fa-solid fa-sliders"></i> Observaciones o detalles técnicos opcionales (Montura, Cristales, Notas)
+                            </summary>
+                            <div style="margin-top: 0.75rem;">
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label class="form-label" style="font-size: 0.8rem;">Montura / Armazón (Opcional)</label>
+                                        <input type="text" id="facetaMonturaInput" class="form-control form-control-sm" placeholder="Ej: Montura del Paciente">
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label class="form-label" style="font-size: 0.8rem;">Cristales / Sustrato (Opcional)</label>
+                                        <input type="text" id="facetaCristalesInput" class="form-control form-control-sm" placeholder="Ej: Visión Sencilla CR-39">
+                                    </div>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label class="form-label" style="font-size: 0.8rem;">Notas de Taller / Laboratorio</label>
+                                    <textarea id="facetaNotasTextarea" class="form-control form-control-sm" rows="2" placeholder="Detalles de biselado, ranurado, fecha..."></textarea>
+                                </div>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="modal-footer" style="padding: 0.85rem 1.25rem;">
+                        <button type="button" class="btn btn-secondary" onclick="cerrarModalAsignarFaceta()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary" style="font-weight: 700; padding: 0.6rem 1.25rem;">
+                            <i class="fa-solid fa-floppy-disk"></i> Guardar y Asignar Faceta
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         MODAL: GESTIÓN DE CATEGORÍAS PERSONALIZADAS DE INVENTARIO
+         ========================================================================== -->
+    <div class="modal-backdrop" id="modalCategoriasInventario" style="display: none;">
+        <div class="modal-dialog modal-dialog-sm" style="max-width: 440px;">
+            <div class="modal-content">
+                <div class="modal-header header-blue">
+                    <div>
+                        <h3><i class="fa-solid fa-tags"></i> Categorías de Producto</h3>
+                        <span style="font-size: 0.8rem; color: rgba(255,255,255,0.85);">Personaliza los grupos de inventario</span>
+                    </div>
+                    <button type="button" class="btn-modal-close" onclick="cerrarModalGestionCategorias()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form onsubmit="agregarCategoriaDesdeModal(event)" style="margin-bottom: 1.25rem;">
+                        <label class="form-label">Añadir Nueva Categoría</label>
+                        <div style="display: flex; gap: 0.4rem;">
+                            <input type="text" id="nuevaCatNombreInput" class="form-control" placeholder="Ej: Lentes Deportivos..." required>
+                            <button type="submit" class="btn btn-primary" title="Agregar Categoría"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+                    </form>
+
+                    <label class="form-label">Categorías del Sistema</label>
+                    <div id="listaCategoriasInventario" class="categorias-inv-list">
+                        <!-- Poblado desde JS -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModalGestionCategorias()">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==============================================
+         MODAL: SELECTOR DE MEDICAMENTOS (CATÁLOGO DE MEDICAMENTOS)
+         ============================================== -->
+    <div id="medSelectorModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-dialog" style="max-width: 600px;">
+            <div class="modal-content">
+                <div class="modal-header header-blue">
+                    <div>
+                        <h3><i class="fa-solid fa-pills"></i> Catálogo de Medicamentos</h3>
+                        <span style="font-size: 0.8rem; color: rgba(255,255,255,0.85);">Seleccione los medicamentos requeridos para el récipe</span>
+                    </div>
+                    <button type="button" class="btn-modal-close" onclick="cerrarModalMedicamentos()">&times;</button>
+                </div>
+                <div class="modal-body" style="padding: 1.25rem;">
+                    <div class="search-filter-box" style="margin-bottom: 1rem; width: 100%;">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="medSearchInput" class="search-input" placeholder="Buscar medicamento por nombre o principio activo..." style="width: 100%;">
+                    </div>
+                    <div id="medSelectorList" class="litefarma-list" style="max-height: 380px; overflow-y: auto;">
+                        <!-- Rellenado dinámicamente -->
+                    </div>
+                </div>
+                <div class="modal-body" style="padding: 0 1.25rem 1rem; border-top: 1px solid #E2E8F0;">
+                    <details style="margin-top: 0.75rem;">
+                        <summary style="cursor:pointer;font-size:0.85rem;font-weight:700;color:#0080EA;padding:0.4rem 0;user-select:none;">
+                            <i class="fa-solid fa-circle-plus"></i> Agregar Nuevo Medicamento al Catalogo
+                        </summary>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-top:0.75rem;">
+                            <div>
+                                <label class="form-label-pro" style="font-size:0.78rem;">Nombre del Medicamento *</label>
+                                <input type="text" id="newMedNombre" class="form-control-pro" placeholder="Ej: Timolol 0.5% colirio">
+                            </div>
+                            <div>
+                                <label class="form-label-pro" style="font-size:0.78rem;">Indicacion / Dosis *</label>
+                                <input type="text" id="newMedIndicacion" class="form-control-pro" placeholder="Ej: 1 gota cada 12 horas">
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary btn-sm" style="margin-top:0.6rem;" onclick="agregarNuevoMedAlCatalogo()">
+                            <i class="fa-solid fa-floppy-disk"></i> Guardar en Catalogo
+                        </button>
+                    </details>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModalMedicamentos()">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="agregarMedicamentosSeleccionados()">
+                        <i class="fa-solid fa-plus"></i> Añadir Seleccionados
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==============================================
+         MODAL: DETALLE Y VISUALIZACIÓN DE RÉCIPE
+         ============================================== -->
+    <div id="recipeViewModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-dialog" style="max-width: 650px;">
+            <div class="modal-content">
+                <div class="modal-header header-purple">
+                    <div>
+                        <h3><i class="fa-solid fa-file-prescription"></i> Detalle de Prescripción Médica</h3>
+                        <span style="font-size: 0.8rem; color: rgba(255,255,255,0.85);">Resumen de fármacos e indicaciones emitidas</span>
+                    </div>
+                    <button type="button" class="btn-modal-close" onclick="cerrarRecipeViewModal()">&times;</button>
+                </div>
+                <div class="modal-body" style="padding: 1.5rem;">
+                    <div id="recipeViewContent">
+                        <!-- Rellenado dinámicamente -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarRecipeViewModal()">Cerrar</button>
+                    <button type="button" class="btn btn-primary" id="btnImprimirDesdeViewModal" onclick="imprimirRecipeActualDesdeModal()">
+                        <i class="fa-solid fa-print"></i> Imprimir Récipe Oficial
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================================
+         PLANTILLA A4 PAISAJE (LANDSCAPE) DUAL PARA IMPRESIÓN DIRECTA DE RÉCIPE
+         ========================================================================= -->
+    <div id="modalPrintRecipeContainer" class="modal-backdrop" style="display: none;">
+        <div class="modal-dialog modal-dialog-lg modal-dialog-recipe" style="max-width: 1140px; width: 95vw;">
+            <div class="modal-content">
+                <div class="modal-header header-blue no-print">
+                    <div>
+                        <h3><i class="fa-solid fa-print"></i> Récipe Médico Oficial — Hoja Dual</h3>
+                        <span style="font-size: 0.8rem; color: rgba(255,255,255,0.85);" id="pdfDocSubtitleTop">Oftalmología</span>
+                    </div>
+                    <button type="button" class="btn-modal-close" onclick="cerrarModalPrintRecipe()">&times;</button>
+                </div>
+                <div class="modal-body" style="background: #E2E8F0; padding: 1.5rem; overflow-x: auto;">
+                    <div id="blueprintPDFRecipe" class="pdf-premium-recipe-landscape">
+                        <div class="pdf-recipe-watermark watermark-left"></div>
+                        <div class="pdf-recipe-watermark watermark-right"></div>
+                        <!-- ENCABEZADOS DUALES -->
+                        <div class="pdf-dual-header">
+                            <!-- Columna Izquierda: Membrete Médico Rp. -->
+                            <div class="header-box">
+                                <img src="images/LOGO.jpg" alt="Centro Óptico Nieves" class="header-doc-logo-img">
+                                <div class="header-text">
+                                    <h2 id="pdfDocNameL"></h2>
+                                    <p class="specialty" id="pdfDocSpecL">OFTALMOLOGÍA</p>
+                                    <p class="credentials" id="pdfDocCredsL"></p>
+                                </div>
+                            </div>
+                            <!-- Columna Derecha: Membrete Médico Indicaciones -->
+                            <div class="header-box">
+                                <img src="images/LOGO.jpg" alt="Centro Óptico Nieves" class="header-doc-logo-img">
+                                <div class="header-text">
+                                    <h2 id="pdfDocNameR"></h2>
+                                    <p class="specialty" id="pdfDocSpecR">OFTALMOLOGÍA</p>
+                                    <p class="credentials" id="pdfDocCredsR"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CUERPO DUAL -->
+                        <div class="pdf-dual-body">
+                            <!-- PARTE IZQUIERDA: RP (PRESCRIPCIÓN) -->
+                            <div class="recipe-col left-col">
+                                <h3 class="col-title">Rp.</h3>
+                                <div class="medications-block" id="pdfContenedorFilas">
+                                    <!-- Añadido dinámicamente -->
+                                </div>
+
+                                <!-- Firma en Récipe -->
+                                <div class="bottom-signatures">
+                                    <div class="signature-section">
+                                        <div style="height: 35px;"></div>
+                                        <p class="sig-label">Firma y Sello Médico</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- PARTE DERECHA: INDICACIONES -->
+                            <div class="recipe-col right-col">
+                                <h3 class="col-title">INDICACIONES:</h3>
+                                <div class="indications-block" id="pdfIndicaciones">
+                                    <!-- Añadido dinámicamente -->
+                                </div>
+
+                                <!-- Firma en Indicaciones -->
+                                <div class="bottom-signatures">
+                                    <div class="signature-section">
+                                        <div style="height: 35px;"></div>
+                                        <p class="sig-label">Firma y Sello Médico</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DATOS DEL PACIENTE ALINEADOS EN FILA COMPARTIDA -->
+                        <div class="pdf-patient-shared-row">
+                            <div class="patient-shared-col left-patient">
+                                <div class="patient-data-compact">
+                                    <div class="data-row-compact">
+                                        <span class="label">Nombre:</span>
+                                        <span class="value-line" id="pdfNombreRp"></span>
+                                    </div>
+                                    <div class="data-row-compact">
+                                        <span class="label">C.I.:</span>
+                                        <span class="value-line" id="pdfCedulaRp"></span>
+                                        <span class="label" style="margin-left: 10px;">Fecha:</span>
+                                        <span class="value-line" id="pdfFechaRp"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="patient-shared-col right-patient">
+                                <div class="patient-data-compact">
+                                    <div class="data-row-compact">
+                                        <span class="label">Nombre:</span>
+                                        <span class="value-line" id="pdfNombreInd"></span>
+                                    </div>
+                                    <div class="data-row-compact">
+                                        <span class="label">C.I.:</span>
+                                        <span class="value-line" id="pdfCedulaInd"></span>
+                                        <span class="label" style="margin-left: 10px;">Fecha:</span>
+                                        <span class="value-line" id="pdfFechaInd"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- APARTADO DE OBSERVACIONES ANCHO -->
+                        <div id="pdfObservacionesBlock" class="pdf-obs-block" style="display: none;">
+                            <strong>Observaciones / Indicaciones Adicionales:</strong>
+                            <div id="pdfObservacionesText"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer no-print">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModalPrintRecipe()">Cerrar</button>
+                    <button type="button" class="btn btn-primary" onclick="openModalAndPrint('modalPrintRecipeContainer', { landscape: true })">
+                        <i class="fa-solid fa-print"></i> Imprimir Récipe Directo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- MODAL: AGREGAR / EDITAR FÁRMACO -->
+    <div id="modalFarmaco" class="modal-backdrop" style="display: none;">
+        <div class="modal-dialog" style="max-width: 520px;">
+            <div class="modal-content">
+                <div class="modal-header header-blue">
+                    <div>
+                        <h3 id="modalFarmacoTitle"><i class="fa-solid fa-pills"></i> Nuevo Fármaco</h3>
+                        <span style="font-size: 0.8rem; color: rgba(255,255,255,0.85);">Catálogo de Prescripción Médica</span>
+                    </div>
+                    <button type="button" class="btn-modal-close" onclick="cerrarModalFarmaco()">&times;</button>
+                </div>
+                <form id="formFarmaco" onsubmit="event.preventDefault(); guardarFarmacoModal();">
+                    <input type="hidden" id="farmacoIdHidden" value="">
+                    <div class="modal-body" style="padding: 1.25rem;">
+                        <div class="form-group-item" style="margin-bottom: 1rem;">
+                            <label class="form-label-pro">Nombre del Medicamento & Presentación *</label>
+                            <input type="text" id="farmacoNombreInput" class="form-control-pro" required placeholder="Ej: Tobramicina 0.3% + Dexametasona 0.1% colirio">
+                        </div>
+                        <div class="form-group-item">
+                            <label class="form-label-pro">Indicación y Posología Habitual *</label>
+                            <textarea id="farmacoIndicacionInput" class="form-control-pro" rows="3" required placeholder="Ej: Instilar 1 gota en ojo afectado cada 6 horas por 7 días. Agitar antes de usar."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="cerrarModalFarmaco()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Guardar Fármaco</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="js/products-data.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/admin.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const session = window.checkAuthSession ? window.checkAuthSession() : null;
+            if (!session) {
+                window.location.replace("admin.html");
+                return;
+            }
+            if (typeof window.setAdminRole === "function") {
+                window.setAdminRole("admin2", false);
+            }
+            if (typeof window.switchAdminTab === "function") {
+                window.switchAdminTab("dashboard-medico");
+            }
+            if (typeof window.sincronizarSelectoresPacientesMedicos === "function") {
+                window.sincronizarSelectoresPacientesMedicos();
+            }
+            if (typeof window.sincronizarSelectoresMedicosEnFormularios === "function") {
+                window.sincronizarSelectoresMedicosEnFormularios();
+            }
+        });
+    </script>
+</body>
+</html>
