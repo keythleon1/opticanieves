@@ -31,7 +31,7 @@ function initCatalog() {
             <div class="product-body">
                 <div>
                     <h3 class="product-title">${product.name}</h3>
-                    <div class="product-material"><i class="fa-solid fa-layer-group"></i> ${product.material}</div>
+                    <div class="product-material">${product.material}</div>
                     <p class="product-desc">${product.description}</p>
                 </div>
                 <div class="product-footer">
@@ -40,7 +40,7 @@ function initCatalog() {
                         <span class="product-price-val">$${product.price.toFixed(2)} USD</span>
                     </div>
                     <button type="button" class="btn btn-sm btn-primary" onclick="selectFrameForBooking('${product.name}', ${product.price})">
-                        <i class="fa-solid fa-cart-plus"></i> Elegir
+                        Elegir
                     </button>
                 </div>
             </div>
@@ -250,7 +250,7 @@ function showToast(message) {
 
     const toast = document.createElement('div');
     toast.className = 'toast';
-    toast.innerHTML = `<i class="fa-solid fa-circle-check" style="color: var(--color-primary-light);"></i> ${message}`;
+    toast.textContent = message;
     toastContainer.appendChild(toast);
 
     setTimeout(() => {
@@ -259,10 +259,51 @@ function showToast(message) {
 }
 
 /* ==========================================================================
-   8. FORMULARIO SIMPLIFICADO DE CITAS (PÁGINA 2)
+   8. FORMULARIO SIMPLIFICADO DE CITAS (PÁGINA 2) & CONTROL DE FECHAS
    ========================================================================== */
+window.actualizarFechasDisponiblesCliente = function() {
+    const state = document.getElementById('stateSelectSimple')?.value;
+    const dateInput = document.getElementById('appointmentDateSimple');
+    const hint = document.getElementById('hintFechasDisponibles');
+    if (!dateInput) return;
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    dateInput.min = todayStr;
+
+    if (!state) {
+        if (hint) hint.innerHTML = 'Seleccione su Estado/Sede para ver fechas de atención.';
+        return;
+    }
+
+    const sedeStr = state === 'Aragua' ? 'Maracay' : 'San Juan de los Morros';
+    const config = window.OpticaStorage ? window.OpticaStorage.getConfig() : null;
+    const fechasDisponibles = (config && config.fechas_disponibles && config.fechas_disponibles[sedeStr]) || [];
+
+    if (fechasDisponibles && fechasDisponibles.length > 0) {
+        if (hint) {
+            hint.innerHTML = `Fechas activas para ${sedeStr}: <strong>${fechasDisponibles.slice(0, 4).join(', ')}${fechasDisponibles.length > 4 ? '...' : ''}</strong>`;
+        }
+        // Sugerir la primera fecha disponible
+        if (!dateInput.value || !fechasDisponibles.includes(dateInput.value)) {
+            dateInput.value = fechasDisponibles[0];
+        }
+    } else {
+        if (hint) {
+            hint.innerHTML = `Atención habitual de Lunes a Sábado en ${sedeStr}. Seleccione el día deseado.`;
+        }
+        if (!dateInput.value) {
+            dateInput.value = todayStr;
+        }
+    }
+};
+
 function initSimpleBookingForm() {
     const form = document.getElementById('simpleBookingForm');
+    const dateInput = document.getElementById('appointmentDateSimple');
+    if (dateInput) {
+        dateInput.min = new Date().toISOString().split('T')[0];
+        dateInput.value = new Date().toISOString().split('T')[0];
+    }
     if (!form) return;
 
     form.addEventListener('submit', (e) => {
@@ -272,14 +313,31 @@ function initSimpleBookingForm() {
         const idNumber = document.getElementById('idNumber')?.value.trim();
         const phone = document.getElementById('phoneNumber')?.value.trim();
         const state = document.getElementById('stateSelectSimple')?.value;
+        const chosenDate = document.getElementById('appointmentDateSimple')?.value || new Date().toISOString().split('T')[0];
+        const chosenShift = document.getElementById('appointmentShiftSimple')?.value || 'Mañana (09:00 AM - 12:30 PM)';
 
-        if (!fullName || !idNumber || !phone || !state) {
-            alert('Por favor complete todos los campos obligatorios.');
+        if (!fullName || !idNumber || !phone || !state || !chosenDate) {
+            alert('Por favor complete todos los campos obligatorios, incluyendo la fecha de la cita.');
             return;
         }
 
         const sedeStr = state === 'Aragua' ? 'Maracay' : 'San Juan de los Morros';
         const formattedCedula = `${idPrefix}${idNumber}`;
+
+        const config = window.OpticaStorage ? window.OpticaStorage.getConfig() : null;
+        if (config) {
+            if (Array.isArray(config.fechas_bloqueadas) && config.fechas_bloqueadas.includes(chosenDate)) {
+                alert(`Lo sentimos, la fecha seleccionada (${chosenDate}) no está disponible para atención. Por favor elija otra fecha.`);
+                return;
+            }
+            const dateObj = new Date(chosenDate + 'T12:00:00');
+            const dayOfWeek = dateObj.getDay();
+            const diasHabilitados = (config.dias_habilitados && config.dias_habilitados[sedeStr]) || [1, 2, 3, 4, 5, 6];
+            if (dayOfWeek === 0 || !diasHabilitados.includes(dayOfWeek)) {
+                alert(`La sede ${sedeStr} no atiende consultas en el día de la semana seleccionado. Por favor seleccione otra fecha.`);
+                return;
+            }
+        }
 
         if (window.OpticaStorage && window.OpticaStorage.crearCita) {
             window.OpticaStorage.crearCita({
@@ -287,14 +345,50 @@ function initSimpleBookingForm() {
                 cedula: formattedCedula,
                 telefono: phone,
                 sede: sedeStr,
-                fecha: new Date().toISOString().split('T')[0],
-                hora: '09:00 AM',
-                motivo: 'Cita Agendada desde Portal Web'
+                fecha: chosenDate,
+                hora: 'Por asignar',
+                turno: chosenShift,
+                estado: 'PENDIENTE',
+                motivo: 'Solicitud de Turno y Día de Consulta desde Portal Web'
             });
         }
 
-        showToast(`¡Cita registrada con éxito para ${fullName} en Sede ${sedeStr}!`);
+        // Guardar o actualizar datos del paciente para que quede disponible en todos los apartados
+        if (window.OpticaStorage && window.OpticaStorage.crearOActualizarPaciente) {
+            const partes = fullName.split(' ');
+            const nom = partes[0] || fullName;
+            const ape = partes.slice(1).join(' ') || '';
+            window.OpticaStorage.crearOActualizarPaciente({
+                cedula: formattedCedula,
+                nombre: nom,
+                apellido: ape,
+                telefono: phone,
+                whatsapp: phone,
+                sede: sedeStr
+            });
+        }
+
+        // Mensaje automatizado de WhatsApp según la sede
+        const phoneSede = (sedeStr === 'Maracay' || state === 'Aragua') ? '584124419517' : '584243577194';
+        const msgWhatsApp = encodeURIComponent(
+            `Hola Centro Óptico Nieves (${sedeStr}), solicito turno y día de consulta:\n` +
+            `• Paciente: ${fullName}\n` +
+            `• Cédula: ${formattedCedula}\n` +
+            `• Teléfono: ${phone}\n` +
+            `• Fecha Solicitada: ${chosenDate}\n` +
+            `• Turno Preferido: ${chosenShift}\n` +
+            `• Sede: ${sedeStr}\n\n` +
+            `Quedo atento a la confirmación de la hora exacta de mi cita.`
+        );
+        const waUrl = `https://wa.me/${phoneSede}?text=${msgWhatsApp}`;
+        window.open(waUrl, '_blank');
+
+        showToast(`¡Solicitud de turno y cita recibida para ${fullName}! Se abrió WhatsApp para enviar la confirmación a la sede ${sedeStr}.`);
         form.reset();
+        if (dateInput) {
+            dateInput.min = new Date().toISOString().split('T')[0];
+            dateInput.value = new Date().toISOString().split('T')[0];
+        }
     });
 }
 
@@ -322,9 +416,8 @@ function initLensTrackerForm() {
         if (!trackerData || !trackerData.encontrado) {
             resultBox.style.display = 'block';
             resultBox.innerHTML = `
-                <div class="empty-state" style="padding: 2.5rem 1rem; text-align: center; background: #F8FAFC; border-radius: 16px; border: 1px dashed #CBD5E1;">
-                    <i class="fa-solid fa-file-circle-question" style="font-size: 2.8rem; color: #94A3B8; margin-bottom: 0.75rem;"></i>
-                    <h3 style="color: var(--color-primary-dark); font-size: 1.2rem; font-weight: 800; margin-bottom: 0.35rem;">No se encontró orden activa para la cédula ${fullCedula}</h3>
+                <div class="empty-state" style="padding: 2.5rem 1rem; text-align: center; background: #F8FAFC; border-radius: 12px; border: 1px dashed #CBD5E1;">
+                    <h3 style="color: var(--color-primary-dark); font-size: 1.15rem; font-weight: 800; margin-bottom: 0.35rem;">No se encontró orden activa para la cédula ${fullCedula}</h3>
                     <p style="color: var(--color-gray-500); font-size: 0.9rem; max-width: 480px; margin: 0 auto;">
                         Verifique el número ingresado o consulte directamente con nuestro equipo en la sede correspondiente.
                     </p>
@@ -361,13 +454,13 @@ function initLensTrackerForm() {
                 num: "4",
                 title: "Fase 4: Listos para la Entrega",
                 desc: `Lentes recibidos y listos para retiro inmediato en ${sedeNombre}.`,
-                badge: activePhaseIndex > 3 ? "Completado" : (activePhaseIndex === 3 ? "¡Listos para Retiro!" : "Pendiente")
+                badge: activePhaseIndex > 3 ? "Completado" : (activePhaseIndex === 3 ? "Listos para Retiro" : "Pendiente")
             },
             {
                 num: "5",
                 title: "Fase 5: Entregado al Paciente",
                 desc: "Lentes entregados satisfactoriamente con estuche, paño y certificado de garantía.",
-                badge: activePhaseIndex >= 4 ? "¡Entregado con Éxito!" : "Pendiente"
+                badge: activePhaseIndex >= 4 ? "Entregado" : "Pendiente"
             }
         ];
 
@@ -380,15 +473,14 @@ function initLensTrackerForm() {
                 <div>
                     <div class="tracker-patient-name">${trackerData.paciente_nombre}</div>
                     <div class="tracker-patient-details">
-                        <span><i class="fa-solid fa-id-card"></i> ${trackerData.paciente_cedula}</span>
-                        <span><i class="fa-solid fa-location-dot"></i> ${sedeNombre}</span>
-                        ${trackerData.orden_id ? `<span><i class="fa-solid fa-ticket"></i> Orden: ${trackerData.orden_id}</span>` : ''}
+                        <span>Cédula: ${trackerData.paciente_cedula}</span>
+                        <span>Sede: ${sedeNombre}</span>
+                        ${trackerData.orden_id ? `<span>Orden: ${trackerData.orden_id}</span>` : ''}
                     </div>
                 </div>
                 <div>
                     <span class="badge-tag ${(isAllDone || isReady) ? 'badge-green' : 'badge-blue'}" style="font-size: 0.85rem; padding: 0.4rem 0.85rem;">
-                        <i class="fa-solid ${(isAllDone || isReady) ? 'fa-circle-check' : 'fa-clock'}"></i>
-                        ${isAllDone ? 'Lentes Entregados' : (isReady ? '¡Listos para Retiro!' : (activePhaseIndex === 2 ? 'Listo en Lab' : (activePhaseIndex === 1 ? 'En Proceso Lab' : 'Enviado al Lab')))}
+                        ${isAllDone ? 'Lentes Entregados' : (isReady ? 'Listos para Retiro' : (activePhaseIndex === 2 ? 'Listo en Lab' : (activePhaseIndex === 1 ? 'En Proceso Lab' : 'Enviado al Lab')))}
                     </span>
                 </div>
             </div>
@@ -399,7 +491,7 @@ function initLensTrackerForm() {
                     const isActive = idx === activePhaseIndex && !isAllDone;
                     const stateClass = isCompleted ? 'completed' : (isActive ? 'active' : 'pending');
                     const badgeClass = isCompleted ? 'done' : (isActive ? 'process' : 'pending');
-                    const icon = isCompleted ? '<i class="fa-solid fa-check"></i>' : ph.num;
+                    const icon = isCompleted ? '✓' : ph.num;
 
                     return `
                         <div class="timeline-step ${stateClass}">

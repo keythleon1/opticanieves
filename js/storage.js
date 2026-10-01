@@ -31,8 +31,12 @@ const STORAGE_KEYS = {
     MEDICO_ACTIVO: 'optica_nieves_medico_activo_id',
     INVENTARIO: 'optica_nieves_inventario_v3',
     CATEGORIAS_INVENTARIO: 'optica_nieves_categorias_inv_v3',
+    MARCAS_INVENTARIO: 'optica_nieves_marcas_inv_v3',
     WA_PLANTILLAS_CUSTOM: 'optica_nieves_wa_plantillas_custom_v1',
-    WA_RECORDATORIOS: 'optica_nieves_wa_recordatorios_v1'
+    WA_RECORDATORIOS: 'optica_nieves_wa_recordatorios_v1',
+    WA_CUMPLEANOS: 'optica_nieves_wa_cumpleanos_v1',
+    FECHAS_CITAS: 'optica_nieves_fechas_citas_v1',
+    AUDITORIA_LOGS: 'optica_nieves_auditoria_logs_v1'
 };
 
 // Médicos predeterminados del sistema: Plantilla limpia por defecto
@@ -90,7 +94,23 @@ const DEFAULT_CONFIG = {
             dias_atencion: "Lunes a Viernes: 8:30 AM - 5:00 PM"
         }
     },
+    fechas_disponibles: {
+        'Maracay': [],
+        'San Juan de los Morros': []
+    },
+    dias_habilitados: {
+        'Maracay': [1, 2, 3, 4, 5, 6],
+        'San Juan de los Morros': [1, 2, 3, 4, 5, 6]
+    },
+    fechas_bloqueadas: [],
     plantillas_wa: {
+        appointment_assigned: {
+            id: "appointment_assigned",
+            title: "Asignación de Turno y Cita Médica",
+            category: "Citas",
+            body: "Estimado(a) *{nombre}*, le saludamos de *Centro Óptico Nieves*. Su turno de consulta ha sido asignado para el día *{fecha}* a las *{hora}* (*{turno}*) en nuestra sede de *{sede}*. Por favor responda *CONFIRMAR* para asegurar su atención.",
+            intervalMonths: 0
+        },
         appointment_reminder: {
             id: "appointment_reminder",
             title: "Recordatorio de Cita Próxima",
@@ -167,6 +187,31 @@ class OpticaStorageManager {
         }
         if (!localStorage.getItem(STORAGE_KEYS.MEDICOS)) {
             localStorage.setItem(STORAGE_KEYS.MEDICOS, JSON.stringify(DEFAULT_MEDICOS));
+        }
+        if (!localStorage.getItem(STORAGE_KEYS.AUDITORIA_LOGS)) {
+            const seedLogs = [
+                {
+                    id: 'ACT-INIT-01',
+                    timestamp: new Date(Date.now() - 3600000 * 3).toISOString(),
+                    fecha: new Date(Date.now() - 3600000 * 3).toLocaleDateString('es-VE') + ' 09:15 AM',
+                    accion: 'SISTEMA_INICIO',
+                    sede: 'Maracay',
+                    descripcion: 'Apertura de sistema y sincronización de tasa oficial BCV',
+                    usuario: 'Administración Maracay',
+                    extra: {}
+                },
+                {
+                    id: 'ACT-INIT-02',
+                    timestamp: new Date(Date.now() - 3600000 * 2).toISOString(),
+                    fecha: new Date(Date.now() - 3600000 * 2).toLocaleDateString('es-VE') + ' 10:30 AM',
+                    accion: 'SISTEMA_INICIO',
+                    sede: 'San Juan de los Morros',
+                    descripcion: 'Apertura de caja y recepción activa en sede San Juan',
+                    usuario: 'Administración San Juan',
+                    extra: {}
+                }
+            ];
+            localStorage.setItem(STORAGE_KEYS.AUDITORIA_LOGS, JSON.stringify(seedLogs));
         }
 
         // Limpieza y migración de médicos anteriores (eliminar Juan Loreto de pruebas y garantizar Especialista)
@@ -288,13 +333,211 @@ class OpticaStorageManager {
     }
 
     // =========================================================================
+    // AUDITORÍA Y NOTIFICACIONES EN VIVO (ALTA GERENCIA)
+    // =========================================================================
+    getActividades(sedeFiltro = 'todas', limite = 100) {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEYS.AUDITORIA_LOGS);
+            const list = raw ? JSON.parse(raw) : [];
+            let filtradas = list;
+            if (sedeFiltro && sedeFiltro !== 'todas') {
+                filtradas = list.filter(item => (item.sede || '').toLowerCase() === sedeFiltro.toLowerCase());
+            }
+            return filtradas.slice(0, limite);
+        } catch (e) {
+            console.warn('Error leyendo actividades:', e);
+            return [];
+        }
+    }
+
+    registrarActividad(accion, sede, descripcion, usuario, extra = {}) {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEYS.AUDITORIA_LOGS);
+            const list = raw ? JSON.parse(raw) : [];
+            const now = new Date();
+            const fechaStr = now.toLocaleDateString('es-VE', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' +
+                             now.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+
+            let userFinal = usuario;
+            if (!userFinal) {
+                try {
+                    const sessionRaw = sessionStorage.getItem('optica_nieves_auth') || localStorage.getItem('optica_nieves_auth');
+                    if (sessionRaw) {
+                        const sess = JSON.parse(sessionRaw);
+                        userFinal = sess.name || sess.user || sess.handle || 'Operador';
+                    }
+                } catch (err) {}
+            }
+            if (!userFinal) userFinal = 'Sistema';
+
+            const nuevoLog = {
+                id: 'ACT-' + Date.now().toString(36).toUpperCase() + '-' + Math.floor(Math.random() * 1000),
+                timestamp: now.toISOString(),
+                fecha: fechaStr,
+                accion: accion || 'EVENTO',
+                sede: sede || 'Maracay',
+                descripcion: descripcion || '',
+                usuario: userFinal,
+                extra: extra || {}
+            };
+
+            list.unshift(nuevoLog);
+            if (list.length > 500) {
+                list.length = 500;
+            }
+            localStorage.setItem(STORAGE_KEYS.AUDITORIA_LOGS, JSON.stringify(list));
+
+            // Disparar evento personalizado en la ventana actual para refresco instantáneo de UI
+            window.dispatchEvent(new CustomEvent('optica_auditoria_nueva', { detail: nuevoLog }));
+
+            return nuevoLog;
+        } catch (e) {
+            console.warn('Error registrando actividad:', e);
+            return null;
+        }
+    }
+
+    // =========================================================================
     // PACIENTE 360
     // =========================================================================
+    // =========================================================================
+    // PACIENTE 360 & NORMALIZACIÓN DE FÓRMULAS OFTALMOLÓGICAS
+    // =========================================================================
+    normalizarFormula(f) {
+        if (!f || typeof f !== 'object') return null;
+
+        // Extraer valores OD (Derecho)
+        const odSph = f.od?.sph ?? f.od_esfera ?? f.der_esf ?? f.cRxOdEsfera ?? f.hoRxOdEsfera ?? f.wizRxOdSph ?? '';
+        const odCyl = f.od?.cyl ?? f.od_cilindro ?? f.der_cil ?? f.cRxOdCilindro ?? f.hoRxOdCilindro ?? f.wizRxOdCyl ?? '';
+        const odAxis = f.od?.axis ?? f.od_eje ?? f.der_eje ?? f.cRxOdEje ?? f.hoRxOdEje ?? f.wizRxOdAxis ?? '';
+        const odAdd = f.od?.add ?? f.od_adicion ?? f.der_add ?? f.cRxOdAdicion ?? f.hoRxOdAdd ?? f.wizRxOdAdd ?? '';
+        const odAv = f.od?.av ?? f.od_av ?? f.der_av ?? f.cRxOdAv ?? f.hoRxOdAvCc ?? f.wizRxOdAv ?? '20/20';
+
+        // Extraer valores OS / OI (Izquierdo)
+        const osSph = f.os?.sph ?? f.oi?.sph ?? f.os_esfera ?? f.oi_esfera ?? f.izq_esf ?? f.cRxOsEsfera ?? f.hoRxOiEsfera ?? f.wizRxOsSph ?? '';
+        const osCyl = f.os?.cyl ?? f.oi?.cyl ?? f.os_cilindro ?? f.oi_cilindro ?? f.izq_cil ?? f.cRxOsCilindro ?? f.hoRxOiCilindro ?? f.wizRxOsCyl ?? '';
+        const osAxis = f.os?.axis ?? f.oi?.axis ?? f.os_eje ?? f.oi_eje ?? f.izq_eje ?? f.cRxOsEje ?? f.hoRxOiEje ?? f.wizRxOsAxis ?? '';
+        const osAdd = f.os?.add ?? f.oi?.add ?? f.os_adicion ?? f.oi_adicion ?? f.izq_add ?? f.cRxOsAdicion ?? f.hoRxOiAdd ?? f.wizRxOsAdd ?? '';
+        const osAv = f.os?.av ?? f.oi?.av ?? f.os_av ?? f.izq_av ?? f.cRxOsAv ?? f.hoRxOiAvCc ?? f.wizRxOsAv ?? '20/20';
+
+        // Parámetros técnicos
+        const dp = f.dp ?? f.dnp ?? f.od?.dp ?? f.cRxDp ?? f.hoRxDp ?? f.wizRxDp ?? f.fchDp ?? '';
+        const alt = f.alt ?? f.altura ?? f.cRxAlt ?? f.hoRxAlt ?? f.wizRxAlt ?? '';
+        const tipoLente = f.tipo_lente ?? f.tipoLente ?? f.cTipoLente ?? f.wizTipoLente ?? 'Monofocal';
+        const material = f.material ?? f.materialCristal ?? f.cMaterial ?? 'CR-39';
+        const tratamientos = Array.isArray(f.tratamientos) ? f.tratamientos : [];
+        const notas = f.notas ?? f.observaciones ?? f.observacion ?? '';
+
+        // Comprobar si contiene al menos un parámetro de refracción
+        const tieneRefraccion = Boolean(
+            (odSph !== '' && odSph !== undefined) ||
+            (odCyl !== '' && odCyl !== undefined) ||
+            (osSph !== '' && osSph !== undefined) ||
+            (osCyl !== '' && osCyl !== undefined) ||
+            (odAdd !== '' && odAdd !== undefined) ||
+            (osAdd !== '' && osAdd !== undefined) ||
+            (dp !== '' && dp !== undefined)
+        );
+
+        if (!tieneRefraccion) return null;
+
+        return {
+            od: { sph: odSph, cyl: odCyl, axis: odAxis, add: odAdd, av: odAv },
+            os: { sph: osSph, cyl: osCyl, axis: osAxis, add: osAdd, av: osAv },
+            od_esfera: odSph, od_cilindro: odCyl, od_eje: odAxis, od_adicion: odAdd, od_av: odAv,
+            os_esfera: osSph, os_cilindro: osCyl, os_eje: osAxis, os_adicion: osAdd, os_av: osAv,
+            der_esf: odSph, der_cil: odCyl, der_eje: odAxis, der_add: odAdd, der_av: odAv,
+            izq_esf: osSph, izq_cil: osCyl, izq_eje: osAxis, izq_add: osAdd, izq_av: osAv,
+            dp, alt, tipo_lente: tipoLente, material, tratamientos, notas
+        };
+    }
+
+    obtenerFormulaPaciente(idOrCedula) {
+        if (!idOrCedula) return null;
+        let p = this.getPacienteById(idOrCedula) || this.getPacienteByCedula(idOrCedula);
+        if (!p) return null;
+
+        // 1. Verificar si el paciente tiene ultima_formula o formula válida
+        let fNorm = this.normalizarFormula(p.ultima_formula) || this.normalizarFormula(p.formula);
+        if (fNorm) return fNorm;
+
+        // 2. Buscar en Consultas Oftalmológicas registradas
+        const consultas = (this.getConsultas() || []).filter(c => c.paciente_id === p.id || (c.paciente_cedula && c.paciente_cedula === p.cedula));
+        for (let i = 0; i < consultas.length; i++) {
+            const f = this.normalizarFormula(consultas[i].formula || consultas[i].rx_definitivo);
+            if (f) {
+                this.actualizarPaciente(p.id, { ultima_formula: f, formula: f });
+                return f;
+            }
+        }
+
+        // 3. Buscar en Historias Optométricas
+        const historias = (this.getHistoriasOptometricas() || []).filter(h => h.paciente_id === p.id || (h.paciente_cedula && h.paciente_cedula === p.cedula));
+        for (let i = 0; i < historias.length; i++) {
+            const h = historias[i];
+            const fRaw = h.rx_definitivo ? {
+                od_esfera: h.rx_definitivo.od_esfera,
+                od_cilindro: h.rx_definitivo.od_cilindro,
+                od_eje: h.rx_definitivo.od_eje,
+                od_adicion: h.rx_definitivo.od_add,
+                od_av: h.rx_definitivo.od_av_cc,
+                os_esfera: h.rx_definitivo.oi_esfera,
+                os_cilindro: h.rx_definitivo.oi_cilindro,
+                os_eje: h.rx_definitivo.oi_eje,
+                os_adicion: h.rx_definitivo.oi_add,
+                os_av: h.rx_definitivo.oi_av_cc,
+                dp: h.rx_definitivo.dp
+            } : null;
+            const f = this.normalizarFormula(fRaw);
+            if (f) {
+                this.actualizarPaciente(p.id, { ultima_formula: f, formula: f });
+                return f;
+            }
+        }
+
+        // 4. Buscar en Fichas de Consulta Rápida
+        const fichas = (this.getFichasConsulta() || []).filter(fch => fch.paciente_id === p.id || (fch.paciente_cedula && fch.paciente_cedula === p.cedula));
+        for (let i = 0; i < fichas.length; i++) {
+            const f = this.normalizarFormula(fichas[i]);
+            if (f) {
+                this.actualizarPaciente(p.id, { ultima_formula: f, formula: f });
+                return f;
+            }
+        }
+
+        // 5. Buscar en Órdenes de Laboratorio
+        const ordenesLab = (this.getOrdenesLaboratorio() || []).filter(o => o.paciente_id === p.id || (o.paciente_cedula && o.paciente_cedula === p.cedula));
+        for (let i = 0; i < ordenesLab.length; i++) {
+            const f = this.normalizarFormula(ordenesLab[i].formula);
+            if (f) {
+                this.actualizarPaciente(p.id, { ultima_formula: f, formula: f });
+                return f;
+            }
+        }
+
+        // 6. Buscar en Recibos de Ventas
+        const recibos = (this.getRecibos() || []).filter(r => r.paciente_id === p.id || (r.paciente_cedula && r.paciente_cedula === p.cedula));
+        for (let i = 0; i < recibos.length; i++) {
+            const f = this.normalizarFormula(recibos[i].formula_prescripcion || recibos[i].formula);
+            if (f) {
+                this.actualizarPaciente(p.id, { ultima_formula: f, formula: f });
+                return f;
+            }
+        }
+
+        return null;
+    }
+
     getPacientes(sedeFiltro) {
         try {
             const list = JSON.parse(localStorage.getItem(STORAGE_KEYS.PACIENTES)) || [];
             if (!sedeFiltro || sedeFiltro === 'todas') return list;
-            return list.filter(item => item.sede === sedeFiltro);
+            return list.filter(item => {
+                if (item.sede === sedeFiltro) return true;
+                if (sedeFiltro.includes('San Juan') && (item.sede || '').includes('San Juan')) return true;
+                if (sedeFiltro.includes('Maracay') && (item.sede || '').includes('Maracay')) return true;
+                return false;
+            });
         } catch (e) {
             return [];
         }
@@ -324,6 +567,13 @@ class OpticaStorageManager {
         const list = this.getPacientes();
         const now = new Date().toISOString();
 
+        // Normalizar fórmula si viene en data
+        const formulaNorm = this.normalizarFormula(data.formula || data.ultima_formula);
+        if (formulaNorm) {
+            data.formula = formulaNorm;
+            data.ultima_formula = formulaNorm;
+        }
+
         if (data.id) {
             const idx = list.findIndex(p => p.id === data.id);
             if (idx !== -1) {
@@ -332,7 +582,12 @@ class OpticaStorageManager {
                     ...data,
                     updated_at: now
                 };
+                if (formulaNorm) {
+                    list[idx].formula = formulaNorm;
+                    list[idx].ultima_formula = formulaNorm;
+                }
                 this.savePacientes(list);
+                this.registrarActividad('PACIENTE_ACTUALIZADO', list[idx].sede, `Se actualizaron datos del paciente ${list[idx].nombre} ${list[idx].apellido} (C.I. ${list[idx].cedula || 'S/C'}) en sede ${list[idx].sede}`, null, { pacienteId: list[idx].id });
                 return list[idx];
             }
         }
@@ -351,10 +606,25 @@ class OpticaStorageManager {
                     id: list[existingIdx].id,
                     updated_at: now
                 };
+                if (formulaNorm) {
+                    list[existingIdx].formula = formulaNorm;
+                    list[existingIdx].ultima_formula = formulaNorm;
+                }
                 this.savePacientes(list);
+                this.registrarActividad('PACIENTE_ACTUALIZADO', list[existingIdx].sede, `Se actualizaron datos del paciente ${list[existingIdx].nombre} ${list[existingIdx].apellido} (C.I. ${list[existingIdx].cedula || 'S/C'}) en sede ${list[existingIdx].sede}`, null, { pacienteId: list[existingIdx].id });
                 return list[existingIdx];
             }
         }
+
+        // Detección automática y robusta de sede por URL y AppState
+        let defaultSede = 'Maracay';
+        if (typeof window !== 'undefined') {
+            const path = (window.location?.pathname || '').toLowerCase();
+            if (path.includes('sanjuan')) defaultSede = 'San Juan de los Morros';
+            else if (path.includes('maracay')) defaultSede = 'Maracay';
+            else if (window.AppState?.sedeFiltro && window.AppState.sedeFiltro !== 'todas') defaultSede = window.AppState.sedeFiltro;
+        }
+        const sedeFinal = data.sede || defaultSede;
 
         const newId = 'PAC-' + Date.now().toString(36).toUpperCase() + '-' + Math.floor(Math.random() * 1000);
         const newPaciente = {
@@ -370,21 +640,25 @@ class OpticaStorageManager {
             edad: data.edad || '',
             ocupacion: data.ocupacion || '',
             direccion: data.direccion || '',
-            sede: data.sede || 'Maracay',
+            sede: sedeFinal,
             alergias: data.alergias || '',
             antecedentes: data.antecedentes || '',
             notas_clinicas: data.notas_clinicas || '',
-            formula: data.formula || {
+            formula: formulaNorm || {
+                od: { sph: '', cyl: '', axis: '', add: '', av: '20/20' },
+                os: { sph: '', cyl: '', axis: '', add: '', av: '20/20' },
                 od_esfera: '', od_cilindro: '', od_eje: '', od_adicion: '', od_av: '20/20',
                 os_esfera: '', os_cilindro: '', os_eje: '', os_adicion: '', os_av: '20/20',
                 dp: '', alt: '', tipo_lente: 'Monofocal', material: 'CR-39', tratamientos: []
             },
+            ultima_formula: formulaNorm || null,
             created_at: now,
             updated_at: now
         };
 
         list.unshift(newPaciente);
         this.savePacientes(list);
+        this.registrarActividad('PACIENTE_REGISTRADO', newPaciente.sede, `Nuevo paciente registrado: ${newPaciente.nombre} ${newPaciente.apellido} (C.I. ${newPaciente.cedula || 'S/C'}) en sede ${newPaciente.sede}`, null, { pacienteId: newPaciente.id });
         return newPaciente;
     }
 
@@ -419,7 +693,12 @@ class OpticaStorageManager {
         try {
             const list = JSON.parse(localStorage.getItem(STORAGE_KEYS.RECIBOS)) || [];
             if (!sedeFiltro || sedeFiltro === 'todas') return list;
-            return list.filter(item => item.sede === sedeFiltro);
+            return list.filter(item => {
+                if (item.sede === sedeFiltro) return true;
+                if (sedeFiltro.includes('San Juan') && (item.sede || '').includes('San Juan')) return true;
+                if (sedeFiltro.includes('Maracay') && (item.sede || '').includes('Maracay')) return true;
+                return false;
+            });
         } catch (e) {
             return [];
         }
@@ -501,16 +780,20 @@ class OpticaStorageManager {
             estado_pago: estadoPago,
             garantia_dias: config.garantia_dias,
             notas: data.notas || '',
+            fecha_entrega: data.fecha_entrega || data.fecha_promesa || null,
+            fecha_promesa: data.fecha_entrega || data.fecha_promesa || null,
             orden_laboratorio_id: null
         };
 
-        const tieneLentes = (nuevoRecibo.items || []).some(item => 
-            item.tipo === 'cristales' || item.tipo === 'montura' || item.tipo === 'completo'
-        );
+        const tieneLentes = (nuevoRecibo.items || []).some(item => {
+            const t = String(item.tipo || '').toLowerCase();
+            return t.includes('cristal') || t.includes('montur') || t.includes('complet');
+        });
 
         if (tieneLentes) {
             const ordenLab = this.crearOrdenLaboratorio({
                 recibo_id: nuevoRecibo.id,
+                recibo_correlativo: nuevoRecibo.correlativo,
                 paciente_id: nuevoRecibo.paciente_id,
                 paciente_nombre: nuevoRecibo.paciente_nombre,
                 paciente_cedula: nuevoRecibo.paciente_cedula,
@@ -518,9 +801,18 @@ class OpticaStorageManager {
                 sede: nuevoRecibo.sede,
                 formula: nuevoRecibo.formula_prescripcion,
                 items: nuevoRecibo.items,
+                fecha_promesa: nuevoRecibo.fecha_entrega || null,
                 notas: nuevoRecibo.notas
             });
             nuevoRecibo.orden_laboratorio_id = ordenLab.id;
+        }
+
+        // Vincular fórmula técnica al perfil permanente del paciente para uso futuro
+        if (data.paciente_id && data.formula_prescripcion) {
+            this.actualizarPaciente(data.paciente_id, {
+                ultima_formula: data.formula_prescripcion,
+                formula: data.formula_prescripcion
+            });
         }
 
         const recibos = this.getRecibos();
@@ -539,6 +831,8 @@ class OpticaStorageManager {
                 sede: nuevoRecibo.sede
             });
         });
+
+        this.registrarActividad('VENTA_EMITIDA', nuevoRecibo.sede, `Venta y recibo ${nuevoRecibo.id} emitido por $${nuevoRecibo.total_usd.toFixed(2)} (${nuevoRecibo.estado_pago}) para ${nuevoRecibo.paciente_nombre} en sede ${nuevoRecibo.sede}`, null, { reciboId: nuevoRecibo.id, totalUsd: nuevoRecibo.total_usd, estadoPago: nuevoRecibo.estado_pago });
 
         return nuevoRecibo;
     }
@@ -580,6 +874,8 @@ class OpticaStorageManager {
             sede: recibo.sede
         });
 
+        this.registrarActividad('ABONO_REGISTRADO', recibo.sede, `Abono de $${montoUsd.toFixed(2)} registrado al recibo ${recibo.id} (${recibo.paciente_nombre}) en sede ${recibo.sede}. Restante: $${recibo.saldo_pendiente_usd.toFixed(2)}`, null, { reciboId: recibo.id, abonoUsd: montoUsd, saldoPendiente: recibo.saldo_pendiente_usd });
+
         return recibo;
     }
 
@@ -590,7 +886,12 @@ class OpticaStorageManager {
         try {
             const list = JSON.parse(localStorage.getItem(STORAGE_KEYS.LABORATORIO)) || [];
             if (!sedeFiltro || sedeFiltro === 'todas') return list;
-            return list.filter(item => item.sede === sedeFiltro);
+            return list.filter(item => {
+                if (item.sede === sedeFiltro) return true;
+                if (sedeFiltro.includes('San Juan') && (item.sede || '').includes('San Juan')) return true;
+                if (sedeFiltro.includes('Maracay') && (item.sede || '').includes('Maracay')) return true;
+                return false;
+            });
         } catch (e) {
             return [];
         }
@@ -608,6 +909,8 @@ class OpticaStorageManager {
         const faseInicial = data.fase || 'FASE_1';
         
         const titulosFase = {
+            FASE_PEDIDO_PROV: 'Pedido a Proveedor',
+            FASE_RECIBIDO_PROV: 'Recibido de Proveedor',
             FASE_1: 'Enviado al Laboratorio',
             FASE_2: 'En Proceso Laboratorio',
             FASE_3: 'Listo en Laboratorio',
@@ -618,6 +921,26 @@ class OpticaStorageManager {
         const monturaDesc = data.montura || (data.items?.find(i => i.tipo === 'MONTURA')?.descripcion) || 'Montura del Paciente';
         const cristalesDesc = data.cristales || (data.items?.find(i => i.tipo === 'CRISTALES')?.descripcion) || 'Cristales Oftálmicos';
 
+        // Auto-vincular fórmula previa normalizada del paciente si la orden no la incluye explícitamente
+        let formulaFinal = this.normalizarFormula(data.formula);
+        let pacienteRef = null;
+        if (data.paciente_id) {
+            pacienteRef = this.getPacienteById(data.paciente_id);
+            if (!formulaFinal && pacienteRef) {
+                formulaFinal = this.obtenerFormulaPaciente(pacienteRef.id);
+            }
+        }
+
+        let defaultSede = 'Maracay';
+        if (typeof window !== 'undefined') {
+            const path = (window.location?.pathname || '').toLowerCase();
+            if (path.includes('sanjuan')) defaultSede = 'San Juan de los Morros';
+            else if (path.includes('maracay')) defaultSede = 'Maracay';
+            else if (window.AppState?.sedeFiltro && window.AppState.sedeFiltro !== 'todas') defaultSede = window.AppState.sedeFiltro;
+        }
+
+        const sedeFinal = data.sede || pacienteRef?.sede || defaultSede;
+
         const nuevaOrden = {
             id: nextId,
             recibo_id: data.recibo_id || 'ASIG-DIRECTA',
@@ -625,11 +948,12 @@ class OpticaStorageManager {
             paciente_nombre: data.paciente_nombre,
             paciente_cedula: data.paciente_cedula,
             paciente_telefono: data.paciente_telefono,
-            sede: data.sede || 'Maracay',
+            sede: sedeFinal,
             montura: monturaDesc,
             cristales: cristalesDesc,
             fase: faseInicial,
-            formula: data.formula || null,
+            fecha_cambio_fase: now.toISOString(),
+            formula: formulaFinal,
             items: data.items || [],
             notas: data.notas || '',
             fecha_ingreso: now.toISOString(),
@@ -646,6 +970,7 @@ class OpticaStorageManager {
 
         ordenes.unshift(nuevaOrden);
         this.saveOrdenesLaboratorio(ordenes);
+        this.registrarActividad('LAB_ORDEN_CREADA', nuevaOrden.sede, `Nueva orden de laboratorio ${nuevaOrden.id} ingresada para ${nuevaOrden.paciente_nombre} en sede ${nuevaOrden.sede}`, null, { ordenId: nuevaOrden.id });
         return nuevaOrden;
     }
 
@@ -663,8 +988,12 @@ class OpticaStorageManager {
 
         const orden = ordenes[idx];
         orden.fase = nuevaFase;
+        const nowIso = new Date().toISOString();
+        orden.fecha_cambio_fase = nowIso;
         
         const titulosFase = {
+            FASE_PEDIDO_PROV: 'Pedido a Proveedor',
+            FASE_RECIBIDO_PROV: 'Recibido de Proveedor',
             FASE_1: 'Enviado al Laboratorio',
             FASE_2: 'En Proceso Laboratorio',
             FASE_3: 'Listo en Laboratorio',
@@ -672,15 +1001,20 @@ class OpticaStorageManager {
             FASE_5: 'Entregado al Paciente'
         };
 
+        if (!Array.isArray(orden.historial_fases)) {
+            orden.historial_fases = [];
+        }
+
         orden.historial_fases.push({
             fase: nuevaFase,
             titulo: titulosFase[nuevaFase] || nuevaFase,
-            fecha: new Date().toISOString(),
+            fecha: nowIso,
             nota: notaFase || `Estado: ${titulosFase[nuevaFase] || nuevaFase}`
         });
 
         ordenes[idx] = orden;
         this.saveOrdenesLaboratorio(ordenes);
+        this.registrarActividad('LAB_FASE_CAMBIADA', orden.sede, `Orden de laboratorio ${orden.id} (${orden.paciente_nombre}) avanzó a: "${titulosFase[nuevaFase] || nuevaFase}"`, null, { ordenId: orden.id, nuevaFase: nuevaFase });
         return orden;
     }
 
@@ -730,6 +1064,16 @@ class OpticaStorageManager {
 
         list.unshift(nuevoRecipe);
         this.saveRecipes(list);
+
+        // Auto-actualizar fórmula en paciente si el récipe contiene datos de graduación
+        const pIdRec = data.paciente_id || (data.paciente_cedula ? this.getPacienteByCedula(data.paciente_cedula)?.id : null);
+        if (pIdRec && data.formula) {
+            const normF = this.normalizarFormula(data.formula);
+            if (normF) {
+                this.actualizarPaciente(pIdRec, { ultima_formula: normF, formula: normF });
+            }
+        }
+
         return nuevoRecipe;
     }
 
@@ -941,15 +1285,11 @@ class OpticaStorageManager {
         list.unshift(nuevaConsulta);
         this.saveConsultas(list);
 
-        if (data.paciente_id) {
-            const paciente = this.getPacienteById(data.paciente_id);
+        const normF = this.normalizarFormula(nuevaConsulta.formula);
+        if (normF) {
+            const paciente = data.paciente_id ? this.getPacienteById(data.paciente_id) : (data.paciente_cedula ? this.getPacienteByCedula(data.paciente_cedula) : null);
             if (paciente) {
-                this.actualizarPaciente(paciente.id, { formula: nuevaConsulta.formula });
-            }
-        } else if (data.paciente_cedula) {
-            const paciente = this.getPacienteByCedula(data.paciente_cedula);
-            if (paciente) {
-                this.actualizarPaciente(paciente.id, { formula: nuevaConsulta.formula });
+                this.actualizarPaciente(paciente.id, { formula: normF, ultima_formula: normF });
             }
         }
 
@@ -1049,15 +1389,24 @@ class OpticaStorageManager {
         this.saveHistoriasOptometricas(list);
 
         // Actualizar última fórmula del paciente si se especificó refracción
-        if (data.paciente_id && (nuevaHistoria.rx_definitivo.od_esfera || nuevaHistoria.rx_definitivo.oi_esfera)) {
-            const paciente = this.getPacienteById(data.paciente_id);
-            if (paciente) {
-                this.actualizarPaciente(paciente.id, { 
-                    ultima_formula: {
-                        od: { sph: nuevaHistoria.rx_definitivo.od_esfera, cyl: nuevaHistoria.rx_definitivo.od_cilindro, add: nuevaHistoria.rx_definitivo.od_add, av: nuevaHistoria.rx_definitivo.od_av_cc },
-                        os: { sph: nuevaHistoria.rx_definitivo.oi_esfera, cyl: nuevaHistoria.rx_definitivo.oi_cilindro, add: nuevaHistoria.rx_definitivo.oi_add, av: nuevaHistoria.rx_definitivo.oi_av_cc }
-                    }
-                });
+        const pId = data.paciente_id || (data.paciente_cedula ? this.getPacienteByCedula(data.paciente_cedula)?.id : null);
+        if (pId) {
+            const rawRx = {
+                od_esfera: nuevaHistoria.rx_definitivo?.od_esfera,
+                od_cilindro: nuevaHistoria.rx_definitivo?.od_cilindro,
+                od_eje: nuevaHistoria.rx_definitivo?.od_eje,
+                od_adicion: nuevaHistoria.rx_definitivo?.od_add,
+                od_av: nuevaHistoria.rx_definitivo?.od_av_cc,
+                os_esfera: nuevaHistoria.rx_definitivo?.oi_esfera,
+                os_cilindro: nuevaHistoria.rx_definitivo?.oi_cilindro,
+                os_eje: nuevaHistoria.rx_definitivo?.oi_eje,
+                os_adicion: nuevaHistoria.rx_definitivo?.oi_add,
+                os_av: nuevaHistoria.rx_definitivo?.oi_av_cc,
+                dp: nuevaHistoria.rx_definitivo?.dp
+            };
+            const normF = this.normalizarFormula(rawRx);
+            if (normF) {
+                this.actualizarPaciente(pId, { ultima_formula: normF, formula: normF });
             }
         }
 
@@ -1118,6 +1467,16 @@ class OpticaStorageManager {
 
         list.unshift(nuevaFicha);
         this.saveFichasConsulta(list);
+
+        // Auto-actualizar fórmula en paciente si se indicaron valores de refracción
+        const pIdFch = data.paciente_id || (data.paciente_cedula ? this.getPacienteByCedula(data.paciente_cedula)?.id : null);
+        if (pIdFch) {
+            const normF = this.normalizarFormula(nuevaFicha);
+            if (normF) {
+                this.actualizarPaciente(pIdFch, { ultima_formula: normF, formula: normF });
+            }
+        }
+
         return nuevaFicha;
     }
 
@@ -1144,15 +1503,33 @@ class OpticaStorageManager {
         const list = this.getMovimientosCaja();
         const now = new Date();
         const fechaStr = now.toLocaleDateString('es-VE') + ' ' + now.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' });
+        const config = this.getConfig();
+        const tasa = parseFloat(config.tasa_usd_ves) || 847.44;
+
+        let montoUsd = parseFloat(data.monto_usd) || 0;
+        let montoVes = parseFloat(data.monto_ves) || 0;
+
+        if (montoUsd > 0 && (!montoVes || montoVes === 0)) {
+            montoVes = Math.round(montoUsd * tasa * 100) / 100;
+        } else if (montoVes > 0 && (!montoUsd || montoUsd === 0)) {
+            montoUsd = Math.round((montoVes / tasa) * 100) / 100;
+        }
+
+        const tipo = data.tipo || 'INGRESO';
+        let subtipo = data.subtipo || 'GASTO';
+        if (tipo === 'INGRESO') {
+            subtipo = 'INGRESO';
+        }
 
         const nuevoMov = {
             id: 'MOV-' + Date.now().toString(36).toUpperCase(),
             fecha: fechaStr,
             fecha_iso: now.toISOString(),
-            tipo: data.tipo || 'INGRESO',
+            tipo: tipo,
+            subtipo: subtipo, // 'GASTO' | 'COMPRA' | 'INGRESO'
             concepto: data.concepto || 'Movimiento de caja',
-            monto_usd: parseFloat(data.monto_usd) || 0,
-            monto_ves: parseFloat(data.monto_ves) || 0,
+            monto_usd: montoUsd,
+            monto_ves: montoVes,
             metodo: data.metodo || 'efectivo_usd',
             referencia: data.referencia || '',
             sede: data.sede || 'Maracay'
@@ -1160,6 +1537,9 @@ class OpticaStorageManager {
 
         list.unshift(nuevoMov);
         this.saveMovimientosCaja(list);
+        if (!data.concepto?.startsWith('Venta REC-') && !data.concepto?.startsWith('Abono a Recibo')) {
+            this.registrarActividad('MOVIMIENTO_CAJA', nuevoMov.sede, `${nuevoMov.tipo === 'EGRESO' ? 'Egreso/Gasto' : 'Ingreso manual'} de caja: $${nuevoMov.monto_usd.toFixed(2)} (${nuevoMov.concepto}) en sede ${nuevoMov.sede}`, null, { movId: nuevoMov.id, tipo: nuevoMov.tipo });
+        }
         return nuevoMov;
     }
 
@@ -1174,22 +1554,46 @@ class OpticaStorageManager {
         let otrosUsd = 0;
         let casheaUsd = 0;
         let totalIngresosUsd = 0;
+        let totalIngresosVes = 0;
         let totalEgresosUsd = 0;
+        let totalEgresosVes = 0;
+        let totalGastosUsd = 0;
+        let totalGastosVes = 0;
+        let totalComprasUsd = 0;
+        let totalComprasVes = 0;
 
         const movsHoy = movimientos.filter(m => {
             const fechaMov = (m.fecha_iso || '').split('T')[0];
             const coincideFecha = (fechaMov === hoy);
-            const coincideSede = (sedeFiltro === 'todas' || m.sede === sedeFiltro);
+            const coincideSede = (!sedeFiltro || sedeFiltro === 'todas') ||
+                (m.sede === sedeFiltro) ||
+                (sedeFiltro.includes('San Juan') && (m.sede || '').includes('San Juan')) ||
+                (sedeFiltro.includes('Maracay') && (m.sede || '').includes('Maracay')) ||
+                (!m.sede && sedeFiltro.includes('Maracay'));
             return coincideFecha && coincideSede;
         });
 
         movsHoy.forEach(m => {
-            const factor = (m.tipo === 'EGRESO') ? -1 : 1;
+            const isEgreso = (m.tipo === 'EGRESO');
+            const factor = isEgreso ? -1 : 1;
             const usd = (parseFloat(m.monto_usd) || 0) * factor;
             const ves = (parseFloat(m.monto_ves) || 0) * factor;
 
-            if (m.tipo === 'INGRESO') totalIngresosUsd += parseFloat(m.monto_usd) || 0;
-            if (m.tipo === 'EGRESO') totalEgresosUsd += parseFloat(m.monto_usd) || 0;
+            if (!isEgreso) {
+                totalIngresosUsd += parseFloat(m.monto_usd) || 0;
+                totalIngresosVes += parseFloat(m.monto_ves) || 0;
+            } else {
+                totalEgresosUsd += parseFloat(m.monto_usd) || 0;
+                totalEgresosVes += parseFloat(m.monto_ves) || 0;
+
+                if (m.subtipo === 'COMPRA') {
+                    totalComprasUsd += parseFloat(m.monto_usd) || 0;
+                    totalComprasVes += parseFloat(m.monto_ves) || 0;
+                } else {
+                    totalGastosUsd += parseFloat(m.monto_usd) || 0;
+                    totalGastosVes += parseFloat(m.monto_ves) || 0;
+                }
+            }
 
             switch (m.metodo) {
                 case 'efectivo_usd': efectivoUsd += usd; break;
@@ -1212,17 +1616,34 @@ class OpticaStorageManager {
             otros_usd: Math.round(otrosUsd * 100) / 100,
             cashea_usd: Math.round(casheaUsd * 100) / 100,
             total_ingresos_usd: Math.round(totalIngresosUsd * 100) / 100,
+            total_ingresos_ves: Math.round(totalIngresosVes * 100) / 100,
             total_egresos_usd: Math.round(totalEgresosUsd * 100) / 100,
-            balance_neto_usd: Math.round((totalIngresosUsd - totalEgresosUsd) * 100) / 100
+            total_egresos_ves: Math.round(totalEgresosVes * 100) / 100,
+            total_gastos_usd: Math.round(totalGastosUsd * 100) / 100,
+            total_gastos_ves: Math.round(totalGastosVes * 100) / 100,
+            total_compras_usd: Math.round(totalComprasUsd * 100) / 100,
+            total_compras_ves: Math.round(totalComprasVes * 100) / 100,
+            balance_neto_usd: Math.round((totalIngresosUsd - totalEgresosUsd) * 100) / 100,
+            balance_neto_ves: Math.round((totalIngresosVes - totalEgresosVes) * 100) / 100
         };
     }
 
     // =========================================================================
     // AGENDA DE CITAS
     // =========================================================================
-    getCitas() {
+    getCitas(filtroSede = 'todas') {
         try {
-            return JSON.parse(localStorage.getItem(STORAGE_KEYS.CITAS)) || [];
+            const list = JSON.parse(localStorage.getItem(STORAGE_KEYS.CITAS)) || [];
+            if (filtroSede && filtroSede !== 'todas') {
+                return list.filter(c => {
+                    if (!c.sede) return filtroSede.includes('Maracay');
+                    if (c.sede === filtroSede) return true;
+                    if (filtroSede.includes('San Juan') && (c.sede || '').includes('San Juan')) return true;
+                    if (filtroSede.includes('Maracay') && (c.sede || '').includes('Maracay')) return true;
+                    return false;
+                });
+            }
+            return list;
         } catch (e) {
             return [];
         }
@@ -1282,6 +1703,142 @@ class OpticaStorageManager {
             return citas[idx];
         }
         return null;
+    }
+
+    eliminarCita(citaId) {
+        let citas = this.getCitas();
+        citas = citas.filter(c => c.id !== citaId);
+        this.saveCitas(citas);
+        return true;
+    }
+
+    reprogramarCita(citaId, nuevaFecha, nuevaHora, nuevoMotivo = '') {
+        const citas = this.getCitas();
+        const idx = citas.findIndex(c => c.id === citaId);
+        if (idx === -1) return null;
+        citas[idx].fecha = nuevaFecha;
+        if (nuevaHora) citas[idx].hora = nuevaHora;
+        if (nuevoMotivo) citas[idx].motivo = nuevoMotivo;
+        citas[idx].estado = 'CONFIRMADA';
+        citas[idx].reprogramada_en = new Date().toISOString();
+        this.saveCitas(citas);
+        return citas[idx];
+    }
+
+    getFechasDisponibles(sede) {
+        const cfg = this.getConfig();
+        const sedeKey = (sede || '').toLowerCase().includes('maracay') ? 'Maracay' : 'San Juan de los Morros';
+        const fechas = (cfg.fechas_disponibles && cfg.fechas_disponibles[sedeKey]) || [];
+        return fechas;
+    }
+
+    guardarFechasDisponibles(sede, fechasArray) {
+        const cfg = this.getConfig();
+        if (!cfg.fechas_disponibles) cfg.fechas_disponibles = { 'Maracay': [], 'San Juan de los Morros': [] };
+        const sedeKey = (sede || '').toLowerCase().includes('maracay') ? 'Maracay' : 'San Juan de los Morros';
+        cfg.fechas_disponibles[sedeKey] = Array.isArray(fechasArray) ? fechasArray : [];
+        this.saveConfig(cfg);
+        return cfg.fechas_disponibles[sedeKey];
+    }
+
+    getDiasHabilitados(sede) {
+        const cfg = this.getConfig();
+        const sedeKey = (sede || '').toLowerCase().includes('maracay') ? 'Maracay' : 'San Juan de los Morros';
+        return (cfg.dias_habilitados && cfg.dias_habilitados[sedeKey]) || [1, 2, 3, 4, 5, 6];
+    }
+
+    getFechasBloqueadas() {
+        const cfg = this.getConfig();
+        return Array.isArray(cfg.fechas_bloqueadas) ? cfg.fechas_bloqueadas : [];
+    }
+
+    guardarConfigDisponibilidadCitas(diasMaracay, diasSanJuan, fechasBloqueadas) {
+        const cfg = this.getConfig();
+        if (!cfg.dias_habilitados) cfg.dias_habilitados = {};
+        cfg.dias_habilitados['Maracay'] = diasMaracay || [1, 2, 3, 4, 5, 6];
+        cfg.dias_habilitados['San Juan de los Morros'] = diasSanJuan || [1, 2, 3, 4, 5, 6];
+        cfg.fechas_bloqueadas = Array.isArray(fechasBloqueadas) ? fechasBloqueadas : [];
+        this.saveConfig(cfg);
+        return cfg;
+    }
+
+    // =========================================================================
+    // BASE DE DATOS DE CUMPLEAÑEROS & FELICITACIONES (WHATSAPP)
+    // =========================================================================
+    getCumpleaneros() {
+        const pacientes = this.getPacientes();
+        const hoy = new Date();
+        const hoyMes = hoy.getMonth() + 1; // 1-12
+        const hoyDia = hoy.getDate();
+        const anoActual = hoy.getFullYear();
+
+        const registroFelicitaciones = this.getRegistroFelicitacionesCumpleanos();
+
+        const cumpleanerosHoy = [];
+        const cumpleanerosSemana = [];
+
+        pacientes.forEach(p => {
+            if (!p.fecha_nacimiento) return;
+            const partes = p.fecha_nacimiento.split('-');
+            if (partes.length < 3) return;
+            const fnAno = parseInt(partes[0], 10);
+            const fnMes = parseInt(partes[1], 10);
+            const fnDia = parseInt(partes[2], 10);
+
+            const edadQueCumple = anoActual - fnAno;
+            const esHoy = (fnMes === hoyMes && fnDia === hoyDia);
+
+            // Calcular diferencia de días para la semana
+            const fechaCumpleEsteAno = new Date(anoActual, fnMes - 1, fnDia);
+            const diffMs = fechaCumpleEsteAno.getTime() - new Date(anoActual, hoyMes - 1, hoyDia).getTime();
+            const diffDias = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+            const yaFelicitado = registroFelicitaciones.some(r => r.paciente_id === p.id && r.ano === anoActual);
+
+            const item = {
+                paciente: p,
+                edad: edadQueCumple,
+                dia: fnDia,
+                mes: fnMes,
+                es_hoy: esHoy,
+                diff_dias: diffDias,
+                ya_felicitado: yaFelicitado
+            };
+
+            if (esHoy) {
+                cumpleanerosHoy.push(item);
+            } else if (diffDias > 0 && diffDias <= 7) {
+                cumpleanerosSemana.push(item);
+            }
+        });
+
+        return {
+            hoy: cumpleanerosHoy,
+            semana: cumpleanerosSemana,
+            total_hoy: cumpleanerosHoy.length
+        };
+    }
+
+    getRegistroFelicitacionesCumpleanos() {
+        try {
+            return JSON.parse(localStorage.getItem(STORAGE_KEYS.WA_CUMPLEANOS)) || [];
+        } catch(e) {
+            return [];
+        }
+    }
+
+    registrarFelicitacionCumpleanos(pacienteId, mensaje = '') {
+        const list = this.getRegistroFelicitacionesCumpleanos();
+        const ano = new Date().getFullYear();
+        list.unshift({
+            id: 'CUMPLE-' + Date.now(),
+            paciente_id: pacienteId,
+            ano: ano,
+            fecha: new Date().toISOString(),
+            mensaje: mensaje
+        });
+        localStorage.setItem(STORAGE_KEYS.WA_CUMPLEANOS, JSON.stringify(list));
+        return true;
     }
 
     // =========================================================================
@@ -1348,14 +1905,18 @@ class OpticaStorageManager {
     // =========================================================================
     // KPIS GENERALES
     // =========================================================================
-    getDashboardStats() {
-        const pacientes = this.getPacientes();
-        const recibos = this.getRecibos();
-        const ordenes = this.getOrdenesLaboratorio();
+    getDashboardStats(filtroSede = 'todas') {
+        let pacientes = this.getPacientes();
+        const recibos = this.getRecibos(filtroSede);
+        const ordenes = this.getOrdenesLaboratorio(filtroSede);
         const recipes = this.getRecipes();
         const informes = this.getInformes();
-        const citas = this.getCitas();
+        const citas = this.getCitas(filtroSede);
         const hoy = new Date().toISOString().split('T')[0];
+
+        if (filtroSede && filtroSede !== 'todas') {
+            pacientes = pacientes.filter(p => !p.sede || p.sede === filtroSede);
+        }
 
         const ventasTotalUsd = recibos.reduce((acc, r) => acc + (parseFloat(r.total_usd) || 0), 0);
         const ventasHoyUsd = recibos
@@ -1615,6 +2176,13 @@ class OpticaStorageManager {
         const idx = list.findIndex(p => p.id === id);
         if (idx === -1) return null;
         const now = new Date().toISOString();
+        if (data.formula || data.ultima_formula) {
+            const norm = this.normalizarFormula(data.formula || data.ultima_formula);
+            if (norm) {
+                data.formula = norm;
+                data.ultima_formula = norm;
+            }
+        }
         list[idx] = { ...list[idx], ...data, updated_at: now };
         this.savePacientes(list);
         return list[idx];
@@ -1687,39 +2255,96 @@ class OpticaStorageManager {
     crearOActualizarProducto(data) {
         const list = this.getInventario();
         const now = new Date().toISOString();
+        const stockQty = data.cantidad !== undefined ? parseInt(data.cantidad, 10) : (parseInt(data.stock, 10) || 0);
+        const costoVal = parseFloat(data.costo_usd !== undefined ? data.costo_usd : (data.costo || 0)) || 0;
+        const precioVal = parseFloat(data.precio_usd !== undefined ? data.precio_usd : (data.precio || 0)) || 0;
+        const skuVal = data.codigo_montura || data.sku || `SKU-${Date.now().toString().slice(-4)}`;
+
         if (data.id) {
             const idx = list.findIndex(p => p.id === data.id);
             if (idx !== -1) {
                 list[idx] = {
                     ...list[idx],
                     ...data,
+                    sku: skuVal,
+                    codigo_montura: skuVal,
+                    marca: data.marca || list[idx].marca || 'Centro Óptico Nieves',
+                    material: data.material || list[idx].material || 'Acetato',
+                    costo_usd: costoVal !== undefined ? costoVal : (list[idx].costo_usd || 0),
+                    costo: costoVal !== undefined ? costoVal : (list[idx].costo || 0),
+                    precio: precioVal,
+                    precio_usd: precioVal,
+                    stock: isNaN(stockQty) ? list[idx].stock : stockQty,
+                    cantidad: isNaN(stockQty) ? list[idx].stock : stockQty,
                     foto: data.foto !== undefined ? data.foto : (list[idx].foto || ''),
-                    precio: parseFloat(data.precio) || list[idx].precio,
-                    stock: parseInt(data.stock, 10) !== undefined ? parseInt(data.stock, 10) : list[idx].stock,
                     stock_minimo: parseInt(data.stock_minimo, 10) !== undefined ? parseInt(data.stock_minimo, 10) : list[idx].stock_minimo,
                     updated_at: now
                 };
                 this.saveInventario(list);
+                if (data.marca) this.guardarMarcaInventario(data.marca);
                 return list[idx];
             }
         }
         const nuevo = {
             id: data.id || `PROD-${Date.now().toString().slice(-6)}`,
-            sku: data.sku || `SKU-${Date.now().toString().slice(-4)}`,
+            sku: skuVal,
+            codigo_montura: skuVal,
             foto: data.foto || '',
             nombre: data.nombre,
             categoria: data.categoria || 'Monturas',
             marca: data.marca || 'Centro Óptico Nieves',
-            material: data.material || 'Estándar',
-            precio: parseFloat(data.precio) || 0,
-            stock: parseInt(data.stock, 10) || 0,
+            material: data.material || 'Acetato',
+            costo_usd: costoVal,
+            costo: costoVal,
+            precio: precioVal,
+            precio_usd: precioVal,
+            stock: stockQty,
+            cantidad: stockQty,
             stock_minimo: parseInt(data.stock_minimo, 10) || 3,
             sede: data.sede || 'Maracay',
             updated_at: now
         };
         list.unshift(nuevo);
         this.saveInventario(list);
+        if (data.marca) this.guardarMarcaInventario(data.marca);
         return nuevo;
+    }
+
+    // =========================================================================
+    // MARCAS PERSISTENTES DE INVENTARIO (PUNTO 10)
+    // =========================================================================
+    getMarcasInventario() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEYS.MARCAS_INVENTARIO);
+            if (raw) {
+                const arr = JSON.parse(raw);
+                if (Array.isArray(arr) && arr.length > 0) return arr;
+            }
+        } catch (e) {}
+        const defaultMarcas = [
+            'Ray-Ban', 'Oakley', 'Carolina Herrera', 'Carrera', 'Gucci', 'Vogue', 'Tommy Hilfiger', 'Centro Óptico Nieves', 'Genérica'
+        ];
+        localStorage.setItem(STORAGE_KEYS.MARCAS_INVENTARIO, JSON.stringify(defaultMarcas));
+        return defaultMarcas;
+    }
+
+    guardarMarcaInventario(nuevaMarca) {
+        if (!nuevaMarca || typeof nuevaMarca !== 'string') return;
+        const marcas = this.getMarcasInventario();
+        const limpia = nuevaMarca.trim();
+        if (limpia && !marcas.some(m => m.toLowerCase() === limpia.toLowerCase())) {
+            marcas.push(limpia);
+            marcas.sort((a,b) => a.localeCompare(b));
+            localStorage.setItem(STORAGE_KEYS.MARCAS_INVENTARIO, JSON.stringify(marcas));
+        }
+        return marcas;
+    }
+
+    eliminarMarcaInventario(marcaAEliminar) {
+        let marcas = this.getMarcasInventario();
+        marcas = marcas.filter(m => m !== marcaAEliminar);
+        localStorage.setItem(STORAGE_KEYS.MARCAS_INVENTARIO, JSON.stringify(marcas));
+        return marcas;
     }
 
     // =========================================================================

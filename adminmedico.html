@@ -72,12 +72,7 @@
                     <span>LiteFarma</span>
                 </button>
 
-                <div class="nav-section-label" style="margin-top: 1rem;">SISTEMA</div>
 
-                <a href="admin.html" class="admin-nav-item" style="color: #64748B; text-decoration: none;">
-                    <i class="fa-solid fa-cash-register nav-icon"></i>
-                    <span>Ir a Panel Administrativo</span>
-                </a>
             </nav>
 
             <div class="admin-sidebar-footer">
@@ -145,12 +140,6 @@
                         </div>
                     </div>
                                                             
-
-                                                            <!-- Enlace directo al Panel Administrativo -->
-                    <a href="admin.html" class="btn btn-outline-secondary btn-sm" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.85rem; border-radius: 8px; font-weight: 600; font-size: 0.82rem; color: #475569;" title="Ir al Panel Administrativo">
-                        <i class="fa-solid fa-cash-register"></i>
-                        <span>Panel Administrativo</span>
-                    </a>
 
                     <!-- Botón Salir / Cerrar Sesión en Topbar -->
                     <button type="button" class="btn-logout-topbar" onclick="cerrarSesionAdmin()" title="Cerrar sesión del sistema">
@@ -687,8 +676,23 @@
                                 <i class="fa-solid fa-user-doctor"></i> Consulta Oftalmológica Formal
                             </span>
                             <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--color-primary-dark);">Consulta Oftalmológica</h3>
-                            
                         </div>
+
+                    <!-- Tarjeta Informativa Oficial: QUÉ INCLUYE LA CONSULTA OFTALMOLÓGICA -->
+                    <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 10px; padding: 0.95rem 1.25rem; margin: 0.75rem 0 1.25rem 0; width: 100%;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 800; color: #166534; font-size: 0.95rem; margin-bottom: 0.45rem;">
+                            <i class="fa-solid fa-circle-check" style="color: #10B981;"></i> QUÉ INCLUYE LA CONSULTA OFTALMOLÓGICA
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0.45rem; font-size: 0.84rem; color: #15803D;">
+                            <div><i class="fa-solid fa-check" style="color: #059669; margin-right: 5px;"></i> Biomicroscopía</div>
+                            <div><i class="fa-solid fa-check" style="color: #059669; margin-right: 5px;"></i> Toma de Presión Intraocular</div>
+                            <div><i class="fa-solid fa-check" style="color: #059669; margin-right: 5px;"></i> Fondo de Ojo (con dilatación de pupila)</div>
+                            <div><i class="fa-solid fa-check" style="color: #059669; margin-right: 5px;"></i> Descarte Glaucoma</div>
+                            <div><i class="fa-solid fa-check" style="color: #059669; margin-right: 5px;"></i> Descarte de Cataratas</div>
+                            <div><i class="fa-solid fa-check" style="color: #059669; margin-right: 5px;"></i> Descarte de Retinopatías Diabética e Hipertensiva</div>
+                            <div><i class="fa-solid fa-check" style="color: #059669; margin-right: 5px;"></i> Fórmula de Lentes</div>
+                        </div>
+                    </div>
                         <div class="header-actions-group">
                             <button type="button" class="btn btn-secondary" onclick="limpiarFichaConsulta()">
                                 <i class="fa-solid fa-rotate-left"></i> Limpiar Formulario
@@ -898,50 +902,6 @@
                                             </tr>
                                         </tbody>
                                     </table>
-                                </div>
-
-                                <div class="form-row-pro" style="margin-top: 0.85rem;">
-                                    <div class="form-group-item">
-                                        <label class="form-label-pro">DP (mm)</label>
-                                        <input type="text" id="cRxDp" class="form-control-pro text-center" placeholder="Ej: 64">
-                                    </div>
-                                    <div class="form-group-item">
-                                        <label class="form-label-pro">Altura (mm)</label>
-                                        <input type="text" id="cRxAlt" class="form-control-pro text-center" placeholder="Ej: 18">
-                                    </div>
-                                    <div class="form-group-item">
-                                        <label class="form-label-pro">Tipo de Lente</label>
-                                        <select id="cRxTipoLente" class="form-control-pro">
-                                            <option value="Monofocal">Monofocal</option>
-                                            <option value="Bifocal Flat-Top">Bifocal Flat-Top</option>
-                                            <option value="Bifocal Invisible">Bifocal Invisible</option>
-                                            <option value="Progresivo Convencional">Progresivo Convencional</option>
-                                            <option value="Progresivo Digital FreeForm">Progresivo Digital FreeForm</option>
-                                            <option value="Ocupacional">Ocupacional</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group-item">
-                                        <label class="form-label-pro">Material</label>
-                                        <select id="cRxMaterial" class="form-control-pro">
-                                            <option value="CR-39 Orgánico">CR-39 Orgánico</option>
-                                            <option value="Policarbonato (Alto Impacto)">Policarbonato (Alto Impacto)</option>
-                                            <option value="Alto Índice 1.56">Alto Índice 1.56</option>
-                                            <option value="Alto Índice 1.61">Alto Índice 1.61</option>
-                                            <option value="Alto Índice 1.67 (Ultra Delgado)">Alto Índice 1.67 (Ultra Delgado)</option>
-                                            <option value="Mineral / Cristal">Mineral / Cristal</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="form-group-item" style="margin-top: 0.65rem;">
-                                    <label class="form-label-pro">Tratamientos Recomendados</label>
-                                    <div class="checkbox-group-pro">
-                                        <label class="checkbox-item-pro"><input type="checkbox" name="cTratamiento" value="Antirreflejo Estándar"> Antirreflejo</label>
-                                        <label class="checkbox-item-pro"><input type="checkbox" name="cTratamiento" value="Filtro Azul (Blue Defense)"> Filtro Azul</label>
-                                        <label class="checkbox-item-pro"><input type="checkbox" name="cTratamiento" value="Fotocromático (Transitions)"> Fotocromático</label>
-                                        <label class="checkbox-item-pro"><input type="checkbox" name="cTratamiento" value="Protección UV400"> UV400</label>
-                                        <label class="checkbox-item-pro"><input type="checkbox" name="cTratamiento" value="Capa Hidrofóbica"> Hidrofóbico</label>
-                                    </div>
                                 </div>
                             </div>
 
@@ -1688,7 +1648,133 @@
         </div>
     </div>
 
-    <div class="modal-backdrop" id="modalHistoriaOptometricaOficial" style="display: none;">
+
+        <div class="modal-backdrop" id="modalDetalleConsulta" style="display: none;">
+        <div class="modal-dialog modal-dialog-lg" style="max-width: 900px;">
+            <div class="modal-content">
+                <div class="modal-header header-blue">
+                    <div>
+                        <span class="modal-badge-white"><i class="fa-solid fa-clipboard-user"></i> Expediente Clínico</span>
+                        <h3 id="mdcTitulo" style="margin-top: 0.25rem;">Consulta Oftalmológica</h3>
+                        <span id="mdcSubhead" class="modal-subhead-white">Código: CNS-2026-0001</span>
+                    </div>
+                    <button type="button" class="btn-modal-close" onclick="cerrarModalDetalleConsulta()">&times;</button>
+                </div>
+                <div class="modal-body" style="padding: 1.75rem 2rem; background: #FFFFFF;" id="printableConsultaSheet">
+                    <!-- Cabecera Institucional de Impresión -->
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0080EA; padding-bottom: 1rem; margin-bottom: 1.25rem;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <img src="images/LOGO.jpg" alt="Logo" style="width: 48px; height: 48px; border-radius: 4px; object-fit: cover;">
+                            <div>
+                                <h2 style="font-size: 1.35rem; font-weight: 800; color: #14197A; margin: 0;">CENTRO ÓPTICO NIEVES</h2>
+                                <p style="font-size: 0.82rem; color: #475569; margin: 2px 0;">Especialistas en el Cuidado de tus Ojos &bull; RIF: J-40968579-9</p>
+                                <p style="font-size: 0.8rem; color: #64748B; margin: 0;" id="mdcDoctorInfo">--</p>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <span class="badge-tag badge-blue" id="mdcSedeTag" style="font-size: 0.82rem;">Sede Maracay</span>
+                            <div style="font-size: 0.82rem; color: #64748B; margin-top: 0.35rem;">
+                                Fecha: <strong id="mdcFecha" style="color: #0F172A;">13/09/2026</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Datos del Paciente -->
+                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.25rem;">
+                        <div class="clinical-grid-4">
+                            <div><span style="font-size: 0.75rem; color: #64748B; text-transform: uppercase;">Paciente:</span><br><strong id="mdcPacienteNombre" style="color: #0F172A; font-size: 0.95rem;">--</strong></div>
+                            <div><span style="font-size: 0.75rem; color: #64748B; text-transform: uppercase;">Cédula:</span><br><strong id="mdcPacienteCedula" style="color: #0F172A; font-size: 0.95rem;">--</strong></div>
+                            <div><span style="font-size: 0.75rem; color: #64748B; text-transform: uppercase;">Edad:</span><br><strong id="mdcPacienteEdad" style="color: #0F172A; font-size: 0.95rem;">--</strong></div>
+                            <div><span style="font-size: 0.75rem; color: #64748B; text-transform: uppercase;">Teléfono:</span><br><strong id="mdcPacienteTel" style="color: #0F172A; font-size: 0.95rem;">--</strong></div>
+                        </div>
+                    </div>
+
+                    <!-- Anamnesis y Motivo -->
+                    <div style="margin-bottom: 1.25rem;">
+                        <h4 style="font-size: 0.92rem; font-weight: 800; color: #0369A1; border-bottom: 1px solid #E2E8F0; padding-bottom: 0.35rem; margin-bottom: 0.5rem;">
+                            MOTIVO DE CONSULTA & ANTECEDENTES
+                        </h4>
+                        <p style="font-size: 0.88rem; color: #1E293B; margin: 0 0 0.35rem;"><strong>Motivo:</strong> <span id="mdcMotivo">--</span></p>
+                        <p style="font-size: 0.88rem; color: #1E293B; margin: 0 0 0.35rem;"><strong>Enfermedad Actual:</strong> <span id="mdcEnfermedad">--</span></p>
+                        <p style="font-size: 0.85rem; color: #475569; margin: 0;"><strong>Antecedentes:</strong> <span id="mdcAntecedentes">--</span></p>
+                    </div>
+
+                    <!-- Refracción Prescrita -->
+                    <div style="margin-bottom: 1.25rem;">
+                        <h4 style="font-size: 0.92rem; font-weight: 800; color: #0369A1; border-bottom: 1px solid #E2E8F0; padding-bottom: 0.35rem; margin-bottom: 0.5rem;">
+                            REFRACCIÓN DEFINITIVA & PARÁMETROS ÓPTICOS
+                        </h4>
+                        <table class="table-optometrica" style="margin: 0.5rem 0;">
+                            <thead>
+                                <tr>
+                                    <th>Ojo</th>
+                                    <th>Esfera (Esf)</th>
+                                    <th>Cilindro (Cyl)</th>
+                                    <th>Eje (Axis)</th>
+                                    <th>Adición (Add)</th>
+                                    <th>AV Final</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>OD (Derecho)</strong></td>
+                                    <td id="mdcOdEsf">--</td>
+                                    <td id="mdcOdCyl">--</td>
+                                    <td id="mdcOdEje">--</td>
+                                    <td id="mdcOdAdd">--</td>
+                                    <td id="mdcOdAv">20/20</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>OS (Izquierdo)</strong></td>
+                                    <td id="mdcOsEsf">--</td>
+                                    <td id="mdcOsCyl">--</td>
+                                    <td id="mdcOsEje">--</td>
+                                    <td id="mdcOsAdd">--</td>
+                                    <td id="mdcOsAv">20/20</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Diagnóstico & Plan -->
+                    <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 8px; padding: 1rem 1.25rem;">
+                        <h4 style="font-size: 0.92rem; font-weight: 800; color: #166534; margin: 0 0 0.35rem;">
+                            DIAGNÓSTICO & CONDUCTA
+                        </h4>
+                        <p style="font-size: 0.9rem; color: #14532D; margin: 0 0 0.35rem;">
+                            <strong>Diagnóstico Refractivo:</strong> <span id="mdcDiagRefractivo">--</span>
+                        </p>
+                        <p style="font-size: 0.85rem; color: #166534; margin: 0 0 0.35rem;">
+                            <strong>Exploración / PIO:</strong> <span id="mdcBiomicroscopia">--</span>
+                        </p>
+                        <p style="font-size: 0.88rem; color: #14532D; margin: 0;">
+                            <strong>Plan & Indicaciones:</strong> <span id="mdcPlan">--</span>
+                        </p>
+                    </div>
+
+                    <!-- Firma Médica -->
+                    <div style="margin-top: 2.5rem; display: flex; justify-content: flex-end; text-align: center;">
+                        <div style="border-top: 1.5px solid #334155; width: 260px; padding-top: 0.45rem;">
+                            <strong style="font-size: 0.9rem; color: #0F172A;" id="mdcFirmaDoctor">--</strong><br>
+                            <span style="font-size: 0.78rem; color: #64748B;">Oftalmólogo &bull; Optometrista</span><br>
+                            <span style="font-size: 0.72rem; color: #94A3B8;">Centro Óptico Nieves</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModalDetalleConsulta()">Cerrar</button>
+                    <button type="button" class="btn btn-secondary" onclick="emitirRecipeDesdeModalConsulta()">
+                        <i class="fa-solid fa-file-prescription"></i> Emitir Récipe
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="imprimirConsultaActual()">
+                        <i class="fa-solid fa-print"></i> Imprimir Ficha
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <div class="modal-backdrop" id="modalHistoriaOptometricaOficial" style="display: none;">
         <div class="modal-dialog modal-dialog-lg" style="max-width: 880px;">
             <div class="modal-content">
                 <div class="modal-header header-blue">
@@ -2111,13 +2197,6 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <div class="cdoc-field-row" style="font-size: 0.84rem;">
-                                <div><strong>DP:</strong> <span id="prnCoDp">--</span> mm</div>
-                                <div><strong>Alt:</strong> <span id="prnCoAlt">--</span> mm</div>
-                                <div><strong>Tipo Lente:</strong> <span id="prnCoTipoLente">--</span></div>
-                                <div><strong>Material:</strong> <span id="prnCoMaterial">--</span></div>
-                                <div><strong>Tratamientos:</strong> <span id="prnCoTratamientos">--</span></div>
-                            </div>
                         </div>
 
                         <!-- SALTO DE PÁGINA PARA IMPRESIÓN -->
@@ -2739,7 +2818,7 @@
         document.addEventListener("DOMContentLoaded", function() {
             const session = window.checkAuthSession ? window.checkAuthSession() : null;
             if (!session) {
-                window.location.replace("admin.html");
+                window.location.replace("adminmaster.html");
                 return;
             }
             if (typeof window.setAdminRole === "function") {

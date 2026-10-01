@@ -53,47 +53,64 @@ window.AppState = AppState;
 // CONTROL DE ACCESO Y AUTENTICACIÓN SEGURA
 /// =============================================================================
 const AUTH_ACCOUNTS = {
+    // 1. USUARIO MASTER (AMBAS SEDES - ACCESO TOTAL)
     'administracionnieves': {
-        role: 'admin1',
-        name: 'Administración Nieves',
+        role: 'master',
+        sede: 'todas',
+        name: 'Administración General (Master)',
         handle: '@administracionnieves',
-        password: 'optica#2027',
-        passwords: ['optica#2027', '2027', 'admin', 'admin123', 'admin2027']
+        page: 'adminmaster.html',
+        password: 'administracion2027nieves'
     },
-    'admin': {
-        role: 'admin1',
-        name: 'Administración Nieves',
-        handle: '@administracionnieves',
-        password: 'optica#2027',
-        passwords: ['optica#2027', '2027', 'admin', 'admin123', 'admin2027']
+
+    // 2. USUARIOS MARACAY
+    // Laboratorio Maracay
+    'laboratoriomrcyopn': {
+        role: 'lab_maracay',
+        sede: 'Maracay',
+        name: 'Laboratorio Maracay',
+        handle: '@laboratoriomrcyopn',
+        page: 'laboratorio-maracay.html',
+        password: 'laboratorio2027mrcy'
     },
-    'administracion': {
-        role: 'admin1',
-        name: 'Administración Nieves',
-        handle: '@administracionnieves',
-        password: 'optica#2027',
-        passwords: ['optica#2027', '2027', 'admin', 'admin123', 'admin2027']
+    // Caja y Venta Maracay
+    'administracionmaracay': {
+        role: 'admin_maracay',
+        sede: 'Maracay',
+        name: 'Administración Maracay',
+        handle: '@administracionmaracay',
+        page: 'admin-maracay.html',
+        password: 'administracion2027mrcy'
     },
+
+    // 3. USUARIOS SAN JUAN DE LOS MORROS
+    // Laboratorio San Juan
+    'laboratoriosjmopn': {
+        role: 'lab_sanjuan',
+        sede: 'San Juan de los Morros',
+        name: 'Laboratorio San Juan',
+        handle: '@laboratoriosjmopn',
+        page: 'laboratorio-sanjuan.html',
+        password: 'laboratorio2027sjm'
+    },
+    // Caja y Venta San Juan
+    'administracionsanjuan': {
+        role: 'admin_sanjuan',
+        sede: 'San Juan de los Morros',
+        name: 'Administración San Juan',
+        handle: '@administracionsanjuan',
+        page: 'admin-sanjuan.html',
+        password: 'administracion2027sjm'
+    },
+
+    // 4. USUARIO MÉDICO OFTALMÓLOGO
     'mediconieves': {
         role: 'admin2',
+        sede: 'todas',
         name: 'Dr. Especialista Oftalmólogo',
         handle: '@mediconieves',
-        password: 'medicinaoftalmologica#2027',
-        passwords: ['medicinaoftalmologica#2027', '2027', 'optica#2027', 'medico', 'medico123', 'medico2027']
-    },
-    'medico': {
-        role: 'admin2',
-        name: 'Dr. Especialista Oftalmólogo',
-        handle: '@mediconieves',
-        password: 'medicinaoftalmologica#2027',
-        passwords: ['medicinaoftalmologica#2027', '2027', 'optica#2027', 'medico', 'medico123', 'medico2027']
-    },
-    'doctor': {
-        role: 'admin2',
-        name: 'Dr. Especialista Oftalmólogo',
-        handle: '@mediconieves',
-        password: 'medicinaoftalmologica#2027',
-        passwords: ['medicinaoftalmologica#2027', '2027', 'optica#2027', 'medico', 'medico123', 'medico2027']
+        page: 'adminmedico.html',
+        password: 'medicinaoftalmologica#2027'
     }
 };
 
@@ -101,16 +118,47 @@ window.checkAuthSession = function() {
     const loginScreen = document.getElementById('adminLoginScreen');
     const appWrapper = document.getElementById('adminAppWrapper');
 
+    const currentPath = (window.location.pathname || '').toLowerCase();
+    const currentPage = currentPath.split('/').pop().split('?')[0].split('#')[0] || 'adminmaster.html';
+
     try {
         const raw = sessionStorage.getItem('optica_nieves_auth') || localStorage.getItem('optica_nieves_auth');
         if (raw) {
             const session = JSON.parse(raw);
             const userKey = (session?.user || '').toLowerCase().replace(/^@+/, '').trim();
-            if (session && userKey && AUTH_ACCOUNTS[userKey]) {
+            const account = AUTH_ACCOUNTS[userKey];
+
+            if (session && userKey && account) {
+                // Sincronizar datos de la cuenta en sesión
+                session.role = account.role;
+                session.page = account.page;
+                session.sede = account.sede;
+
+                // Si el usuario no es master y no está en su página asignada, redirigir a su portal específico
+                if (account.role !== 'master' && account.page && currentPage !== account.page) {
+                    window.location.replace(account.page);
+                    return null;
+                }
+
+                // Si es usuario master y está en admin.html, redirigir a adminmaster.html
+                if (account.role === 'master' && currentPage === 'admin.html') {
+                    window.location.replace('adminmaster.html');
+                    return null;
+                }
+
+                // Sincronizar sede activa en AppState
+                if (account.sede && account.sede !== 'todas') {
+                    AppState.sedeFiltro = account.sede;
+                } else if (currentPage.includes('maracay')) {
+                    AppState.sedeFiltro = 'Maracay';
+                } else if (currentPage.includes('sanjuan')) {
+                    AppState.sedeFiltro = 'San Juan de los Morros';
+                }
+
                 if (loginScreen) loginScreen.style.display = 'none';
                 if (appWrapper) appWrapper.style.display = 'flex';
                 if (typeof window.setAdminRole === 'function') {
-                    window.setAdminRole(session.role, false);
+                    window.setAdminRole(account.role, false);
                 }
                 return session;
             }
@@ -119,8 +167,9 @@ window.checkAuthSession = function() {
         console.warn('Error en checkAuthSession:', e);
     }
 
-    if (!loginScreen && window.location.pathname.includes('adminmedico')) {
-        window.location.replace('admin.html');
+    // Si no hay sesión válida y no es una página con login (adminmaster.html o admin.html), redirigir de inmediato
+    if (currentPage !== 'adminmaster.html' && currentPage !== 'admin.html') {
+        window.location.replace('adminmaster.html');
         return null;
     }
 
@@ -152,49 +201,34 @@ window.procesarLogin = function(e) {
 
     if (errorBox) errorBox.style.display = 'none';
 
-    let user = (inpUser?.value || '').trim().toLowerCase().replace(/^@+/, '');
+    let rawUser = (inpUser?.value || '').trim();
+    let user = rawUser.toLowerCase().replace(/^@+/, '').replace(/\s+/g, '');
     const pass = (inpPass?.value || '').trim();
 
-    // Si el usuario deja el campo usuario vacío pero ingresa clave
-    if (!user) {
-        user = 'administracionnieves';
-    }
-
-    // Resolver cuenta
-    let account = AUTH_ACCOUNTS[user];
-    if (!account) {
-        if (user.includes('medic') || user.includes('doc') || user.includes('oftal')) {
-            account = AUTH_ACCOUNTS['mediconieves'];
-        } else {
-            account = AUTH_ACCOUNTS['administracionnieves'];
+    if (!user || !pass) {
+        if (errorBox && errorMsg) {
+            errorMsg.innerText = 'Por favor ingrese su usuario y contraseña.';
+            errorBox.style.display = 'flex';
         }
+        return false;
     }
 
-    // Validación amplia y tolerante para que nunca se quede trabado
-    const validPasses = [
-        'optica#2027', '2027', 'admin', 'admin123', 'admin2027',
-        'optica2027', 'nieves2027', 'medicinaoftalmologica#2027',
-        'medico', 'medico123', '1234', '123456'
-    ];
+    // Resolver cuenta con las credenciales oficiales irrefutables
+    const account = AUTH_ACCOUNTS[user];
 
-    const isValid = account && (
-        !pass || // Si solo presiona login o tiene sesión previa
-        pass === account.password ||
-        (account.passwords && account.passwords.includes(pass)) ||
-        validPasses.includes(pass) ||
-        pass.length >= 2
-    );
+    // Validación estricta: usuario existente y contraseña idéntica
+    const isValid = account && (pass === account.password);
 
     if (!isValid) {
         if (errorBox && errorMsg) {
-            errorMsg.innerText = 'Credenciales no reconocidas. Ingrese PIN (2027) o clave.';
+            errorMsg.innerText = 'Usuario o contraseña incorrectos. Verifique sus credenciales.';
             errorBox.style.display = 'flex';
         }
         if (inpPass) inpPass.value = '';
         return false;
     }
 
-    // === INICIAR ANIMACIÓN DE CARGA DE 3 SEGUNDOS AL 100% ===
+    // === INICIAR ANIMACIÓN DE CARGA RÁPIDA (600ms) AL 100% ===
     window.procesarLogin._isLoading = true;
 
     if (btnSubmit) {
@@ -206,8 +240,8 @@ window.procesarLogin = function(e) {
     if (submitText) submitText.innerText = 'Iniciando Sesión...';
     if (loadingArea) loadingArea.style.display = 'block';
 
-    const totalDurationMs = 3000;
-    const intervalMs = 30; // 100 pasos suaves
+    const totalDurationMs = 600; // Carga ágil e instantánea en 0.6 segundos
+    const intervalMs = 15; // 40 pasos ultra fluidos
     const totalSteps = totalDurationMs / intervalMs;
     let currentStep = 0;
 
@@ -221,9 +255,9 @@ window.procesarLogin = function(e) {
         if (progress < 35) {
             if (loadingStatus) loadingStatus.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Validando credenciales...';
         } else if (progress < 70) {
-            if (loadingStatus) loadingStatus.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Cargando base clínica & LiteFarma...';
+            if (loadingStatus) loadingStatus.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Cargando base de datos...';
         } else if (progress < 100) {
-            if (loadingStatus) loadingStatus.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Sincronizando entorno de trabajo...';
+            if (loadingStatus) loadingStatus.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Preparando entorno de trabajo...';
         } else {
             if (loadingStatus) loadingStatus.innerHTML = '<i class="fa-solid fa-circle-check" style="color: #10B981;"></i> ¡Acceso Concedido! 100%';
             if (loadingPercent) {
@@ -236,29 +270,43 @@ window.procesarLogin = function(e) {
             clearInterval(timer);
             window.procesarLogin._isLoading = false;
 
-            // Guardar sesión
+            // Determinar clave canónica del usuario
+            const canonicalUser = (account.handle || '').replace(/^@+/, '') || user;
+
+            // Guardar sesión con datos completos de cuenta
             const session = {
-                user: user,
+                user: canonicalUser,
                 role: account.role,
+                sede: account.sede,
                 name: account.name,
                 handle: account.handle,
+                page: account.page,
                 timestamp: Date.now()
             };
             sessionStorage.setItem('optica_nieves_auth', JSON.stringify(session));
             localStorage.setItem('optica_nieves_auth', JSON.stringify(session));
 
-            // Transición suave de salida
+            const currentPath = (window.location.pathname || '').toLowerCase();
+            const currentPage = currentPath.split('/').pop().split('?')[0].split('#')[0] || 'admin.html';
+
+            // Si la cuenta tiene una página asignada diferente a la actual, redirigir directamente
+            if (account.page && account.page !== currentPage) {
+                window.location.replace(account.page);
+                return;
+            }
+
+            // Transición suave de salida en la misma página
             setTimeout(() => {
                 const loginScreen = document.getElementById('adminLoginScreen');
                 const appWrapper = document.getElementById('adminAppWrapper');
 
                 if (loginScreen) {
-                    loginScreen.style.transition = 'opacity 0.25s ease';
+                    loginScreen.style.transition = 'opacity 0.2s ease';
                     loginScreen.style.opacity = '0';
                     setTimeout(() => {
                         loginScreen.style.display = 'none';
                         loginScreen.style.opacity = '1';
-                    }, 250);
+                    }, 200);
                 }
 
                 if (appWrapper) appWrapper.style.display = 'flex';
@@ -268,10 +316,12 @@ window.procesarLogin = function(e) {
                 }
 
                 if (typeof window.switchAdminTab === 'function') {
-                    if (account.role === 'admin1') {
-                        window.switchAdminTab('dashboard');
-                    } else {
+                    if (account.role === 'admin2') {
                         window.switchAdminTab('dashboard-medico');
+                    } else if (account.role === 'lab_maracay' || account.role === 'lab_sanjuan') {
+                        window.switchAdminTab('laboratorio');
+                    } else {
+                        window.switchAdminTab('dashboard');
                     }
                 }
 
@@ -297,7 +347,7 @@ window.procesarLogin = function(e) {
                     loadingPercent.style.color = '#F8FAFC';
                     loadingPercent.innerText = '0%';
                 }
-            }, 250);
+            }, 150);
         }
     }, intervalMs);
 
@@ -324,23 +374,10 @@ window.cerrarSesionAdmin = function() {
 
     sessionStorage.removeItem('optica_nieves_auth');
     localStorage.removeItem('optica_nieves_auth');
+    localStorage.removeItem('optica_nieves_admin_role');
 
-    if (window.location.pathname.includes('adminmedico')) {
-        window.location.replace('admin.html');
-        return;
-    }
-
-    const loginScreen = document.getElementById('adminLoginScreen');
-    const appWrapper = document.getElementById('adminAppWrapper');
-    const inpPass = document.getElementById('loginPassword');
-    const errorBox = document.getElementById('loginErrorBox');
-
-    if (errorBox) errorBox.style.display = 'none';
-    if (inpPass) inpPass.value = '';
-    if (appWrapper) appWrapper.style.display = 'none';
-    if (loginScreen) loginScreen.style.display = 'flex';
-
-    window.showAdminToast('Sesión finalizada correctamente.', 'info');
+    // Redirigir al portal de login unificado (adminmaster.html)
+    window.location.replace('adminmaster.html');
 };
 
 /// =============================================================================
@@ -636,7 +673,11 @@ function openModalAndPrint(modalId, options, onAfterPrint) {
     }
     options = options || {};
 
-    const modal = document.getElementById(modalId);
+    let modal = document.getElementById(modalId);
+    if (!modal && typeof window.asegurarModalImpresion === 'function') {
+        modal = window.asegurarModalImpresion(modalId);
+    }
+
     if (!modal) {
         console.error('Modal de impresión no encontrado:', modalId);
         return;
@@ -657,10 +698,10 @@ function openModalAndPrint(modalId, options, onAfterPrint) {
         document.head.appendChild(pageOrientStyle);
     }
     if (options.landscape) {
-        pageOrientStyle.innerHTML = '@page { size: landscape !important; margin: 5mm !important; } @media print { body { orientation: landscape !important; } }';
+        pageOrientStyle.innerHTML = '@page { size: landscape !important; margin: 4mm !important; } @media print { body { orientation: landscape !important; } }';
         document.body.classList.add('printing-landscape-recipe');
     } else {
-        pageOrientStyle.innerHTML = '@page { size: portrait !important; margin: 8mm !important; }';
+        pageOrientStyle.innerHTML = '@page { size: portrait !important; margin: 6mm !important; }';
         document.body.classList.remove('printing-landscape-recipe');
     }
 
@@ -668,6 +709,7 @@ function openModalAndPrint(modalId, options, onAfterPrint) {
     modal.style.display = 'flex';
     modal.classList.add('active');
     modal.classList.add('is-printing');
+    document.body.classList.add('is-printing-doc');
     void modal.offsetHeight; // Forzar reflujo del navegador
 
     requestAnimationFrame(() => {
@@ -679,6 +721,7 @@ function openModalAndPrint(modalId, options, onAfterPrint) {
                     cleaned = true;
                     window.removeEventListener('afterprint', cleanUp);
                     modal.classList.remove('is-printing');
+                    document.body.classList.remove('is-printing-doc');
                     if (options.landscape) {
                         document.body.classList.remove('printing-landscape-recipe');
                     }
@@ -694,13 +737,521 @@ function openModalAndPrint(modalId, options, onAfterPrint) {
                 } catch(e) {
                     console.error('Error al invocar window.print():', e);
                 }
-                setTimeout(cleanUp, 2000);
+                setTimeout(cleanUp, 15000); // 15s de gracia para que no cierre prematuramente el diálogo
             }, 350);
         });
     });
 }
 window.openModalAndPrint = openModalAndPrint;
 window.safePrintDocument = openModalAndPrint;
+
+// Inyector dinámico de seguridad para garantizar que nunca falte una plantilla de impresión oficial
+window.asegurarModalImpresion = function(modalId) {
+    let modal = document.getElementById(modalId);
+    if (modal) return modal;
+
+    const div = document.createElement('div');
+    if (modalId === 'modalPrintRecipeContainer') {
+        div.innerHTML = `
+            <div id="modalPrintRecipeContainer" class="modal-backdrop" style="display: none;">
+                <div class="modal-dialog modal-dialog-lg modal-dialog-recipe" style="max-width: 1140px; width: 95vw;">
+                    <div class="modal-content">
+                        <div class="modal-header header-blue no-print">
+                            <div>
+                                <h3><i class="fa-solid fa-print"></i> Récipe Médico Oficial — Hoja Dual</h3>
+                                <span style="font-size: 0.8rem; color: rgba(255,255,255,0.85);" id="pdfDocSubtitleTop">Oftalmología</span>
+                            </div>
+                            <button type="button" class="btn-modal-close" onclick="closeModal('modalPrintRecipeContainer')">&times;</button>
+                        </div>
+                        <div class="modal-body" style="background: #E2E8F0; padding: 1.5rem; overflow-x: auto;">
+                            <div id="blueprintPDFRecipe" class="pdf-premium-recipe-landscape">
+                                <div class="pdf-recipe-watermark watermark-left"></div>
+                                <div class="pdf-recipe-watermark watermark-right"></div>
+                                <div class="pdf-dual-header">
+                                    <div class="header-box">
+                                        <img src="images/LOGO.jpg" alt="Centro Óptico Nieves" class="header-doc-logo-img">
+                                        <div class="header-text">
+                                            <h2 id="pdfDocNameL"></h2>
+                                            <p class="specialty" id="pdfDocSpecL">OFTALMOLOGÍA</p>
+                                            <p class="credentials" id="pdfDocCredsL"></p>
+                                        </div>
+                                    </div>
+                                    <div class="header-box">
+                                        <img src="images/LOGO.jpg" alt="Centro Óptico Nieves" class="header-doc-logo-img">
+                                        <div class="header-text">
+                                            <h2 id="pdfDocNameR"></h2>
+                                            <p class="specialty" id="pdfDocSpecR">OFTALMOLOGÍA</p>
+                                            <p class="credentials" id="pdfDocCredsR"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="pdf-dual-body">
+                                    <div class="recipe-col left-col">
+                                        <h3 class="col-title">Rp.</h3>
+                                        <div class="medications-block" id="pdfContenedorFilas"></div>
+                                        <div class="bottom-signatures">
+                                            <div class="signature-section">
+                                                <div style="height: 35px;"></div>
+                                                <p class="sig-label">Firma y Sello Médico</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="recipe-col right-col">
+                                        <h3 class="col-title">INDICACIONES:</h3>
+                                        <div class="indications-block" id="pdfIndicaciones"></div>
+                                        <div class="bottom-signatures">
+                                            <div class="signature-section">
+                                                <div style="height: 35px;"></div>
+                                                <p class="sig-label">Firma y Sello Médico</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="pdf-patient-shared-row">
+                                    <div class="patient-shared-col left-patient">
+                                        <div class="patient-data-compact">
+                                            <div class="data-row-compact">
+                                                <span class="label">Nombre:</span>
+                                                <span class="value-line" id="pdfNombreRp"></span>
+                                            </div>
+                                            <div class="data-row-compact">
+                                                <span class="label">C.I.:</span>
+                                                <span class="value-line" id="pdfCedulaRp"></span>
+                                                <span class="label" style="margin-left: 10px;">Fecha:</span>
+                                                <span class="value-line" id="pdfFechaRp"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="patient-shared-col right-patient">
+                                        <div class="patient-data-compact">
+                                            <div class="data-row-compact">
+                                                <span class="label">Nombre:</span>
+                                                <span class="value-line" id="pdfNombreInd"></span>
+                                            </div>
+                                            <div class="data-row-compact">
+                                                <span class="label">C.I.:</span>
+                                                <span class="value-line" id="pdfCedulaInd"></span>
+                                                <span class="label" style="margin-left: 10px;">Fecha:</span>
+                                                <span class="value-line" id="pdfFechaInd"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="pdfObservacionesBlock" class="pdf-obs-block" style="display: none;">
+                                    <strong>Observaciones / Indicaciones Adicionales:</strong>
+                                    <div id="pdfObservacionesText"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer no-print">
+                            <button type="button" class="btn btn-secondary" onclick="closeModal('modalPrintRecipeContainer')">Cerrar</button>
+                            <button type="button" class="btn btn-primary" onclick="openModalAndPrint('modalPrintRecipeContainer', { landscape: true })">
+                                <i class="fa-solid fa-print"></i> Imprimir Récipe Directo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    } else if (modalId === 'modalFichaConsultaOficial') {
+        div.innerHTML = `
+            <div class="modal-backdrop" id="modalFichaConsultaOficial" style="display: none;">
+                <div class="modal-dialog" style="max-width: 650px;">
+                    <div class="modal-content">
+                        <div class="modal-header header-amber">
+                            <div>
+                                <h3><i class="fa-solid fa-receipt"></i> 3. Ficha de Consulta Oficial</h3>
+                                <span style="font-size: 0.8rem; color: rgba(255,255,255,0.85);">Formato compacto de refracción y observaciones</span>
+                            </div>
+                            <button type="button" class="btn-modal-close" onclick="closeModal('modalFichaConsultaOficial')">&times;</button>
+                        </div>
+                        <div class="modal-body" style="background: #E2E8F0; padding: 1.5rem; overflow-y: auto; max-height: calc(88vh - 120px);">
+                            <div class="clinical-doc-sheet cdoc-ficha-rapida-sheet" id="fichaConsultaPrintArea">
+                                <div class="clinical-doc-watermark"></div>
+                                <div style="display: flex; align-items: center; justify-content: center; gap: 14px; border-bottom: 2px solid #0F172A; padding-bottom: 0.5rem; margin-bottom: 0.85rem;">
+                                    <img src="images/LOGO.jpg" alt="Centro Óptico Nieves" class="header-doc-logo-img">
+                                    <div style="text-align: center;">
+                                        <h2 style="font-size: 1.25rem; font-weight: 800; color: #0F172A; margin: 0; letter-spacing: 0.03em;" id="prnFchDocNombre"></h2>
+                                        <div style="font-size: 0.85rem; font-weight: 700; color: #0080EA;" id="prnFchDocEspecialidad">OFTALMOLOGÍA</div>
+                                        <div style="font-size: 0.78rem; color: #475569; margin-top: 2px;" id="prnFchDocCreds"></div>
+                                        <div style="font-size: 0.9rem; font-weight: 800; color: #1E293B; margin-top: 4px;">FICHA DE CONSULTA OFTALMOLÓGICA</div>
+                                    </div>
+                                </div>
+                                <div style="font-size: 0.88rem; margin-bottom: 0.85rem;">
+                                    <div class="cdoc-field-row">
+                                        <div class="cdoc-field" style="flex: 2;">
+                                            <strong>Fecha:</strong> <span class="cdoc-line-fill" id="prnFchFecha" style="min-width: 90px;">--</span>
+                                        </div>
+                                        <div class="cdoc-field">
+                                            <strong>Sede:</strong> <span class="cdoc-line-fill" id="prnFchSede">--</span>
+                                        </div>
+                                    </div>
+                                    <div class="cdoc-field-row" style="margin-top: 4px;">
+                                        <div class="cdoc-field" style="width: 100%;">
+                                            <strong>Nombre y Apellido:</strong> <span class="cdoc-line-fill" style="flex: 1;" id="prnFchNombre">--</span>
+                                        </div>
+                                    </div>
+                                    <div class="cdoc-field-row" style="margin-top: 4px;">
+                                        <div class="cdoc-field">
+                                            <strong>Cédula:</strong> <span class="cdoc-line-fill" style="min-width: 110px;" id="prnFchCedula">--</span>
+                                        </div>
+                                        <div class="cdoc-field">
+                                            <strong>Teléfono:</strong> <span class="cdoc-line-fill" style="min-width: 110px;" id="prnFchTel">--</span>
+                                        </div>
+                                        <div class="cdoc-field">
+                                            <strong>Edad:</strong> <span class="cdoc-line-fill" style="min-width: 45px;" id="prnFchEdad">--</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <table class="cdoc-table" style="margin: 0.75rem 0;">
+                                    <thead>
+                                        <tr><th style="width: 80px;"></th><th>ESF</th><th>CIL</th><th>EJE</th><th>ADD</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong style="font-size: 1rem;">DER</strong></td>
+                                            <td id="prnFchDerEsf" style="font-weight: bold; font-size: 1.05rem;">--</td>
+                                            <td id="prnFchDerCil" style="font-weight: bold; font-size: 1.05rem;">--</td>
+                                            <td id="prnFchDerEje" style="font-size: 1rem;">--</td>
+                                            <td id="prnFchDerAdd" style="font-weight: bold; font-size: 1.05rem;">--</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong style="font-size: 1rem;">IZQ</strong></td>
+                                            <td id="prnFchIzqEsf" style="font-weight: bold; font-size: 1.05rem;">--</td>
+                                            <td id="prnFchIzqCil" style="font-weight: bold; font-size: 1.05rem;">--</td>
+                                            <td id="prnFchIzqEje" style="font-size: 1rem;">--</td>
+                                            <td id="prnFchIzqAdd" style="font-weight: bold; font-size: 1.05rem;">--</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div class="cdoc-field-row" style="margin-top: 4px;">
+                                    <div class="cdoc-field">
+                                        <strong>DP:</strong> <span class="cdoc-line-fill" style="min-width: 60px;" id="prnFchDp">--</span> mm
+                                    </div>
+                                </div>
+                                <div style="margin-top: 0.85rem;">
+                                    <strong>Observación:</strong>
+                                    <div style="border: 1px solid #0F172A; min-height: 85px; padding: 6px 10px; margin-top: 4px; font-size: 0.88rem; line-height: 1.35; white-space: pre-line;" id="prnFchObservacion">--</div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-top: 2.5rem; padding-top: 0.5rem;">
+                                    <div style="width: 45%; text-align: center; border-top: 1px solid #0F172A; padding-top: 4px;">
+                                        <strong style="font-size: 0.85rem;" id="prnFchDoc1">Doctor(a)</strong><br>
+                                        <span style="font-size: 0.75rem; color: #475569;">Firma y Sello</span>
+                                    </div>
+                                    <div style="width: 45%; text-align: center; border-top: 1px solid #0F172A; padding-top: 4px;">
+                                        <strong style="font-size: 0.85rem;" id="prnFchDoc2">Doctor(a) / Optometrista</strong><br>
+                                        <span style="font-size: 0.75rem; color: #475569;">Firma y Sello</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" onclick="closeModal('modalFichaConsultaOficial')">Cerrar</button>
+                            <button type="button" class="btn btn-primary" onclick="openModalAndPrint('modalFichaConsultaOficial')">
+                                <i class="fa-solid fa-print"></i> Imprimir Ficha
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    } else if (modalId === 'modalConsultaOftalmologicaOficial') {
+        div.innerHTML = `
+            <div class="modal-backdrop" id="modalConsultaOftalmologicaOficial" style="display: none;">
+                <div class="modal-dialog modal-dialog-lg" style="max-width: 900px;">
+                    <div class="modal-content">
+                        <div class="modal-header header-blue">
+                            <div>
+                                <h3><i class="fa-solid fa-file-medical"></i> Consulta Oftalmológica</h3>
+                                <span style="font-size: 0.8rem; color: rgba(255,255,255,0.85);">Expediente formal completo con protocolo oftalmológico</span>
+                            </div>
+                            <button type="button" class="btn-modal-close" onclick="closeModal('modalConsultaOftalmologicaOficial')">&times;</button>
+                        </div>
+                        <div class="modal-body" style="background: #CBD5E1; padding: 1.5rem; overflow-y: auto; max-height: calc(88vh - 120px);">
+                            <div class="clinical-doc-sheet" id="consultaOftalmologicaPrintArea">
+                                <div class="clinical-doc-watermark"></div>
+                                <div class="cdoc-page-1">
+                                    <div class="clinical-doc-header">
+                                        <div style="display: flex; align-items: center; gap: 12px;">
+                                            <img src="images/LOGO.jpg" alt="Centro Óptico Nieves" class="header-doc-logo-img">
+                                            <div>
+                                                <div class="cdoc-brand-title" id="prnCoDocNombre" style="font-size: 1.25rem; font-weight: 800; color: #0F172A;"></div>
+                                                <div class="cdoc-brand-rif" id="prnCoDocEspecialidad" style="font-size: 0.85rem; font-weight: 700; color: #0080EA;">OFTALMOLOGÍA</div>
+                                                <div style="font-size: 0.8rem; color: #475569; margin-top: 2px;" id="prnCoDocCreds"></div>
+                                            </div>
+                                        </div>
+                                        <div class="cdoc-meta-right">
+                                            <div style="font-size: 1.1rem; font-weight: 800; color: #0F172A; text-align: right;">CONSULTA OFTALMOLÓGICA</div>
+                                            <div><strong>Código:</strong> <span id="prnCoCodigo">CNS-0000</span></div>
+                                            <div><strong>Fecha:</strong> <span id="prnCoFecha">--</span></div>
+                                            <div><strong>Sede:</strong> <span id="prnCoSede">--</span></div>
+                                        </div>
+                                    </div>
+                                    <div class="cdoc-field-row">
+                                        <div class="cdoc-field" style="flex: 2;">
+                                            <strong>Paciente:</strong> <span class="cdoc-line-fill" style="flex: 1;" id="prnCoNombre">--</span>
+                                        </div>
+                                        <div class="cdoc-field">
+                                            <strong>C.I.:</strong> <span class="cdoc-line-fill" style="min-width: 90px;" id="prnCoCedula">--</span>
+                                        </div>
+                                        <div class="cdoc-field">
+                                            <strong>Edad:</strong> <span class="cdoc-line-fill" style="min-width: 45px;" id="prnCoEdad">--</span>
+                                        </div>
+                                    </div>
+                                    <div class="cdoc-field-row">
+                                        <div class="cdoc-field">
+                                            <strong>F. Nacimiento:</strong> <span class="cdoc-line-fill" style="min-width: 90px;" id="prnCoNacimiento">--</span>
+                                        </div>
+                                        <div class="cdoc-field">
+                                            <strong>Teléfono:</strong> <span class="cdoc-line-fill" style="min-width: 110px;" id="prnCoTel">--</span>
+                                        </div>
+                                        <div class="cdoc-field" style="flex: 1;">
+                                            <strong>Ocupación:</strong> <span class="cdoc-line-fill" style="flex: 1;" id="prnCoOcupacion">--</span>
+                                        </div>
+                                    </div>
+                                    <div class="cdoc-field-row">
+                                        <div class="cdoc-field" style="width: 100%;">
+                                            <strong>Dirección:</strong> <span class="cdoc-line-fill" style="flex: 1;" id="prnCoDireccion">--</span>
+                                        </div>
+                                    </div>
+                                    <div class="cdoc-block-title">1. MOTIVO DE CONSULTA & ENFERMEDAD ACTUAL</div>
+                                    <div class="cdoc-field-row">
+                                        <div class="cdoc-field" style="width: 100%;">
+                                            <strong>Motivo:</strong> <span class="cdoc-line-fill" style="flex: 1;" id="prnCoMotivo">--</span>
+                                        </div>
+                                    </div>
+                                    <div style="font-size: 0.88rem; margin: 0.4rem 0; line-height: 1.35; text-align: justify;" id="prnCoEnfermedad">--</div>
+                                    <div class="cdoc-block-title">2. ANTECEDENTES</div>
+                                    <div style="font-size: 0.86rem; margin-bottom: 0.5rem;">
+                                        <div><strong>Personales Patológicos:</strong> <span id="prnCoAntPersonales">--</span></div>
+                                        <div style="margin-top: 2px;"><strong>Oftalmológicos:</strong> <span id="prnCoAntOftalmologicos">--</span></div>
+                                        <div style="margin-top: 2px;"><strong>Familiares:</strong> <span id="prnCoAntFamiliares">--</span></div>
+                                    </div>
+                                    <div class="cdoc-block-title">3. AGUDEZA VISUAL LEJANA (AVL) & CERCANA (AVC)</div>
+                                    <table class="cdoc-table">
+                                        <thead>
+                                            <tr><th>OJO</th><th>AVL (SC)</th><th>AVL (CC)</th><th>AVL (PH)</th><th>AVC (CERCANA)</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><strong>OD</strong></td>
+                                                <td id="prnCoAvlScOd">--</td><td id="prnCoAvlCcOd">--</td><td id="prnCoAvlPhOd">--</td><td id="prnCoAvcOd">--</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>OI</strong></td>
+                                                <td id="prnCoAvlScOi">--</td><td id="prnCoAvlCcOi">--</td><td id="prnCoAvlPhOi">--</td><td id="prnCoAvcOi">--</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <div class="cdoc-block-title">4. REFRACCIÓN SUBJETIVA DEFINITIVA</div>
+                                    <table class="cdoc-table">
+                                        <thead>
+                                            <tr><th>OJO</th><th>ESFERA</th><th>CILINDRO</th><th>EJE</th><th>ADD</th><th>AV FINAL</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><strong>OD</strong></td>
+                                                <td id="prnCoRxOdEsf" style="font-weight: bold;">--</td><td id="prnCoRxOdCil" style="font-weight: bold;">--</td><td id="prnCoRxOdEje">--</td><td id="prnCoRxOdAdd">--</td><td id="prnCoRxOdAv">--</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>OI</strong></td>
+                                                <td id="prnCoRxOiEsf" style="font-weight: bold;">--</td><td id="prnCoRxOiCil" style="font-weight: bold;">--</td><td id="prnCoRxOiEje">--</td><td id="prnCoRxOiAdd">--</td><td id="prnCoRxOiAv">--</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="page-break" style="margin-top: 2rem; border-top: 2px dashed #94A3B8; padding-top: 1.5rem;"></div>
+                                <div class="cdoc-page-2">
+                                    <div class="clinical-doc-header">
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <div style="width: 38px; height: 38px; border-radius: 4px; background: #0080EA; display: flex; align-items: center; justify-content: center; color: #FFF; font-size: 1.1rem;"><i class="fa-solid fa-user-doctor"></i></div>
+                                            <div>
+                                                <div class="cdoc-brand-title" id="prnCoDocNombrePage2" style="font-size: 1rem; font-weight: 800; color: #0F172A;"></div>
+                                                <div style="font-size: 0.8rem; font-weight: 700; color: #0080EA;" id="prnCoDocEspecialidadPage2">OFTALMOLOGÍA</div>
+                                            </div>
+                                        </div>
+                                        <div class="cdoc-meta-right">
+                                            <div><strong>Paciente:</strong> <span id="prnCoNombre2">--</span></div>
+                                            <div style="font-size: 0.75rem; color: #64748B;">(Página 2 de 2)</div>
+                                        </div>
+                                    </div>
+                                    <div class="cdoc-block-title">5. REFRACCIÓN CICLOPLÉJICA & BALANCE MUSCULAR</div>
+                                    <table class="cdoc-table">
+                                        <thead>
+                                            <tr><th>OJO</th><th>ESFERA CICLOPLEJIA</th><th>CILINDRO CICLOPLEJIA</th><th>EJE</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr><td><strong>OD</strong></td><td id="prnCoCicloOdEsf">--</td><td id="prnCoCicloOdCil">--</td><td id="prnCoCicloOdEje">--</td></tr>
+                                            <tr><td><strong>OI</strong></td><td id="prnCoCicloOiEsf">--</td><td id="prnCoCicloOiCil">--</td><td id="prnCoCicloOiEje">--</td></tr>
+                                        </tbody>
+                                    </table>
+                                    <div class="cdoc-field-row" style="margin-top: 4px;">
+                                        <div class="cdoc-field" style="width: 100%;">
+                                            <strong>Balance Muscular:</strong> <span class="cdoc-line-fill" style="flex: 1;" id="prnCoBalanceMuscular">--</span>
+                                        </div>
+                                    </div>
+                                    <div class="cdoc-block-title">6. BIOMICROSCOPÍA, PIO (mmHg) & FONDO DE OJOS</div>
+                                    <div style="font-size: 0.86rem; margin-bottom: 0.5rem;">
+                                        <div><strong>Biomicroscopía OD:</strong> <span id="prnCoBioOd">--</span></div>
+                                        <div style="margin-top: 3px;"><strong>Biomicroscopía OI:</strong> <span id="prnCoBioOi">--</span></div>
+                                        <div style="margin-top: 5px; background: #F8FAFC; padding: 4px 8px; border: 1px solid #E2E8F0; border-radius: 4px;">
+                                            <strong>Presión Intraocular (Tonometría):</strong> OD: <span id="prnCoPioOd" style="font-weight: bold;">--</span> mmHg &bull; OI: <span id="prnCoPioOi" style="font-weight: bold;">--</span> mmHg
+                                        </div>
+                                        <div style="margin-top: 5px;"><strong>Fondo de Ojo OD:</strong> <span id="prnCoFondoOd">--</span></div>
+                                        <div style="margin-top: 3px;"><strong>Fondo de Ojo OI:</strong> <span id="prnCoFondoOi">--</span></div>
+                                    </div>
+                                    <div class="cdoc-block-title">7. IMPRESIÓN DIAGNÓSTICA</div>
+                                    <ol style="margin: 0.35rem 0 0.75rem 1.5rem; padding: 0; font-size: 0.88rem; line-height: 1.4;">
+                                        <li id="prnCoDiag1">--</li>
+                                        <li id="prnCoDiag2" style="display: none;"></li>
+                                        <li id="prnCoDiag3" style="display: none;"></li>
+                                        <li id="prnCoDiag4" style="display: none;"></li>
+                                        <li id="prnCoDiag5" style="display: none;"></li>
+                                    </ol>
+                                    <div class="cdoc-block-title">8. CONDUCTA & PLAN TERAPÉUTICO</div>
+                                    <div style="font-size: 0.88rem; line-height: 1.4; text-align: justify; margin: 0.4rem 0;" id="prnCoConducta">--</div>
+                                    <div style="margin-top: 2.5rem; display: flex; justify-content: flex-end; text-align: center;">
+                                        <div style="width: 280px; border-top: 1px solid #0F172A; padding-top: 4px;">
+                                            <strong style="font-size: 0.92rem;" id="prnCoDoctorFirma"></strong><br>
+                                            <span style="font-size: 0.8rem; color: #475569;" id="prnCoDoctorCreds">C.M. -- | M.P.P.S. --</span><br>
+                                            <span style="font-size: 0.75rem; color: #64748B;">Oftalmología</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" onclick="closeModal('modalConsultaOftalmologicaOficial')">Cerrar</button>
+                            <button type="button" class="btn btn-primary" onclick="openModalAndPrint('modalConsultaOftalmologicaOficial')">
+                                <i class="fa-solid fa-print"></i> Imprimir Consulta
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    } else if (modalId === 'modalHistoriaOptometricaOficial') {
+        div.innerHTML = `
+            <div class="modal-backdrop" id="modalHistoriaOptometricaOficial" style="display: none;">
+                <div class="modal-dialog modal-dialog-lg" style="max-width: 880px;">
+                    <div class="modal-content">
+                        <div class="modal-header header-blue">
+                            <div>
+                                <h3><i class="fa-solid fa-eye"></i> Historia Optométrica Oficial</h3>
+                                <span style="font-size: 0.8rem; color: rgba(255,255,255,0.85);">Documento Clínico Oficial &bull; Oftalmología</span>
+                            </div>
+                            <button type="button" class="btn-modal-close" onclick="closeModal('modalHistoriaOptometricaOficial')">&times;</button>
+                        </div>
+                        <div class="modal-body" style="background: #E2E8F0; padding: 1.5rem; overflow-y: auto; max-height: calc(88vh - 120px);">
+                            <div class="clinical-doc-sheet" id="historiaOptometricaPrintArea">
+                                <div class="clinical-doc-watermark"></div>
+                                <div class="clinical-doc-header">
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <img src="images/LOGO.jpg" alt="Centro Óptico Nieves" class="header-doc-logo-img">
+                                        <div>
+                                            <div class="cdoc-brand-title" id="prnHoDocNombre" style="font-size: 1.25rem; font-weight: 800; color: #0F172A;"></div>
+                                            <div class="cdoc-brand-rif" id="prnHoDocEspecialidad" style="font-size: 0.85rem; font-weight: 700; color: #0080EA;">OFTALMOLOGÍA</div>
+                                            <div style="font-size: 0.8rem; color: #475569; margin-top: 2px;" id="prnHoDocCreds"></div>
+                                        </div>
+                                    </div>
+                                    <div class="cdoc-meta-right">
+                                        <div style="font-size: 1.15rem; font-weight: 800; color: #0F172A; text-align: right;">HISTORIA PACIENTE</div>
+                                        <div style="margin-top: 4px;"><strong>Fecha:</strong> <span id="prnHoFecha">--</span></div>
+                                        <div><strong>Sede:</strong> <span id="prnHoSede">--</span></div>
+                                    </div>
+                                </div>
+                                <div style="margin-bottom: 0.85rem;">
+                                    <div class="cdoc-field-row">
+                                        <div class="cdoc-field" style="flex: 2;">
+                                            <strong>Nombre y Apellidos:</strong>
+                                            <span class="cdoc-line-fill" style="flex: 1;" id="prnHoNombre">--</span>
+                                        </div>
+                                        <div class="cdoc-field">
+                                            <strong>C.I.:</strong>
+                                            <span class="cdoc-line-fill" style="min-width: 100px;" id="prnHoCedula">--</span>
+                                        </div>
+                                        <div class="cdoc-field">
+                                            <strong>Edad:</strong>
+                                            <span class="cdoc-line-fill" style="min-width: 50px;" id="prnHoEdad">--</span>
+                                        </div>
+                                    </div>
+                                    <div class="cdoc-field-row">
+                                        <div class="cdoc-field">
+                                            <strong>Teléfono:</strong>
+                                            <span class="cdoc-line-fill" style="min-width: 120px;" id="prnHoTelefono">--</span>
+                                        </div>
+                                        <div class="cdoc-field" style="flex: 1;">
+                                            <strong>Ocupación:</strong>
+                                            <span class="cdoc-line-fill" style="flex: 1;" id="prnHoOcupacion">--</span>
+                                        </div>
+                                    </div>
+                                    <div class="cdoc-field-row">
+                                        <div class="cdoc-field" style="width: 100%;">
+                                            <strong>Dirección:</strong>
+                                            <span class="cdoc-line-fill" style="flex: 1;" id="prnHoDireccion">--</span>
+                                        </div>
+                                    </div>
+                                    <div class="cdoc-field-row" style="margin-top: 4px;">
+                                        <div class="cdoc-field">
+                                            <strong>Usuario de Lentes:</strong>
+                                            <span class="cdoc-line-fill" id="prnHoUsuarioLentes">--</span>
+                                        </div>
+                                        <div class="cdoc-field" style="flex: 1;">
+                                            <strong>Medicamento Actual:</strong>
+                                            <span class="cdoc-line-fill" style="flex: 1;" id="prnHoMedicamento">--</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="cdoc-block-title">AGUDEZA VISUAL & REFRACCIÓN DEFINITIVA</div>
+                                <table class="cdoc-table">
+                                    <thead>
+                                        <tr><th>OJO</th><th>ESFERA</th><th>CILINDRO</th><th>EJE</th><th>ADD</th><th>AV FINAL</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>OD</strong></td>
+                                            <td id="prnHoRxOdEsf" style="font-weight: bold;">--</td><td id="prnHoRxOdCil" style="font-weight: bold;">--</td><td id="prnHoRxOdEje">--</td><td id="prnHoRxOdAdd">--</td><td id="prnHoRxOdAvCc">20/20</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>OI</strong></td>
+                                            <td id="prnHoRxOiEsf" style="font-weight: bold;">--</td><td id="prnHoRxOiCil" style="font-weight: bold;">--</td><td id="prnHoRxOiEje">--</td><td id="prnHoRxOiAdd">--</td><td id="prnHoRxOiAvCc">20/20</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div class="cdoc-field-row" style="margin-top: 4px;">
+                                    <div class="cdoc-field">
+                                        <strong>DP:</strong> <span class="cdoc-line-fill" style="min-width: 60px;" id="prnHoRxDp">--</span> mm
+                                    </div>
+                                    <div class="cdoc-field" style="flex: 1;">
+                                        <strong>Observaciones:</strong> <span class="cdoc-line-fill" style="flex: 1;" id="prnHoObservaciones">--</span>
+                                    </div>
+                                </div>
+                                <div style="margin-top: 2rem; display: flex; justify-content: flex-end; text-align: center;">
+                                    <div style="width: 250px; border-top: 1px solid #0F172A; padding-top: 4px;">
+                                        <strong style="font-size: 0.9rem;" id="prnHoFirma"></strong><br>
+                                        <span style="font-size: 0.8rem; color: #475569;" id="prnHoFirmaEspecialidad">Oftalmología</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" onclick="closeModal('modalHistoriaOptometricaOficial')">Cerrar</button>
+                            <button type="button" class="btn btn-primary" onclick="openModalAndPrint('modalHistoriaOptometricaOficial')">
+                                <i class="fa-solid fa-print"></i> Imprimir Documento
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    if (div.firstElementChild) {
+        document.body.appendChild(div.firstElementChild);
+        return document.getElementById(modalId);
+    }
+    return null;
+};
 
 /// =============================================================================
 // GESTIÓN DE ROLES: ADMIN 1 (ADMINISTRATIVO) & ADMIN 2 (MÉDICO & OPTOMETRÍA)
@@ -709,9 +1260,15 @@ window.setAdminRole = function(role, notify = true) {
     AppState.currentRole = role;
     localStorage.setItem('optica_nieves_admin_role', role);
 
+    const isDoctor = role === 'admin2';
+    const isLab = role === 'lab_maracay' || role === 'lab_sanjuan';
+    const isMaster = role === 'master' || role === 'admin1';
+
     // Actualizar clases maestras en el body para control CSS absoluto
-    document.body.classList.toggle('role-admin2', role === 'admin2');
-    document.body.classList.toggle('role-admin1', role === 'admin1');
+    document.body.classList.toggle('role-admin2', isDoctor);
+    document.body.classList.toggle('role-admin1', !isDoctor);
+    document.body.classList.toggle('role-lab', isLab);
+    document.body.classList.toggle('role-master', isMaster);
 
     const btn1 = document.getElementById('btnRoleAdmin1');
     const btn2 = document.getElementById('btnRoleAdmin2');
@@ -726,108 +1283,150 @@ window.setAdminRole = function(role, notify = true) {
     const btnEditarTasa = document.getElementById('btnEditarTasa');
     const btnMenuToggle = document.getElementById('btnMenuToggle');
 
-    if (btn1) btn1.classList.toggle('active', role === 'admin1');
-    if (btn2) btn2.classList.toggle('active', role === 'admin2');
+    if (btn1) btn1.classList.toggle('active', !isDoctor);
+    if (btn2) btn2.classList.toggle('active', isDoctor);
     if (indicatorText) {
-        indicatorText.innerText = role === 'admin1' ? 'ADMIN 1' : 'ADMIN 2';
-        indicatorText.style.color = role === 'admin1' ? '#38BDF8' : '#10B981';
+        if (isDoctor) {
+            indicatorText.innerText = 'MÉDICO';
+            indicatorText.style.color = '#10B981';
+        } else if (isLab) {
+            indicatorText.innerText = 'LABORATORIO';
+            indicatorText.style.color = '#F59E0B';
+        } else if (isMaster) {
+            indicatorText.innerText = 'MASTER';
+            indicatorText.style.color = '#38BDF8';
+        } else {
+            indicatorText.innerText = 'ADMIN';
+            indicatorText.style.color = '#38BDF8';
+        }
     }
 
     if (topbarBadge) {
         topbarBadge.className = `topbar-role-badge role-${role}`;
     }
     if (topbarRoleText) {
-        topbarRoleText.innerText = role === 'admin1' ? 'Admin 1: Administrativo' : 'Admin 2: Médico & Optom.';
-    }
-    const textCambiar = document.getElementById('textCambiarModoTopbar');
-    const iconCambiar = document.getElementById('iconCambiarModoTopbar');
-    if (textCambiar) {
-        textCambiar.innerText = role === 'admin1' ? 'Modo Médico' : 'Modo Admin';
-    }
-    if (iconCambiar) {
-        iconCambiar.className = role === 'admin1' ? 'fa-solid fa-stethoscope' : 'fa-solid fa-cash-register';
+        topbarRoleText.innerText = isDoctor ? 'Dr. Oftalmólogo' : (isLab ? 'Laboratorio & Taller' : (isMaster ? 'Master Superadmin' : 'Administrador'));
     }
 
     if (topbarActionIcon && topbarActionText) {
-        if (role === 'admin1') {
-            topbarActionIcon.className = 'fa-solid fa-cart-plus';
-            topbarActionText.innerText = 'Nueva Venta';
-        } else {
+        if (isDoctor) {
             topbarActionIcon.className = 'fa-solid fa-stethoscope';
             topbarActionText.innerText = 'Panel del Doctor';
+        } else if (isLab) {
+            topbarActionIcon.className = 'fa-solid fa-microscope';
+            topbarActionText.innerText = 'Laboratorio';
+        } else {
+            topbarActionIcon.className = 'fa-solid fa-cart-plus';
+            topbarActionText.innerText = 'Nueva Venta';
         }
     }
 
     if (brandBadge) {
-        brandBadge.innerText = role === 'admin1' ? 'ADMIN' : 'MÉDICO';
+        if (isDoctor) brandBadge.innerText = 'MÉDICO';
+        else if (isLab) brandBadge.innerText = 'LABORATORIO';
+        else if (isMaster) brandBadge.innerText = 'MASTER';
+        else brandBadge.innerText = 'ADMIN';
     }
     if (brandTagline) {
-        brandTagline.innerText = role === 'admin1' ? 'Panel Administrativo' : 'Atención Oftalmológica';
+        if (isDoctor) brandTagline.innerText = 'Atención Oftalmológica';
+        else if (isLab) brandTagline.innerText = 'Taller y Montaje';
+        else brandTagline.innerText = 'Panel Administrativo';
     }
 
     // Actualizar ficha de usuario autenticado en la barra lateral
     const userTitle = document.getElementById('userActiveTitle');
     const userHandle = document.getElementById('userActiveHandle');
     const userIcon = document.getElementById('userActiveAvatarIcon');
-    if (role === 'admin1') {
-        if (userTitle) userTitle.innerText = 'Administración';
-        if (userHandle) userHandle.innerText = '@administracionnieves';
-        if (userIcon) userIcon.className = 'fa-solid fa-shield-halved';
-    } else {
-        const activeMed = window.OpticaStorage.getMedicoActivo();
-        if (userTitle) userTitle.innerText = activeMed ? `${activeMed.nombre} ${activeMed.apellido}` : 'Dr. Especialista';
-        if (userHandle) userHandle.innerText = '@mediconieves';
-        if (userIcon) userIcon.className = 'fa-solid fa-user-doctor';
+
+    let activeAccount = null;
+    const raw = sessionStorage.getItem('optica_nieves_auth') || localStorage.getItem('optica_nieves_auth');
+    if (raw) {
+        try {
+            const s = JSON.parse(raw);
+            if (s?.user && AUTH_ACCOUNTS[s.user]) activeAccount = AUTH_ACCOUNTS[s.user];
+        } catch(e) {}
     }
 
-    // CONTROL DEL SIDEBAR: EN AMBOS MODOS SE MANTIENE LA BARRA LATERAL ELEGANTE
+    if (activeAccount) {
+        if (userTitle) userTitle.innerText = activeAccount.name;
+        if (userHandle) userHandle.innerText = activeAccount.handle;
+        if (userIcon) {
+            if (isDoctor) userIcon.className = 'fa-solid fa-user-doctor';
+            else if (isLab) userIcon.className = 'fa-solid fa-microscope';
+            else userIcon.className = 'fa-solid fa-shield-halved';
+        }
+    } else {
+        if (isDoctor) {
+            const activeMed = window.OpticaStorage.getMedicoActivo ? window.OpticaStorage.getMedicoActivo() : null;
+            if (userTitle) userTitle.innerText = activeMed ? `${activeMed.nombre} ${activeMed.apellido}` : 'Dr. Especialista';
+            if (userHandle) userHandle.innerText = '@mediconieves';
+            if (userIcon) userIcon.className = 'fa-solid fa-user-doctor';
+        } else if (isLab) {
+            if (userTitle) userTitle.innerText = 'Laboratorio';
+            if (userHandle) userHandle.innerText = '@laboratorio';
+            if (userIcon) userIcon.className = 'fa-solid fa-microscope';
+        } else {
+            if (userTitle) userTitle.innerText = 'Administración';
+            if (userHandle) userHandle.innerText = '@administracionnieves';
+            if (userIcon) userIcon.className = 'fa-solid fa-shield-halved';
+        }
+    }
+
+    // CONTROL DEL SIDEBAR
     if (sidebar) {
         sidebar.classList.remove('role-mode-admin2');
         sidebar.style.display = 'flex';
     }
 
-    // CONTROL DE ELEMENTOS FINANCIEROS (DÓLAR BCV): EN MODO MÉDICO SE OCULTA
+    // CONTROL DE ELEMENTOS FINANCIEROS (DÓLAR BCV): En Modo Médico y Laboratorio se oculta
     if (btnEditarTasa) {
-        btnEditarTasa.style.display = role === 'admin2' ? 'none' : 'flex';
+        btnEditarTasa.style.display = (isDoctor || isLab) ? 'none' : 'flex';
     }
 
-    // CONTROL DEL BOTÓN MENÚ MÓVIL: HABILITADO EN MÓVIL SEGÚN CSS
-    if (btnMenuToggle) {
-        btnMenuToggle.style.display = '';
+    // Seguridad estricta para Laboratorio: Ocultar cualquier botón o vista de Caja y Venta
+    if (isLab) {
+        document.querySelectorAll('.admin-nav-item[data-tab="caja"]').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.admin-nav-item[data-tab="venta-wizard"]').forEach(el => el.style.display = 'none');
+        const cajaView = document.getElementById('view-caja');
+        if (cajaView) cajaView.style.display = 'none';
+        const wizardView = document.getElementById('view-venta-wizard');
+        if (wizardView) wizardView.style.display = 'none';
+        const topbarAction = document.getElementById('topbarDynamicActionBtn');
+        if (topbarAction) topbarAction.style.display = 'none';
     }
 
-    // Filtrar elementos de la interfaz por rol (data-role)
-    document.querySelectorAll('[data-role]').forEach(el => {
-        const itemRole = el.getAttribute('data-role');
-        if (itemRole === role) {
-            el.style.display = '';
-        } else {
-            el.style.display = 'none';
-        }
-    });
+    // Seguridad estricta para Administradores de Sede (Maracay y San Juan): Ocultar Laboratorio
+    const isBranchAdmin = role === 'admin_maracay' || role === 'admin_sanjuan';
+    if (isBranchAdmin) {
+        document.querySelectorAll('.admin-nav-item[data-tab="laboratorio"]').forEach(el => el.style.display = 'none');
+        const labView = document.getElementById('view-laboratorio');
+        if (labView) labView.style.display = 'none';
+    }
 
     // Controlar pestaña activa según rol
-    const admin1Tabs = ['dashboard', 'pacientes360', 'venta-wizard', 'recibos', 'laboratorio', 'inventario', 'whatsapp', 'caja', 'citas', 'configuracion'];
+    const adminTabs = ['dashboard', 'pacientes360', 'venta-wizard', 'recibos', 'laboratorio', 'inventario', 'whatsapp', 'caja', 'citas', 'configuracion', 'auditoria'];
+    const adminBranchTabs = ['dashboard', 'pacientes360', 'venta-wizard', 'recibos', 'inventario', 'whatsapp', 'caja', 'citas', 'configuracion', 'auditoria'];
     const admin2Tabs = ['dashboard-medico', 'historia-optometrica', 'ficha-consulta', 'ficha-consulta-rapida', 'recipes', 'farmacos'];
+    const labTabs = ['laboratorio', 'dashboard', 'pacientes360', 'recibos', 'inventario', 'whatsapp'];
 
-    if (role === 'admin1' && !admin1Tabs.includes(AppState.tabActual)) {
-        window.switchAdminTab('dashboard');
-    } else if (role === 'admin2' && !admin2Tabs.includes(AppState.tabActual)) {
+    if (isDoctor && !admin2Tabs.includes(AppState.tabActual)) {
         window.switchAdminTab('dashboard-medico');
+    } else if (isLab && (AppState.tabActual === 'dashboard' || !labTabs.includes(AppState.tabActual))) {
+        window.switchAdminTab('laboratorio');
+    } else if (isBranchAdmin && (!adminBranchTabs.includes(AppState.tabActual) || AppState.tabActual === 'laboratorio')) {
+        window.switchAdminTab('dashboard');
+    } else if (!isDoctor && !isLab && !isBranchAdmin && !adminTabs.includes(AppState.tabActual)) {
+        window.switchAdminTab('dashboard');
     } else {
         renderCurrentTab();
     }
 
-    if (role === 'admin2') {
+    if (isDoctor) {
         renderMedicosSection();
     }
 
     if (notify) {
-        if (role === 'admin1') {
-            showAdminToast('Modo Administrativo activado', 'info');
-        } else {
-            showAdminToast('Modo Médico activado', 'info');
-        }
+        showAdminToast(`Sesión: ${activeAccount ? activeAccount.name : role}`, 'info');
     }
 };
 
@@ -837,10 +1436,12 @@ window.toggleAdminRole = function() {
 };
 
 window.onTopbarActionClick = function() {
-    if (AppState.currentRole === 'admin1') {
-        window.switchAdminTab('venta-wizard');
-    } else {
+    if (AppState.currentRole === 'admin2') {
         window.switchAdminTab('dashboard-medico');
+    } else if (AppState.currentRole === 'lab_maracay' || AppState.currentRole === 'lab_sanjuan') {
+        window.switchAdminTab('laboratorio');
+    } else {
+        window.switchAdminTab('venta-wizard');
     }
 };
 
@@ -866,6 +1467,18 @@ function initNavigation() {
 }
 
 window.switchAdminTab = function(tabName) {
+    // RESTRICCIÓN DE SEGURIDAD ABSOLUTA: Laboratorio NO tiene acceso a Caja ni Ventas
+    if ((tabName === 'caja' || tabName === 'venta-wizard') && (AppState.currentRole === 'lab_maracay' || AppState.currentRole === 'lab_sanjuan')) {
+        showAdminToast('Acceso restringido: El personal de laboratorio no tiene permisos para el módulo de Caja o Ventas.', 'warning');
+        return;
+    }
+
+    // RESTRICCIÓN DE SEGURIDAD: Admin Maracay y Admin San Juan NO tienen acceso a Laboratorio (tienen taller separado)
+    if (tabName === 'laboratorio' && (AppState.currentRole === 'admin_maracay' || AppState.currentRole === 'admin_sanjuan')) {
+        showAdminToast('El módulo de Laboratorio está reservado para el personal técnico del taller.', 'warning');
+        return;
+    }
+
     AppState.tabActual = tabName;
 
     document.querySelectorAll('.admin-nav-item').forEach(el => {
@@ -886,7 +1499,11 @@ window.switchAdminTab = function(tabName) {
     }
 
     const titles = {
-        'dashboard': { title: 'Inicio', sub: 'Visión general de óptica, ventas y operaciones' },
+        'dashboard': { 
+            title: AppState.currentRole === 'master' ? 'Alta Gerencia' : 'Inicio', 
+            sub: AppState.currentRole === 'master' ? 'Visión Consolidada & Control Multisede' : 'Visión general de óptica, ventas y operaciones' 
+        },
+        'auditoria': { title: 'Notificaciones en Vivo', sub: 'Monitoreo centralizado de actividades en tiempo real' },
         'dashboard-medico': { title: 'Base de Pacientes', sub: 'Directorio clínico, refracciones y expedientes' },
         'pacientes360': { title: 'Pacientes', sub: 'Expedientes clínicos, refracción y antecedentes' },
         'venta-wizard': { title: 'Nueva Venta', sub: 'Monturas, cristales y cobro multimoneda' },
@@ -898,7 +1515,7 @@ window.switchAdminTab = function(tabName) {
         'recipes': { title: 'Récipes Médicos & Indicaciones', sub: 'Prescripción farmacológica y tratamiento terapéutico' },
         'farmacos': { title: 'LiteFarma', sub: 'Catálogo de fármacos y prescripciones clínicas' },
         'whatsapp': { title: 'Mensajería WhatsApp', sub: 'Plantillas automáticas y notificaciones a pacientes' },
-        'caja': { title: 'Caja', sub: 'Arqueo diario y métodos de pago' },
+        'caja': { title: 'Caja & Finanzas', sub: 'Arqueo diario y métodos de pago' },
         'inventario': { title: 'Inventario', sub: 'Control de monturas, cristales y stock por sede' },
         'citas': { title: 'Citas', sub: 'Agenda y turnos agendados' },
         'configuracion': { title: 'Configuración', sub: 'Sedes, médicos tratantes y tasa oficial BCV' }
@@ -914,6 +1531,17 @@ window.switchAdminTab = function(tabName) {
     if (sidebar) sidebar.classList.remove('open-mobile');
 
     renderCurrentTab();
+};
+
+window.abrirRecibosConFiltroPendiente = function() {
+    window.switchAdminTab('recibos');
+    const filtro = document.getElementById('filtroEstadoRecibo');
+    if (filtro) {
+        filtro.value = 'ABONO_PENDIENTE';
+        if (typeof renderRecibosTable === 'function') {
+            renderRecibosTable();
+        }
+    }
 };
 
 function renderCurrentTab() {
@@ -963,6 +1591,14 @@ function renderCurrentTab() {
             break;
         case 'caja':
             renderCaja();
+            break;
+        case 'auditoria':
+            if (typeof window.renderAuditoriaFeed === 'function') {
+                window.renderAuditoriaFeed();
+            }
+            if (typeof window.filtrarAuditoriaFull === 'function') {
+                window.filtrarAuditoriaFull();
+            }
             break;
         case 'inventario':
             renderInventarioTable();
@@ -1085,7 +1721,7 @@ window.guardarTasaModal = function() {
 // MÓDULO 1: DASHBOARD EJECUTIVO
 /// =============================================================================
 function renderDashboard() {
-    const stats = window.OpticaStorage.getDashboardStats();
+    const stats = window.OpticaStorage.getDashboardStats(AppState.sedeFiltro);
     const config = window.OpticaStorage.getConfig();
     const tasa = config.tasa_usd_ves || 842.21;
 
@@ -1107,6 +1743,77 @@ function renderDashboard() {
     if (elListos) elListos.innerText = stats.ordenes_listas_retiro;
     if (elPorCobrar) elPorCobrar.innerText = `$${stats.cuentas_por_cobrar_usd.toFixed(2)}`;
     if (elCitas) elCitas.innerText = stats.citas_pendientes_hoy;
+
+    // Soporte para KPIs de Laboratorio (exclusivos de taller, cero cifras de dinero o caja)
+    const elLabEnTaller = document.getElementById('kpiLabEnTaller');
+    const elLabEnProv = document.getElementById('kpiLabEnProveedor');
+    const elLabListos = document.getElementById('kpiLabListos');
+    const elLabTotal = document.getElementById('kpiLabTotalOrdenes');
+
+    if (elLabEnTaller || elLabEnProv || elLabListos || elLabTotal) {
+        const ordenes = window.OpticaStorage.getOrdenesLaboratorio ? window.OpticaStorage.getOrdenesLaboratorio(AppState.sedeFiltro) : [];
+        const enTaller = ordenes.filter(o => o.fase === 'FASE_1' || o.fase === 'FASE_2' || o.fase === 'FASE_3' || o.estado === 'TALLER' || o.estado === 'MONTAJE' || o.estado === 'PENDIENTE').length;
+        const enProv = ordenes.filter(o => o.fase === 'FASE_PEDIDO_PROV' || o.fase === 'FASE_RECIBIDO_PROV' || o.estado === 'EN_PROVEEDOR').length;
+        const listos = ordenes.filter(o => o.fase === 'FASE_4' || o.estado === 'LISTO' || o.estado === 'CALIDAD').length;
+
+        if (elLabEnTaller) elLabEnTaller.innerText = enTaller;
+        if (elLabEnProv) elLabEnProv.innerText = enProv;
+        if (elLabListos) elLabListos.innerText = listos;
+        if (elLabTotal) elLabTotal.innerText = ordenes.length;
+    }
+
+    // Soporte para KPIs de Administración de Sede (Sin Laboratorio)
+    const elTotalRecibosEmitidos = document.getElementById('kpiTotalRecibosEmitidos');
+    const elArqueoCaja = document.getElementById('kpiArqueoCaja');
+    if (elTotalRecibosEmitidos || elArqueoCaja) {
+        const recibosSede = window.OpticaStorage.getRecibos ? window.OpticaStorage.getRecibos(AppState.sedeFiltro) : [];
+        if (elTotalRecibosEmitidos) elTotalRecibosEmitidos.innerText = recibosSede.length;
+        if (elArqueoCaja) {
+            const resCaja = window.OpticaStorage.getResumenCajaHoy(AppState.sedeFiltro);
+            elArqueoCaja.innerText = `$${(resCaja.efectivo_usd || 0).toFixed(2)}`;
+        }
+    }
+
+    // Alerta Activa de Cumpleaños en Dashboard de Inicio
+    const boxCumple = document.getElementById('dashboardAlertaCumpleanos');
+    const txtCumple = document.getElementById('dashboardAlertaCumpleanosTexto');
+    if (boxCumple) {
+        const cData = window.OpticaStorage && window.OpticaStorage.getCumpleaneros ? window.OpticaStorage.getCumpleaneros() : { hoy: [] };
+        if (cData.hoy && cData.hoy.length > 0) {
+            boxCumple.style.display = 'flex';
+            if (txtCumple) {
+                const nombres = cData.hoy.map(p => p.nombre).slice(0, 3).join(', ');
+                const extra = cData.hoy.length > 3 ? ` y ${cData.hoy.length - 3} más` : '';
+                txtCumple.innerText = `Hoy cumplen años ${cData.hoy.length} paciente(s): ${nombres}${extra}. Envíeles una felicitación por WhatsApp con un solo clic.`;
+            }
+        } else {
+            boxCumple.style.display = 'none';
+        }
+    }
+
+    // Soporte para Panel Comparativo de Sedes en Modo Master
+    const masterMaracayVentas = document.getElementById('masterKpiMrcyVentas');
+    if (masterMaracayVentas) {
+        const statsMrcy = window.OpticaStorage.getDashboardStats('Maracay');
+        const statsSjm = window.OpticaStorage.getDashboardStats('San Juan de los Morros');
+        const cajaMrcy = window.OpticaStorage.getResumenCajaHoy('Maracay');
+        const cajaSjm = window.OpticaStorage.getResumenCajaHoy('San Juan de los Morros');
+
+        const setTxt = (id, val) => {
+            const el = document.getElementById(id);
+            if (el) el.innerText = val;
+        };
+
+        setTxt('masterKpiMrcyVentas', `$${statsMrcy.ventas_hoy_usd.toFixed(2)}`);
+        setTxt('masterKpiMrcyCaja', `$${(cajaMrcy.efectivo_usd || 0).toFixed(2)}`);
+        setTxt('masterKpiMrcyLab', statsMrcy.ordenes_en_taller);
+        setTxt('masterKpiMrcyPac', statsMrcy.total_pacientes);
+
+        setTxt('masterKpiSjmVentas', `$${statsSjm.ventas_hoy_usd.toFixed(2)}`);
+        setTxt('masterKpiSjmCaja', `$${(cajaSjm.efectivo_usd || 0).toFixed(2)}`);
+        setTxt('masterKpiSjmLab', statsSjm.ordenes_en_taller);
+        setTxt('masterKpiSjmPac', statsSjm.total_pacientes);
+    }
 
     const elBranchBadge = document.getElementById('heroActiveBranchBadge');
     if (elBranchBadge) {
@@ -1165,10 +1872,850 @@ function renderDashboard() {
             `;
         }
     }
+
+    if (document.getElementById('masterAltaGerenciaContainer')) {
+        window.renderMasterAltaGerencia();
+        window.renderAuditoriaFeed();
+    }
 }
 
 /// =============================================================================
-// MÓDULO 2: PACIENTES 360 (EXPEDIENTE CLÍNICO & ÓPTICO)
+// MÓDULO ALTA GERENCIA EJECUTIVA & NOTIFICACIONES EN VIVO (USUARIO MASTER)
+/// =============================================================================
+window.masterSedeFiltro = 'todas';
+
+window.setMasterSedeFiltro = function(sede) {
+    window.masterSedeFiltro = sede;
+    AppState.sedeFiltro = sede;
+    
+    document.querySelectorAll('.btn-filter-sede-master').forEach(btn => {
+        if (btn.getAttribute('data-sede') === sede) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+
+    window.renderMasterAltaGerencia();
+    window.renderAuditoriaFeed();
+};
+
+window.renderMasterAltaGerencia = function() {
+    const sede = window.masterSedeFiltro || 'todas';
+    const config = window.OpticaStorage.getConfig();
+    const tasa = config.tasa_usd_ves || 847.44;
+
+    const recibosAll = window.OpticaStorage.getRecibos ? window.OpticaStorage.getRecibos() : [];
+    const pacientesAll = window.OpticaStorage.getPacientes ? window.OpticaStorage.getPacientes() : [];
+    const movimientosAll = window.OpticaStorage.getMovimientosCaja ? window.OpticaStorage.getMovimientosCaja() : [];
+
+    const recibos = sede === 'todas' ? recibosAll : recibosAll.filter(r => (r.sede || '').toLowerCase().includes(sede.toLowerCase()));
+    const pacientes = sede === 'todas' ? pacientesAll : pacientesAll.filter(p => (p.sede || '').toLowerCase().includes(sede.toLowerCase()));
+    const movimientos = sede === 'todas' ? movimientosAll : movimientosAll.filter(m => (m.sede || '').toLowerCase().includes(sede.toLowerCase()));
+
+    // Facturación y Cobranza
+    let facturacionTotalUsd = 0;
+    let cobradoTotalUsd = 0;
+    let cuentasPorCobrarUsd = 0;
+    let descuentosTotalUsd = 0;
+
+    recibos.forEach(r => {
+        const total = parseFloat(r.total_usd) || 0;
+        const pagado = parseFloat(r.pagado_usd) || 0;
+        const saldo = parseFloat(r.saldo_pendiente_usd) || 0;
+        const desc = parseFloat(r.descuento_usd) || 0;
+
+        facturacionTotalUsd += total;
+        cobradoTotalUsd += pagado;
+        cuentasPorCobrarUsd += saldo;
+        descuentosTotalUsd += desc;
+    });
+
+    const facturacionTotalBs = facturacionTotalUsd * tasa;
+    const cobradoTotalBs = cobradoTotalUsd * tasa;
+    const cuentasPorCobrarBs = cuentasPorCobrarUsd * tasa;
+    const tasaCobroEfectiva = facturacionTotalUsd > 0 ? ((cobradoTotalUsd / facturacionTotalUsd) * 100) : 100;
+    const ticketPromedio = recibos.length > 0 ? (facturacionTotalUsd / recibos.length) : 0;
+
+    // Egresos y Utilidad Operativa
+    let totalEgresosUsd = 0;
+    let totalGastosUsd = 0;
+    let totalComprasUsd = 0;
+
+    movimientos.forEach(m => {
+        if (m.tipo === 'EGRESO') {
+            const mUsd = parseFloat(m.monto_usd) || 0;
+            totalEgresosUsd += mUsd;
+            if (m.subtipo === 'COMPRA') totalComprasUsd += mUsd;
+            else totalGastosUsd += mUsd;
+        }
+    });
+
+    const utilidadNetaOperativaUsd = cobradoTotalUsd - totalEgresosUsd;
+    const utilidadNetaOperativaBs = utilidadNetaOperativaUsd * tasa;
+
+    // Métricas comparativas entre sedes
+    const recibosMrcy = recibosAll.filter(r => (r.sede || '').toLowerCase().includes('maracay'));
+    const recibosSjm = recibosAll.filter(r => (r.sede || '').toLowerCase().includes('juan'));
+    const factMrcy = recibosMrcy.reduce((acc, r) => acc + (parseFloat(r.total_usd) || 0), 0);
+    const factSjm = recibosSjm.reduce((acc, r) => acc + (parseFloat(r.total_usd) || 0), 0);
+    const cobradoMrcy = recibosMrcy.reduce((acc, r) => acc + (parseFloat(r.pagado_usd) || 0), 0);
+    const cobradoSjm = recibosSjm.reduce((acc, r) => acc + (parseFloat(r.pagado_usd) || 0), 0);
+    const totalFactAmbas = (factMrcy + factSjm) || 1;
+    const pctMrcy = Math.round((factMrcy / totalFactAmbas) * 100);
+    const pctSjm = 100 - pctMrcy;
+
+    // Desglose de métodos de pago
+    let metEfectivo = 0, metPagoMovil = 0, metPunto = 0, metZelle = 0, metCashea = 0, metOtros = 0;
+    movimientos.forEach(m => {
+        if (m.tipo === 'INGRESO') {
+            const usd = parseFloat(m.monto_usd) || 0;
+            switch(m.metodo) {
+                case 'efectivo_usd': metEfectivo += usd; break;
+                case 'pago_movil': metPagoMovil += usd; break;
+                case 'punto_venta': metPunto += usd; break;
+                case 'zelle': metZelle += usd; break;
+                case 'cashea': metCashea += usd; break;
+                default: metOtros += usd; break;
+            }
+        }
+    });
+    const totalMetodos = (metEfectivo + metPagoMovil + metPunto + metZelle + metCashea + metOtros) || 1;
+    const pctEfectivo = Math.round((metEfectivo / totalMetodos) * 100);
+    const pctPagoMovil = Math.round((metPagoMovil / totalMetodos) * 100);
+    const pctPunto = Math.round((metPunto / totalMetodos) * 100);
+    const pctZelle = Math.round((metZelle / totalMetodos) * 100);
+    const pctCashea = Math.round((metCashea / totalMetodos) * 100);
+
+    const setTxt = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = val;
+    };
+
+    setTxt('masterKpiFacturacionUsd', `$${facturacionTotalUsd.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
+    setTxt('masterKpiFacturacionBs', `${facturacionTotalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs`);
+    setTxt('masterKpiCobradoUsd', `$${cobradoTotalUsd.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
+    setTxt('masterKpiCobradoBs', `${cobradoTotalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs`);
+    setTxt('masterKpiCuentasCobrarUsd', `$${cuentasPorCobrarUsd.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
+    setTxt('masterKpiCuentasCobrarBs', `${cuentasPorCobrarBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs`);
+    setTxt('masterKpiTasaCobro', `${tasaCobroEfectiva.toFixed(1)}%`);
+    setTxt('masterKpiTicketPromedio', `$${ticketPromedio.toFixed(2)}`);
+    setTxt('masterKpiDescuentosUsd', `$${descuentosTotalUsd.toFixed(2)}`);
+    setTxt('masterKpiTotalPacientes', pacientes.length);
+    setTxt('masterKpiTotalRecibos', recibos.length);
+    setTxt('masterKpiEgresosUsd', `$${totalEgresosUsd.toFixed(2)}`);
+    setTxt('masterKpiUtilidadUsd', `$${utilidadNetaOperativaUsd.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
+    setTxt('masterKpiUtilidadBs', `${utilidadNetaOperativaBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs`);
+
+    // Actualizar barras de sedes
+    const barMrcy = document.getElementById('masterBarMrcy');
+    const barSjm = document.getElementById('masterBarSjm');
+    const barMrcyVal = document.getElementById('masterBarMrcyVal');
+    const barSjmVal = document.getElementById('masterBarSjmVal');
+    if (barMrcy) barMrcy.style.width = `${Math.max(5, pctMrcy)}%`;
+    if (barSjm) barSjm.style.width = `${Math.max(5, pctSjm)}%`;
+    if (barMrcyVal) barMrcyVal.innerText = `$${factMrcy.toFixed(2)} (${pctMrcy}%)`;
+    if (barSjmVal) barSjmVal.innerText = `$${factSjm.toFixed(2)} (${pctSjm}%)`;
+
+    // Actualizar barras de métodos de pago
+    const barMetEf = document.getElementById('masterBarMetEfectivo');
+    const barMetPm = document.getElementById('masterBarMetPagoMovil');
+    const barMetPt = document.getElementById('masterBarMetPunto');
+    const barMetZl = document.getElementById('masterBarMetZelle');
+    const barMetCs = document.getElementById('masterBarMetCashea');
+    if (barMetEf) { barMetEf.style.width = `${Math.max(4, pctEfectivo)}%`; barMetEf.innerText = `${pctEfectivo}%`; }
+    if (barMetPm) { barMetPm.style.width = `${Math.max(4, pctPagoMovil)}%`; barMetPm.innerText = `${pctPagoMovil}%`; }
+    if (barMetPt) { barMetPt.style.width = `${Math.max(4, pctPunto)}%`; barMetPt.innerText = `${pctPunto}%`; }
+    if (barMetZl) { barMetZl.style.width = `${Math.max(4, pctZelle)}%`; barMetZl.innerText = `${pctZelle}%`; }
+    if (barMetCs) { barMetCs.style.width = `${Math.max(4, pctCashea)}%`; barMetCs.innerText = `${pctCashea}%`; }
+
+    // Órdenes en laboratorio para KPI Master
+    const ordenesLabAll = window.OpticaStorage.getOrdenesLaboratorio ? window.OpticaStorage.getOrdenesLaboratorio() : [];
+    const ordenesLab = sede === 'todas' ? ordenesLabAll : ordenesLabAll.filter(o => (o.sede || '').toLowerCase().includes(sede.toLowerCase()));
+    setTxt('masterKpiOrdenesLab', ordenesLab.length);
+    const elLabSub = document.getElementById('masterKpiOrdenesLabSub');
+    if (elLabSub) {
+        const enTaller = ordenesLab.filter(o => !['FASE_LISTO', 'FASE_ENTREGADO'].includes(o.fase_actual || o.fase)).length;
+        elLabSub.innerText = `${enTaller} activas en taller`;
+    }
+
+    if (typeof window.renderMasterAnaliticaMensual === 'function') {
+        window.renderMasterAnaliticaMensual();
+    }
+};
+
+/// =============================================================================
+/// ANALÍTICA MENSUAL Y PRODUCTIVIDAD COMERCIAL - MODO MASTER
+/// =============================================================================
+
+function parseFechaReciboFlexible(r) {
+    if (r.fecha_iso) {
+        const d = new Date(r.fecha_iso);
+        if (!isNaN(d.getTime())) return d;
+    }
+    if (r.created_at) {
+        const d = new Date(r.created_at);
+        if (!isNaN(d.getTime())) return d;
+    }
+    if (r.fecha) {
+        const parts = r.fecha.split(' ')[0].split(/[\/\-]/);
+        if (parts.length === 3) {
+            if (parts[0].length === 4) {
+                return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+            } else {
+                return new Date(parseInt(parts[2], 10), parseInt(parts[1], 10) - 1, parseInt(parts[0], 10));
+            }
+        }
+    }
+    return new Date();
+}
+
+window.renderMasterAnaliticaMensual = function() {
+    const selMes = document.getElementById('masterSelectMesAnalitica');
+    const now = new Date();
+    const mesesNombres = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+    if (selMes && selMes.options.length === 0) {
+        // Generar opciones para el mes actual y los 5 meses anteriores
+        for (let i = 0; i < 6; i++) {
+            const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const opt = document.createElement('option');
+            opt.value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+            opt.innerText = `${mesesNombres[d.getMonth()]} ${d.getFullYear()}${i === 0 ? ' (Mes en Curso)' : ''}`;
+            selMes.appendChild(opt);
+        }
+    }
+
+    const valorMes = selMes ? selMes.value : `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const [selYearStr, selMonthStr] = valorMes.split('-');
+    const selYear = parseInt(selYearStr, 10);
+    const selMonth = parseInt(selMonthStr, 10) - 1;
+
+    const badgeMes = document.getElementById('masterBadgeMesActual');
+    if (badgeMes) {
+        badgeMes.innerText = `${mesesNombres[selMonth]} ${selYear}`;
+    }
+
+    const config = window.OpticaStorage.getConfig();
+    const tasa = config.tasa_usd_ves || 847.44;
+    const todosRecibos = window.OpticaStorage.getRecibos ? window.OpticaStorage.getRecibos() : [];
+
+    const totalDias = new Date(selYear, selMonth + 1, 0).getDate();
+    const datosPorDia = [];
+    let acumuladoUsd = 0;
+    let diasConVenta = 0;
+    let diaRecordObj = { dia: null, totalUsd: 0, mrcyUsd: 0, sjmUsd: 0, fechaStr: '' };
+
+    for (let d = 1; d <= totalDias; d++) {
+        const diaFechaStr = `${String(d).padStart(2, '0')}/${String(selMonth + 1).padStart(2, '0')}/${selYear}`;
+        let ventasMrcyUsd = 0;
+        let ventasSjmUsd = 0;
+        let conteoVentas = 0;
+
+        todosRecibos.forEach(r => {
+            const rDate = parseFechaReciboFlexible(r);
+            if (rDate.getFullYear() === selYear && rDate.getMonth() === selMonth && rDate.getDate() === d) {
+                const total = parseFloat(r.total_usd) || 0;
+                const sede = (r.sede || '').toLowerCase();
+                if (sede.includes('maracay')) {
+                    ventasMrcyUsd += total;
+                } else if (sede.includes('juan')) {
+                    ventasSjmUsd += total;
+                } else {
+                    ventasMrcyUsd += total;
+                }
+                conteoVentas++;
+            }
+        });
+
+        const totalDiaUsd = ventasMrcyUsd + ventasSjmUsd;
+        acumuladoUsd += totalDiaUsd;
+        if (totalDiaUsd > 0) diasConVenta++;
+
+        if (totalDiaUsd > diaRecordObj.totalUsd) {
+            diaRecordObj = {
+                dia: d,
+                totalUsd: totalDiaUsd,
+                mrcyUsd: ventasMrcyUsd,
+                sjmUsd: ventasSjmUsd,
+                fechaStr: diaFechaStr
+            };
+        }
+
+        datosPorDia.push({
+            dia: d,
+            fechaStr: diaFechaStr,
+            ventasMrcyUsd,
+            ventasSjmUsd,
+            totalDiaUsd,
+            totalDiaBs: totalDiaUsd * tasa,
+            acumuladoUsd,
+            conteoVentas
+        });
+    }
+
+    // Métricas y Proyecciones de Productividad
+    const promedioDiario = diasConVenta > 0 ? (acumuladoUsd / diasConVenta) : 0;
+    // Meta del Mes: Basada en proyección para superar récord comercial (+20%)
+    const metaMesUsd = Math.max(5000, acumuladoUsd > 0 ? (acumuladoUsd * 1.25) : 6000);
+    const faltaVender = Math.max(0, metaMesUsd - acumuladoUsd);
+
+    const esMesActual = (now.getFullYear() === selYear && now.getMonth() === selMonth);
+    const diaActual = esMesActual ? now.getDate() : totalDias;
+    const diasRestantes = esMesActual ? Math.max(1, totalDias - diaActual) : 1;
+    const ritmoDiario = faltaVender / diasRestantes;
+
+    const setTxt = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = val;
+    };
+
+    if (diaRecordObj.dia) {
+        setTxt('masterProdDiaRecordVal', `$${diaRecordObj.totalUsd.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
+        const liderSede = diaRecordObj.mrcyUsd >= diaRecordObj.sjmUsd ? 'Maracay' : 'San Juan';
+        setTxt('masterProdDiaRecordSub', `${diaRecordObj.fechaStr} (Líder: ${liderSede} con $${Math.max(diaRecordObj.mrcyUsd, diaRecordObj.sjmUsd).toFixed(2)})`);
+    } else {
+        setTxt('masterProdDiaRecordVal', '$0.00');
+        setTxt('masterProdDiaRecordSub', 'Sin récords registrados en este mes');
+    }
+
+    setTxt('masterProdPromedioDiarioVal', `$${promedioDiario.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
+    setTxt('masterProdPromedioDiarioSub', `${diasConVenta} día(s) con ventas activas registradas`);
+
+    setTxt('masterProdMetaMesVal', `$${metaMesUsd.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
+    setTxt('masterProdMetaMesSub', `Faltan $${faltaVender.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} para superar las metas del negocio`);
+
+    setTxt('masterProdRitmoDiarioVal', `$${ritmoDiario.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} / día`);
+    setTxt('masterProdRitmoDiarioSub', esMesActual ? `En los ${diasRestantes} días restantes de ${mesesNombres[selMonth]}` : 'Mes finalizado');
+
+    // 1. Renderizar Gráfico de Barras Comparativo
+    const chartCont = document.getElementById('masterDailyChartContainer');
+    if (chartCont) {
+        const maxVentaDia = Math.max(1, ...datosPorDia.map(d => d.totalDiaUsd));
+        chartCont.innerHTML = datosPorDia.map(item => {
+            const hMrcy = Math.min(100, Math.round((item.ventasMrcyUsd / maxVentaDia) * 100));
+            const hSjm = Math.min(100, Math.round((item.ventasSjmUsd / maxVentaDia) * 100));
+            const esHoy = esMesActual && item.dia === diaActual;
+            const esRecord = diaRecordObj.dia === item.dia && item.totalDiaUsd > 0;
+
+            return `
+                <div style="flex: 1; min-width: 24px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%;" title="Día ${item.dia}: Total $${item.totalDiaUsd.toFixed(2)} (Mrcy: $${item.ventasMrcyUsd.toFixed(2)} | SJM: $${item.ventasSjmUsd.toFixed(2)})">
+                    <div style="display: flex; gap: 2px; align-items: flex-end; width: 100%; height: 95px; justify-content: center;">
+                        <div style="width: 45%; max-width: 10px; height: ${Math.max(4, hMrcy)}%; background: #0284C7; border-radius: 2px 2px 0 0;" title="Maracay: $${item.ventasMrcyUsd.toFixed(2)}"></div>
+                        <div style="width: 45%; max-width: 10px; height: ${Math.max(4, hSjm)}%; background: #10B981; border-radius: 2px 2px 0 0;" title="San Juan: $${item.ventasSjmUsd.toFixed(2)}"></div>
+                    </div>
+                    <span style="font-size: 0.65rem; font-weight: ${esHoy || esRecord ? '800' : '600'}; color: ${esRecord ? '#166534' : esHoy ? '#0284C7' : '#64748B'}; margin-top: 4px;">
+                        ${item.dia}
+                    </span>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // 2. Renderizar Tabla Detallada Día por Día
+    const tbody = document.getElementById('masterDailyTableBody');
+    if (tbody) {
+        tbody.innerHTML = datosPorDia.map(item => {
+            const esRecord = diaRecordObj.dia === item.dia && item.totalDiaUsd > 0;
+            const esHoy = esMesActual && item.dia === diaActual;
+            let badgeHtml = '';
+
+            if (esRecord) {
+                badgeHtml = '<span class="tag-day-record"><i class="fa-solid fa-trophy"></i> DÍA RÉCORD</span>';
+            } else if (item.totalDiaUsd > 0) {
+                badgeHtml = '<span class="tag-day-active">VENTAS ACTIVAS</span>';
+            } else if (esMesActual && item.dia > diaActual) {
+                badgeHtml = '<span class="tag-day-empty" style="opacity: 0.6;">PROGRAMADO</span>';
+            } else {
+                badgeHtml = '<span class="tag-day-empty">SIN VENTAS</span>';
+            }
+
+            const rowBg = esRecord ? 'background: #F0FDF4;' : (esHoy ? 'background: #F0F9FF;' : '');
+
+            return `
+                <tr style="${rowBg}">
+                    <td style="font-weight: 700; color: #0F172A;">
+                        Día ${String(item.dia).padStart(2, '0')}
+                        <span style="display: block; font-size: 0.72rem; color: #64748B; font-weight: 500;">${item.fechaStr}</span>
+                    </td>
+                    <td style="text-align: center; font-weight: 700; color: ${item.conteoVentas > 0 ? '#0F172A' : '#94A3B8'};">
+                        ${item.conteoVentas > 0 ? `${item.conteoVentas} orden(es)` : '-'}
+                    </td>
+                    <td style="text-align: right; color: #0284C7; font-weight: 700;">
+                        $${item.ventasMrcyUsd.toFixed(2)}
+                    </td>
+                    <td style="text-align: right; color: #059669; font-weight: 700;">
+                        $${item.ventasSjmUsd.toFixed(2)}
+                    </td>
+                    <td style="text-align: right; font-weight: 800; color: #0F172A; font-size: 0.92rem;">
+                        $${item.totalDiaUsd.toFixed(2)}
+                    </td>
+                    <td style="text-align: right; font-weight: 600; color: #64748B; font-size: 0.8rem;">
+                        ${item.totalDiaBs.toLocaleString('es-VE', { maximumFractionDigits: 2 })} Bs
+                    </td>
+                    <td style="text-align: right; font-weight: 800; color: #475569;">
+                        $${item.acumuladoUsd.toFixed(2)}
+                    </td>
+                    <td style="text-align: center;">
+                        ${badgeHtml}
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+};
+
+/// =============================================================================
+/// MODALES: SALDOS POR COBRAR Y ÓRDENES EN LABORATORIO (MASTER Y SEDES)
+/// =============================================================================
+
+// 1. Master: Cuentas por Cobrar
+window.abrirModalSaldosPorCobrarMaster = function() {
+    openModal('modalMasterSaldosCobrar');
+    window.renderMasterSaldosCobrarTabla();
+};
+
+window.renderMasterSaldosCobrarTabla = function() {
+    const q = (document.getElementById('inputBuscarSaldosMaster')?.value || '').toLowerCase().trim();
+    const filtroSede = document.getElementById('filtroSedeSaldosMaster')?.value || 'todas';
+    const config = window.OpticaStorage.getConfig();
+    const tasa = config.tasa_usd_ves || 847.44;
+
+    let recibos = window.OpticaStorage.getRecibos ? window.OpticaStorage.getRecibos() : [];
+    // Filtrar con saldo pendiente
+    recibos = recibos.filter(r => (parseFloat(r.saldo_pendiente_usd) > 0.05 || r.estado === 'ABONADO' || r.estado === 'PENDIENTE') && r.estado !== 'PAGADO');
+
+    if (filtroSede !== 'todas') {
+        recibos = recibos.filter(r => (r.sede || '').toLowerCase().includes(filtroSede.toLowerCase()));
+    }
+
+    if (q) {
+        recibos = recibos.filter(r => 
+            (r.correlativo || r.id).toLowerCase().includes(q) ||
+            (r.paciente_nombre || '').toLowerCase().includes(q) ||
+            (r.paciente_cedula || '').toLowerCase().includes(q)
+        );
+    }
+
+    let totalSaldosUsd = 0;
+    recibos.forEach(r => totalSaldosUsd += (parseFloat(r.saldo_pendiente_usd) || 0));
+    const totalSaldosBs = totalSaldosUsd * tasa;
+
+    const setTxt = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = val;
+    };
+    setTxt('modalMasterTotalSaldosUsd', `$${totalSaldosUsd.toFixed(2)}`);
+    setTxt('modalMasterTotalSaldosBs', `${totalSaldosBs.toLocaleString('es-VE', { maximumFractionDigits: 2 })} Bs`);
+    setTxt('modalMasterCountSaldos', `${recibos.length} recibos`);
+
+    const tbody = document.getElementById('tablaMasterSaldosCobrarBody');
+    if (!tbody) return;
+
+    if (recibos.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted" style="padding: 2rem;">No hay saldos pendientes con los filtros aplicados.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = recibos.map(r => {
+        const saldo = parseFloat(r.saldo_pendiente_usd) || 0;
+        const total = parseFloat(r.total_usd) || 0;
+        const pagado = parseFloat(r.pagado_usd) || 0;
+        const saldoBs = saldo * tasa;
+        const isMrcy = (r.sede || '').toLowerCase().includes('maracay');
+        const sedeBadge = isMrcy ? '<span class="badge-tag" style="background: #E0F2FE; color: #0284C7; font-weight: 700;">Maracay</span>' : '<span class="badge-tag" style="background: #D1FAE5; color: #059669; font-weight: 700;">San Juan</span>';
+
+        return `
+            <tr>
+                <td style="font-family: monospace; font-weight: 800; color: #0284C7;">${r.correlativo || r.id}</td>
+                <td style="font-size: 0.8rem; color: #64748B;">${r.fecha || ''}</td>
+                <td>
+                    <strong style="color: #0F172A;">${r.paciente_nombre || 'Paciente'}</strong>
+                    <span style="display: block; font-size: 0.75rem; color: #64748B;">C.I. ${r.paciente_cedula || 'N/A'}</span>
+                </td>
+                <td>${sedeBadge}</td>
+                <td style="text-align: right; font-weight: 600;">$${total.toFixed(2)}</td>
+                <td style="text-align: right; color: #059669; font-weight: 700;">$${pagado.toFixed(2)}</td>
+                <td style="text-align: right;">
+                    <strong style="color: #D97706; font-size: 0.95rem;">$${saldo.toFixed(2)}</strong>
+                    <span style="display: block; font-size: 0.72rem; color: #64748B;">${saldoBs.toLocaleString('es-VE', { maximumFractionDigits: 2 })} Bs</span>
+                </td>
+                <td style="text-align: center;">
+                    <div style="display: flex; gap: 0.35rem; justify-content: center;">
+                        <button type="button" class="btn btn-xs btn-outline-primary" onclick="verReciboOficial('${r.id}')" title="Ver Recibo Oficial">
+                            <i class="fa-solid fa-receipt"></i>
+                        </button>
+                        <button type="button" class="btn btn-xs btn-outline-emerald" onclick="enviarRecordatorioSaldoWhatsApp('${r.id}', '${r.paciente_nombre}', '${r.paciente_telefono || ''}', '${saldo.toFixed(2)}', '${saldoBs.toFixed(2)}', '${r.sede || 'Maracay'}')" title="Enviar Recordatorio WhatsApp">
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+};
+
+// 2. Master: Órdenes en Laboratorio
+window.abrirModalOrdenesLabMaster = function() {
+    openModal('modalMasterOrdenesLab');
+    window.renderMasterOrdenesLabTabla();
+};
+
+window.renderMasterOrdenesLabTabla = function() {
+    const q = (document.getElementById('inputBuscarOrdenesLabMaster')?.value || '').toLowerCase().trim();
+    const filtroSede = document.getElementById('filtroSedeOrdenesLabMaster')?.value || 'todas';
+
+    let ordenes = window.OpticaStorage.getOrdenesLaboratorio ? window.OpticaStorage.getOrdenesLaboratorio() : [];
+
+    if (filtroSede !== 'todas') {
+        ordenes = ordenes.filter(o => (o.sede || '').toLowerCase().includes(filtroSede.toLowerCase()));
+    }
+
+    if (q) {
+        ordenes = ordenes.filter(o => 
+            (o.id || '').toLowerCase().includes(q) ||
+            (o.recibo_id || '').toLowerCase().includes(q) ||
+            (o.paciente_nombre || '').toLowerCase().includes(q) ||
+            (o.paciente_cedula || '').toLowerCase().includes(q) ||
+            (o.cristales_descripcion || o.cristales || '').toLowerCase().includes(q)
+        );
+    }
+
+    const enTaller = ordenes.filter(o => o.fase === 'FASE_1' || o.fase === 'FASE_2' || o.fase === 'FASE_3' || o.estado === 'TALLER' || o.estado === 'MONTAJE' || o.estado === 'PENDIENTE').length;
+    const enProv = ordenes.filter(o => o.fase === 'FASE_PEDIDO_PROV' || o.fase === 'FASE_RECIBIDO_PROV' || o.estado === 'EN_PROVEEDOR').length;
+    const listos = ordenes.filter(o => o.fase === 'FASE_4' || o.estado === 'LISTO' || o.estado === 'CALIDAD').length;
+
+    const setTxt = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = val;
+    };
+    setTxt('modalMasterLabEnTallerCount', enTaller);
+    setTxt('modalMasterLabEnProvCount', enProv);
+    setTxt('modalMasterLabListosCount', listos);
+
+    const tbody = document.getElementById('tablaMasterOrdenesLabBody');
+    if (!tbody) return;
+
+    if (ordenes.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted" style="padding: 2rem;">No hay órdenes de laboratorio registradas con los filtros aplicados.</td></tr>';
+        return;
+    }
+
+    const titulosFase = {
+        'FASE_1': '1. Enviado al Lab',
+        'FASE_PEDIDO_PROV': 'Pedido a Proveedor',
+        'FASE_RECIBIDO_PROV': 'Recibido de Proveedor',
+        'FASE_2': '2. En Proceso (Tallado)',
+        'FASE_3': '3. Montaje & Biselado',
+        'FASE_4': '4. Control de Calidad',
+        'FASE_LISTO': 'Listo para Entrega',
+        'FASE_ENTREGADO': 'Entregado al Paciente'
+    };
+
+    tbody.innerHTML = ordenes.map(o => {
+        const isMrcy = (o.sede || '').toLowerCase().includes('maracay');
+        const sedeBadge = isMrcy ? '<span class="badge-tag" style="background: #E0F2FE; color: #0284C7; font-weight: 700;">Maracay</span>' : '<span class="badge-tag" style="background: #D1FAE5; color: #059669; font-weight: 700;">San Juan</span>';
+        const faseNombre = titulosFase[o.fase] || titulosFase[o.fase_actual] || o.fase || 'En Taller';
+        const fechaEstatus = o.fecha_cambio_fase || o.fecha || o.created_at || 'Al día';
+        const fechaEntrega = o.fecha_entrega_prometida || o.fecha_entrega || 'Por definir';
+
+        return `
+            <tr>
+                <td style="font-family: monospace; font-weight: 800; color: #6D28D9;">${o.id || o.recibo_id || 'LAB-000'}</td>
+                <td>
+                    <strong style="color: #0F172A;">${o.paciente_nombre || 'Paciente'}</strong>
+                    <span style="display: block; font-size: 0.75rem; color: #64748B;">C.I. ${o.paciente_cedula || 'N/A'}</span>
+                </td>
+                <td>${sedeBadge}</td>
+                <td>
+                    <span class="badge-tag" style="background: #EDE9FE; color: #6D28D9; font-weight: 700;">
+                        ${faseNombre}
+                    </span>
+                </td>
+                <td style="font-size: 0.8rem; color: #64748B;">${fechaEstatus}</td>
+                <td style="font-size: 0.8rem; font-weight: 700; color: #0F172A;">${fechaEntrega}</td>
+                <td style="text-align: center;">
+                    <div style="display: flex; gap: 0.35rem; justify-content: center;">
+                        <button type="button" class="btn btn-xs btn-outline-primary" onclick="abrirFichaPaciente360Modal('${o.paciente_id}')" title="Ver Expediente 360">
+                            <i class="fa-solid fa-id-card-clip"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+};
+
+// 3. Sedes de Atención (Caja y Administración): Saldos por Cobrar
+window.abrirModalSaldosPorCobrar = function() {
+    openModal('modalSaldosPorCobrar');
+    window.renderModalSaldosPorCobrarTabla();
+};
+
+window.renderModalSaldosPorCobrarTabla = function() {
+    const q = (document.getElementById('inputBuscarSaldosBranch')?.value || '').toLowerCase().trim();
+    const config = window.OpticaStorage.getConfig();
+    const tasa = config.tasa_usd_ves || 847.44;
+
+    let recibos = window.OpticaStorage.getRecibos ? window.OpticaStorage.getRecibos(AppState.sedeFiltro) : [];
+    recibos = recibos.filter(r => (parseFloat(r.saldo_pendiente_usd) > 0.05 || r.estado === 'ABONADO' || r.estado === 'PENDIENTE') && r.estado !== 'PAGADO');
+
+    if (q) {
+        recibos = recibos.filter(r => 
+            (r.correlativo || r.id).toLowerCase().includes(q) ||
+            (r.paciente_nombre || '').toLowerCase().includes(q) ||
+            (r.paciente_cedula || '').toLowerCase().includes(q)
+        );
+    }
+
+    let totalSaldosUsd = 0;
+    recibos.forEach(r => totalSaldosUsd += (parseFloat(r.saldo_pendiente_usd) || 0));
+    const totalSaldosBs = totalSaldosUsd * tasa;
+
+    const setTxt = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = val;
+    };
+    setTxt('modalBranchTotalSaldosUsd', `$${totalSaldosUsd.toFixed(2)}`);
+    setTxt('modalBranchTotalSaldosBs', `${totalSaldosBs.toLocaleString('es-VE', { maximumFractionDigits: 2 })} Bs`);
+    setTxt('modalBranchCountSaldos', `${recibos.length} recibos`);
+
+    const tbody = document.getElementById('tablaModalSaldosBranchBody');
+    if (!tbody) return;
+
+    if (recibos.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted" style="padding: 2rem;">No hay saldos pendientes en esta sede.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = recibos.map(r => {
+        const saldo = parseFloat(r.saldo_pendiente_usd) || 0;
+        const total = parseFloat(r.total_usd) || 0;
+        const pagado = parseFloat(r.pagado_usd) || 0;
+        const saldoBs = saldo * tasa;
+
+        return `
+            <tr>
+                <td style="font-family: monospace; font-weight: 800; color: #0284C7;">${r.correlativo || r.id}</td>
+                <td style="font-size: 0.8rem; color: #64748B;">${r.fecha || ''}</td>
+                <td>
+                    <strong style="color: #0F172A;">${r.paciente_nombre || 'Paciente'}</strong>
+                    <span style="display: block; font-size: 0.75rem; color: #64748B;">C.I. ${r.paciente_cedula || 'N/A'}</span>
+                </td>
+                <td style="text-align: right; font-weight: 600;">$${total.toFixed(2)}</td>
+                <td style="text-align: right; color: #059669; font-weight: 700;">$${pagado.toFixed(2)}</td>
+                <td style="text-align: right;">
+                    <strong style="color: #D97706; font-size: 0.95rem;">$${saldo.toFixed(2)}</strong>
+                    <span style="display: block; font-size: 0.72rem; color: #64748B;">${saldoBs.toLocaleString('es-VE', { maximumFractionDigits: 2 })} Bs</span>
+                </td>
+                <td style="text-align: center;">
+                    <div style="display: flex; gap: 0.35rem; justify-content: center;">
+                        <button type="button" class="btn btn-xs btn-emerald" onclick="closeModal('modalSaldosPorCobrar'); abrirModalRegistrarAbono('${r.id}')" title="Registrar Cobro de Abono">
+                            <i class="fa-solid fa-plus"></i> Abonar
+                        </button>
+                        <button type="button" class="btn btn-xs btn-outline-emerald" onclick="enviarRecordatorioSaldoWhatsApp('${r.id}', '${r.paciente_nombre}', '${r.paciente_telefono || ''}', '${saldo.toFixed(2)}', '${saldoBs.toFixed(2)}', '${r.sede || AppState.sedeFiltro}')" title="Enviar WhatsApp de Cobro">
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+};
+
+// 4. Sedes de Atención: Órdenes en Laboratorio
+window.abrirModalOrdenesLaboratorio = function() {
+    openModal('modalOrdenesLaboratorioGlobal');
+    window.renderModalOrdenesLabBranchTabla();
+};
+
+window.renderModalOrdenesLabBranchTabla = function() {
+    const q = (document.getElementById('inputBuscarLabBranch')?.value || '').toLowerCase().trim();
+
+    let ordenes = window.OpticaStorage.getOrdenesLaboratorio ? window.OpticaStorage.getOrdenesLaboratorio(AppState.sedeFiltro) : [];
+
+    if (q) {
+        ordenes = ordenes.filter(o => 
+            (o.id || '').toLowerCase().includes(q) ||
+            (o.recibo_id || '').toLowerCase().includes(q) ||
+            (o.paciente_nombre || '').toLowerCase().includes(q) ||
+            (o.paciente_cedula || '').toLowerCase().includes(q)
+        );
+    }
+
+    const enTaller = ordenes.filter(o => o.fase === 'FASE_1' || o.fase === 'FASE_2' || o.fase === 'FASE_3' || o.estado === 'TALLER' || o.estado === 'MONTAJE' || o.estado === 'PENDIENTE').length;
+    const enProv = ordenes.filter(o => o.fase === 'FASE_PEDIDO_PROV' || o.fase === 'FASE_RECIBIDO_PROV' || o.estado === 'EN_PROVEEDOR').length;
+    const listos = ordenes.filter(o => o.fase === 'FASE_4' || o.estado === 'LISTO' || o.estado === 'CALIDAD').length;
+
+    const setTxt = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = val;
+    };
+    setTxt('modalBranchLabEnTallerCount', enTaller);
+    setTxt('modalBranchLabEnProvCount', enProv);
+    setTxt('modalBranchLabListosCount', listos);
+
+    const tbody = document.getElementById('tablaModalLabBranchBody');
+    if (!tbody) return;
+
+    if (ordenes.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted" style="padding: 2rem;">No hay órdenes de laboratorio registradas para esta sede.</td></tr>';
+        return;
+    }
+
+    const titulosFase = {
+        'FASE_1': '1. Enviado al Lab',
+        'FASE_PEDIDO_PROV': 'Pedido a Proveedor',
+        'FASE_RECIBIDO_PROV': 'Recibido de Proveedor',
+        'FASE_2': '2. En Proceso (Tallado)',
+        'FASE_3': '3. Montaje & Biselado',
+        'FASE_4': '4. Control de Calidad',
+        'FASE_LISTO': 'Listo para Entrega',
+        'FASE_ENTREGADO': 'Entregado al Paciente'
+    };
+
+    tbody.innerHTML = ordenes.map(o => {
+        const faseNombre = titulosFase[o.fase] || titulosFase[o.fase_actual] || o.fase || 'En Taller';
+        const fechaEstatus = o.fecha_cambio_fase || o.fecha || o.created_at || 'Al día';
+        const fechaEntrega = o.fecha_entrega_prometida || o.fecha_entrega || 'Por definir';
+
+        return `
+            <tr>
+                <td style="font-family: monospace; font-weight: 800; color: #6D28D9;">${o.id || o.recibo_id || 'LAB-000'}</td>
+                <td>
+                    <strong style="color: #0F172A;">${o.paciente_nombre || 'Paciente'}</strong>
+                    <span style="display: block; font-size: 0.75rem; color: #64748B;">C.I. ${o.paciente_cedula || 'N/A'}</span>
+                </td>
+                <td>
+                    <span class="badge-tag" style="background: #EDE9FE; color: #6D28D9; font-weight: 700;">
+                        ${faseNombre}
+                    </span>
+                </td>
+                <td style="font-size: 0.8rem; color: #64748B;">${fechaEstatus}</td>
+                <td style="font-size: 0.8rem; font-weight: 700; color: #0F172A;">${fechaEntrega}</td>
+                <td style="text-align: center;">
+                    <div style="display: flex; gap: 0.35rem; justify-content: center;">
+                        <button type="button" class="btn btn-xs btn-outline-primary" onclick="abrirFichaPaciente360Modal('${o.paciente_id}')" title="Ver Expediente 360">
+                            <i class="fa-solid fa-id-card-clip"></i> Ver 360
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+};
+
+window.enviarRecordatorioSaldoWhatsApp = function(reciboId, nombre, telefono, saldoUsd, saldoBs, sede) {
+    const telLimpio = (telefono || '').replace(/\D/g, '');
+    const numFinal = telLimpio.startsWith('58') ? telLimpio : (telLimpio.startsWith('0') ? '58' + telLimpio.substring(1) : '58' + telLimpio);
+    const mensaje = `Estimado(a) *${nombre}*, le saludamos de *Centro Óptico Nieves* (${sede}). Le recordamos cordialmente que mantiene un saldo pendiente de *$${saldoUsd} USD* (${saldoBs} Bs) en su recibo oficial *${reciboId}*. Puede pasar por nuestra sede a culminar su cancelación o solicitar nuestros canales de pago móvil. ¡Feliz día!`;
+    const url = `https://wa.me/${numFinal}?text=${encodeURIComponent(mensaje)}`;
+    window.open(url, '_blank');
+};
+
+
+window.renderAuditoriaFeed = function(filtroSede, filtroTipo, busqueda) {
+    const feedContainer = document.getElementById('panelAuditoriaFeedMaster');
+    if (!feedContainer) return;
+
+    const sFiltro = filtroSede || window.masterSedeFiltro || 'todas';
+    const rawList = window.OpticaStorage.getActividades ? window.OpticaStorage.getActividades(sFiltro, 100) : [];
+
+    let list = rawList;
+
+    if (filtroTipo && filtroTipo !== 'TODOS') {
+        list = list.filter(item => item.accion === filtroTipo);
+    }
+
+    if (busqueda && busqueda.trim()) {
+        const q = busqueda.toLowerCase().trim();
+        list = list.filter(item => 
+            (item.descripcion || '').toLowerCase().includes(q) ||
+            (item.usuario || '').toLowerCase().includes(q) ||
+            (item.sede || '').toLowerCase().includes(q) ||
+            (item.accion || '').toLowerCase().includes(q)
+        );
+    }
+
+    if (list.length === 0) {
+        feedContainer.innerHTML = `
+            <div class="empty-state-feed" style="text-align: center; padding: 2.5rem 1rem; color: #94A3B8;">
+                <i class="fa-solid fa-bell-slash" style="font-size: 2.2rem; margin-bottom: 0.5rem; opacity: 0.5;"></i>
+                <p style="font-weight: 500; font-size: 0.9rem;">No hay notificaciones o actividades registradas con el filtro actual.</p>
+            </div>
+        `;
+        return;
+    }
+
+    const iconosAccion = {
+        'PACIENTE_REGISTRADO': { icon: 'fa-user-plus', color: '#0284C7', bg: '#E0F2FE', label: 'Nuevo Paciente' },
+        'PACIENTE_ACTUALIZADO': { icon: 'fa-user-pen', color: '#0369A1', bg: '#F0F9FF', label: 'Paciente Editado' },
+        'VENTA_EMITIDA': { icon: 'fa-file-invoice-dollar', color: '#059669', bg: '#D1FAE5', label: 'Venta Emitida' },
+        'ABONO_REGISTRADO': { icon: 'fa-money-bill-transfer', color: '#10B981', bg: '#ECFDF5', label: 'Abono Registrado' },
+        'LAB_ORDEN_CREADA': { icon: 'fa-microscope', color: '#D97706', bg: '#FEF3C7', label: 'Nueva Orden Taller' },
+        'LAB_FASE_CAMBIADA': { icon: 'fa-arrows-rotate', color: '#B45309', bg: '#FFFBEB', label: 'Avance en Taller' },
+        'CONSULTA_CREADA': { icon: 'fa-stethoscope', color: '#8B5CF6', bg: '#EDE9FE', label: 'Consulta Médica' },
+        'MOVIMIENTO_CAJA': { icon: 'fa-cash-register', color: '#DC2626', bg: '#FEE2E2', label: 'Caja Operativa' },
+        'SISTEMA_INICIO': { icon: 'fa-shield-halved', color: '#64748B', bg: '#F1F5F9', label: 'Sistema' }
+    };
+
+    feedContainer.innerHTML = list.map(item => {
+        const conf = iconosAccion[item.accion] || { icon: 'fa-bell', color: '#64748B', bg: '#F1F5F9', label: item.accion };
+        const isMrcy = (item.sede || '').toLowerCase().includes('maracay');
+        const badgeBg = isMrcy ? '#E0F2FE' : '#D1FAE5';
+        const badgeColor = isMrcy ? '#0369A1' : '#047857';
+
+        return `
+            <div class="audit-feed-item" style="display: flex; gap: 0.85rem; align-items: flex-start; padding: 0.85rem 1rem; border-bottom: 1px solid #F1F5F9; transition: background 0.15s ease;">
+                <div style="width: 36px; height: 36px; border-radius: 9px; background: ${conf.bg}; color: ${conf.color}; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; margin-top: 2px;">
+                    <i class="fa-solid ${conf.icon}"></i>
+                </div>
+                <div style="flex: 1; min-width: 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem; flex-wrap: wrap; gap: 0.35rem;">
+                        <span style="font-size: 0.76rem; font-weight: 700; color: ${conf.color}; text-transform: uppercase; letter-spacing: 0.03em;">
+                            ${conf.label}
+                        </span>
+                        <div style="display: flex; align-items: center; gap: 0.45rem;">
+                            <span style="font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px; background: ${badgeBg}; color: ${badgeColor}; font-weight: 600;">
+                                <i class="fa-solid fa-location-dot"></i> ${item.sede || 'Maracay'}
+                            </span>
+                            <span style="font-size: 0.72rem; color: #94A3B8; font-weight: 500;">
+                                <i class="fa-regular fa-clock"></i> ${item.fecha || ''}
+                            </span>
+                        </div>
+                    </div>
+                    <div style="font-size: 0.85rem; color: #1E293B; line-height: 1.4; word-break: break-word;">
+                        ${item.descripcion || ''}
+                    </div>
+                    <div style="font-size: 0.72rem; color: #64748B; margin-top: 0.25rem;">
+                        <i class="fa-solid fa-user-tag" style="opacity: 0.7;"></i> Operador: <strong>${item.usuario || 'Sistema'}</strong>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    const badgeFeedTotal = document.getElementById('badgeTotalNotificaciones');
+    if (badgeFeedTotal) badgeFeedTotal.innerText = list.length;
+};
+
+// Sincronización en tiempo real reactiva
+window.addEventListener('storage', (e) => {
+    if (e.key === 'optica_nieves_auditoria_logs_v1' || e.key === 'optica_nieves_recibos_v3' || e.key === 'optica_nieves_caja_v3' || e.key === 'optica_nieves_pacientes_v3' || e.key === 'optica_nieves_citas_v3') {
+        if (typeof window.renderMasterAltaGerencia === 'function') window.renderMasterAltaGerencia();
+        if (typeof window.renderAuditoriaFeed === 'function') window.renderAuditoriaFeed();
+        if (typeof window.sincronizarSelectoresPacientes === 'function') window.sincronizarSelectoresPacientes();
+        if (typeof window.renderPacientesTable === 'function') window.renderPacientesTable();
+        if (typeof window.renderPacientesDoctorTable === 'function') window.renderPacientesDoctorTable();
+        if (typeof window.renderWhatsAppCenter === 'function') window.renderWhatsAppCenter();
+        if (typeof window.actualizarBadgesContadores === 'function') window.actualizarBadgesContadores();
+    }
+});
+
+window.addEventListener('optica_auditoria_nueva', () => {
+    if (typeof window.renderMasterAltaGerencia === 'function') window.renderMasterAltaGerencia();
+    if (typeof window.renderAuditoriaFeed === 'function') window.renderAuditoriaFeed();
+});
 /// =============================================================================
 function initSearchInputs() {
     const inpP = document.getElementById('inputBuscarPaciente');
@@ -1198,7 +2745,18 @@ function initSearchInputs() {
 
 function renderPacientesTable() {
     const q = (document.getElementById('inputBuscarPaciente')?.value || '').toLowerCase().trim();
-    const filtroSede = document.getElementById('filtroSedePaciente')?.value || AppState.sedeFiltro;
+    const curPath = (window.location.pathname || '').toLowerCase();
+    let effectiveSede = AppState.sedeFiltro;
+    if (curPath.includes('maracay') || AppState.currentRole === 'admin_maracay' || AppState.currentRole === 'lab_maracay') {
+        effectiveSede = 'Maracay';
+    } else if (curPath.includes('sanjuan') || AppState.currentRole === 'admin_sanjuan' || AppState.currentRole === 'lab_sanjuan') {
+        effectiveSede = 'San Juan de los Morros';
+    }
+    const filtroSedeEl = document.getElementById('filtroSedePaciente');
+    let filtroSede = effectiveSede;
+    if (filtroSedeEl && (curPath.includes('adminmaster') || AppState.currentRole === 'master' || !AppState.currentRole)) {
+        filtroSede = filtroSedeEl.value || effectiveSede;
+    }
 
     let pacientes = window.OpticaStorage.getPacientes(filtroSede !== 'todas' ? filtroSede : null);
 
@@ -1556,6 +3114,9 @@ window.abrirModalNuevoPaciente = function(fromWizard = false) {
     setVal('pacienteOcupacionInput', '');
     setVal('pacienteDireccionInput', '');
 
+    const activeSede = (AppState.sedeFiltro && AppState.sedeFiltro !== 'todas') ? AppState.sedeFiltro : 'Maracay';
+    setVal('pacienteSedeSelect', activeSede);
+
     openModal('modalFormPaciente');
 };
 
@@ -1661,6 +3222,7 @@ window.editarPaciente = function(pacienteId) {
     setVal('pacienteSexoSelect', p.sexo || 'M');
     setVal('pacienteOcupacionInput', p.ocupacion || '');
     setVal('pacienteDireccionInput', p.direccion || '');
+    setVal('pacienteSedeSelect', p.sede || 'Maracay');
 
     openModal('modalFormPaciente');
 };
@@ -1686,6 +3248,7 @@ window.guardarFormPaciente = function(e) {
     const sexo = document.getElementById('pacienteSexoSelect')?.value || 'M';
     const ocupacion = (document.getElementById('pacienteOcupacionInput')?.value || '').trim();
     const direccion = (document.getElementById('pacienteDireccionInput')?.value || '').trim();
+    const sedeInput = document.getElementById('pacienteSedeSelect')?.value;
 
     if (!num) {
         showAdminToast('Por favor ingrese el número de cédula.', 'warning');
@@ -1735,7 +3298,7 @@ window.guardarFormPaciente = function(e) {
         sexo,
         ocupacion,
         direccion,
-        sede: existingPatient?.sede || (AppState.sedeFiltro !== 'todas' ? AppState.sedeFiltro : 'Maracay')
+        sede: sedeInput || existingPatient?.sede || ((window.location.pathname || '').toLowerCase().includes('sanjuan') ? 'San Juan de los Morros' : (AppState.sedeFiltro !== 'todas' ? AppState.sedeFiltro : 'Maracay'))
     };
 
     if (AppState.pacienteEditingId) {
@@ -1766,6 +3329,7 @@ window.guardarFormPaciente = function(e) {
         window.renderPacientesDoctorTable();
     }
     actualizarBadgesContadores();
+    if (typeof window.sincronizarSelectoresPacientes === 'function') window.sincronizarSelectoresPacientes();
     if (typeof window.sincronizarSelectoresMedicosEnFormularios === 'function') window.sincronizarSelectoresMedicosEnFormularios();
 
     if (AppState.fromWizardNewPatient && pacienteGuardado) {
@@ -1841,48 +3405,102 @@ function initEventForms() {
 // MÓDULO 3: VENTA & RECIBO WIZARD EN 3 PASOS
 /// =============================================================================
 function initWizardCatalog() {
-    let monturas = [];
-    if (window.OpticaStorage && window.OpticaStorage.getInventario) {
-        monturas = window.OpticaStorage.getInventario('todas', 'Monturas');
-    }
-    if (!monturas || monturas.length === 0) {
-        monturas = [
-            { nombre: "Montura Acetato Premium Classic", precio: 45, stock: 12 },
-            { nombre: "Montura Titanio Flexible Pro", precio: 65, stock: 8 },
-            { nombre: "Montura Metálica Semi al Aire", precio: 40, stock: 10 },
-            { nombre: "Montura Deportiva TR-90 Ultra", precio: 50, stock: 15 },
-            { nombre: "Montura Kids Antigolpes Flex", precio: 35, stock: 7 },
-            { nombre: "Montura Carey Redonda Vintage", precio: 45, stock: 9 }
-        ];
-    }
-
     const tagsRow = document.getElementById('catalogTagsRow');
     if (tagsRow) {
-        const chipsHtml = monturas.map(m => {
-            const stock = m.stock !== undefined ? m.stock : 1;
-            const stockLabel = stock > 0 ? `Stock: ${stock}` : 'Agotado';
-            return `
-                <button type="button" class="catalog-chip-btn ${stock === 0 ? 'chip-agotado' : ''}" onclick="seleccionarMonturaCatalogo('${m.nombre}', ${m.precio})" ${stock === 0 ? 'title=\"Agotado en inventario\"' : ''}>
-                    <span class="chip-name"><i class="fa-solid fa-glasses"></i> ${m.nombre}</span>
-                    <span class="chip-price-badge">$${m.precio} (${stockLabel})</span>
-                </button>
-            `;
-        }).join('');
-
-        tagsRow.innerHTML = chipsHtml + `
-            <button type="button" class="catalog-chip-btn chip-patient-own" onclick="seleccionarMonturaCatalogo('Montura Propia del Paciente', 0)">
-                <span class="chip-name"><i class="fa-solid fa-user"></i> Montura Propia del Paciente</span>
-                <span class="chip-price-badge">Sin Costo</span>
+        tagsRow.innerHTML = `
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="seleccionarMonturaCatalogo('Montura Propia del Paciente', 0)" style="font-weight: 600;">
+                <i class="fa-solid fa-user"></i> Montura Propia del Paciente ($0.00)
             </button>
         `;
     }
 }
 
+window.buscarMonturasEnWizard = function(q) {
+    const dropdown = document.getElementById('wizMonturasResultadosDropdown');
+    if (!dropdown) return;
+
+    const query = (q || '').toLowerCase().trim();
+    if (!query) {
+        dropdown.style.display = 'none';
+        return;
+    }
+
+    let monturas = [];
+    if (window.OpticaStorage && window.OpticaStorage.getProductos) {
+        const prods = window.OpticaStorage.getProductos();
+        monturas = prods.filter(p => (p.tipo === 'MONTURA' || !p.tipo || p.codigo_montura));
+    }
+    if (!monturas || monturas.length === 0) {
+        monturas = [
+            { nombre: "Montura Acetato Premium Classic", precio_usd: 45, stock: 12, codigo_montura: 'MONT-001', material: 'Acetato', marca: 'Ray-Ban' },
+            { nombre: "Montura Titanio Flexible Pro", precio_usd: 65, stock: 8, codigo_montura: 'MONT-002', material: 'Metal', marca: 'Oakley' },
+            { nombre: "Montura Metálica Semi al Aire", precio_usd: 40, stock: 10, codigo_montura: 'MONT-003', material: 'Metal', marca: 'Carrera' },
+            { nombre: "Montura Deportiva TR-90 Ultra", precio_usd: 50, stock: 15, codigo_montura: 'MONT-004', material: 'TR-90', marca: 'Nike' },
+            { nombre: "Montura Kids Antigolpes Flex", precio_usd: 35, stock: 7, codigo_montura: 'MONT-005', material: 'Pasta', marca: 'Nano' },
+            { nombre: "Montura Carey Redonda Vintage", precio_usd: 45, stock: 9, codigo_montura: 'MONT-006', material: 'Acetato', marca: 'Vogue' }
+        ];
+    }
+
+    const matches = monturas.filter(m => 
+        (m.nombre || '').toLowerCase().includes(query) ||
+        (m.codigo_montura || m.sku || '').toLowerCase().includes(query) ||
+        (m.material || '').toLowerCase().includes(query) ||
+        (m.marca || '').toLowerCase().includes(query)
+    );
+
+    if (matches.length === 0) {
+        dropdown.innerHTML = `
+            <div style="padding: 0.75rem 1rem; color: #64748B; font-size: 0.85rem; text-align: center;">
+                No se encontraron monturas con "${query}". Puede escribir la descripción manualmente abajo.
+            </div>
+        `;
+        dropdown.style.display = 'block';
+        return;
+    }
+
+    dropdown.innerHTML = matches.slice(0, 8).map(m => {
+        const stock = m.cantidad !== undefined ? m.cantidad : (m.stock !== undefined ? m.stock : 1);
+        const precioVal = parseFloat(m.precio_usd !== undefined ? m.precio_usd : (m.precio || 0));
+        const cod = m.codigo_montura || m.sku || '';
+        const mat = m.material || 'Acetato';
+        const marca = m.marca ? ` [${m.marca}]` : '';
+        const descCompleta = `${cod ? cod + ' - ' : ''}${m.nombre}${marca} (${mat})`;
+
+        return `
+            <div class="montura-drop-item" onclick="seleccionarMonturaDesdeBuscador('${descCompleta.replace(/'/g, "\\'")}', ${precioVal})">
+                <div>
+                    <strong style="color: #0F172A; display: block; font-size: 0.88rem;">${cod ? '<span style="color: #0080EA;">' + cod + '</span> &bull; ' : ''}${m.nombre}</strong>
+                    <span style="color: #64748B; font-size: 0.78rem;">${mat}${marca} &bull; Stock: <strong>${stock}</strong></span>
+                </div>
+                <div style="text-align: right;">
+                    <span class="badge-tag badge-emerald" style="font-size: 0.82rem; font-weight: 700;">$${precioVal.toFixed(2)}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    dropdown.style.display = 'block';
+};
+
+window.seleccionarMonturaDesdeBuscador = function(desc, precio) {
+    const inpD = document.getElementById('wizMonturaDesc');
+    const inpP = document.getElementById('wizMonturaPrecio');
+    const searchInp = document.getElementById('wizBuscarMonturaInput');
+    const dropdown = document.getElementById('wizMonturasResultadosDropdown');
+
+    if (inpD) inpD.value = desc;
+    if (inpP) inpP.value = Number(precio).toFixed(2);
+    if (searchInp) searchInp.value = '';
+    if (dropdown) dropdown.style.display = 'none';
+
+    window.recalcularTotalesWizard();
+};
+
 window.seleccionarMonturaCatalogo = function(nombre, precio) {
     const inpD = document.getElementById('wizMonturaDesc');
     const inpP = document.getElementById('wizMonturaPrecio');
     if (inpD) inpD.value = nombre;
-    if (inpP) inpP.value = precio;
+    if (inpP) inpP.value = Number(precio).toFixed(2);
     window.recalcularTotalesWizard();
 };
 
@@ -1899,38 +3517,57 @@ function buscarPacientesEnWizard(q) {
     const container = document.getElementById('wizardResultadosBusquedaPacientes');
     if (!container) return;
 
-    if (!q || q.length < 2) {
-        container.style.display = 'none';
-        container.innerHTML = '';
-        return;
-    }
-
+    const query = (q || '').trim().toLowerCase();
     const pacientes = window.OpticaStorage.getPacientes();
-    const matches = pacientes.filter(p => 
-        (p.nombre || '').toLowerCase().includes(q.toLowerCase()) ||
-        (p.apellido || '').toLowerCase().includes(q.toLowerCase()) ||
-        (p.cedula || '').toLowerCase().includes(q.toLowerCase())
-    );
+
+    let matches = [];
+    if (!query) {
+        matches = pacientes.slice(0, 5);
+    } else {
+        matches = pacientes.filter(p => 
+            (p.nombre || '').toLowerCase().includes(query) ||
+            (p.apellido || '').toLowerCase().includes(query) ||
+            (p.cedula || '').toLowerCase().includes(query) ||
+            (p.telefono || '').toLowerCase().includes(query)
+        );
+    }
 
     if (matches.length === 0) {
         container.innerHTML = `
-            <div style="padding: 1rem; color: #64748B; font-size: 0.85rem;">
-                No se encontraron pacientes con ese criterio.
-                <button type="button" class="btn btn-xs btn-outline-primary" style="margin-top: 0.5rem; display: block;" onclick="abrirModalNuevoPaciente(true)">
-                    <i class="fa-solid fa-user-plus"></i> Registrar como Nuevo Paciente
-                </button>
+            <div style="padding: 1.25rem 1rem; color: #64748B; font-size: 0.88rem; text-align: center;">
+                No se encontró ningún paciente con "<strong>${query}</strong>".
+                <div style="margin-top: 0.5rem;">
+                    <button type="button" class="btn btn-xs btn-primary" onclick="abrirModalNuevoPaciente(true)">
+                        <i class="fa-solid fa-user-plus"></i> Registrar Nuevo Paciente
+                    </button>
+                </div>
             </div>
         `;
         container.style.display = 'block';
         return;
     }
 
-    container.innerHTML = matches.map(p => `
-        <div class="wizard-patient-item" onclick="seleccionarPacienteEnWizardById('${p.id}')">
-            <strong>${p.nombre} ${p.apellido || ''}</strong>
-            <span style="color: #64748B; font-size: 0.8rem;"> &bull; ${p.cedula} &bull; Sede: ${p.sede}</span>
+    container.innerHTML = `
+        <div style="padding: 0.45rem 0.85rem; background: #F8FAFC; border-bottom: 1px solid #E2E8F0; font-size: 0.72rem; font-weight: 700; color: #64748B; text-transform: uppercase;">
+            ${query ? 'Resultados de Búsqueda' : 'Pacientes Recientes'} (${matches.length})
         </div>
-    `).join('');
+        ${matches.map(p => `
+            <div class="search-drop-item" onclick="seleccionarPacienteEnWizardById('${p.id}')">
+                <div style="display: flex; align-items: center; gap: 0.65rem;">
+                    <div style="width: 32px; height: 32px; border-radius: 6px; background: #E0F2FE; color: #0284C7; display: flex; align-items: center; justify-content: center; font-size: 0.85rem;">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <div>
+                        <strong style="color: #0F172A; font-size: 0.9rem; display: block;">${p.nombre} ${p.apellido || ''}</strong>
+                        <span style="color: #64748B; font-size: 0.78rem;">${p.cedula || 'Sin Cédula'} &bull; ${p.telefono || 'Sin Teléfono'} &bull; ${p.sede || 'Maracay'}</span>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-xs btn-outline-primary" style="font-weight: 600;">
+                    Seleccionar <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        `).join('')}
+    `;
     container.style.display = 'block';
 }
 
@@ -1999,35 +3636,126 @@ window.copiarFormulaPacienteAWizard = function() {
         const p = AppState.wizard.paciente;
         if (!p) return;
 
-        const f = p.ultima_formula || p.formula;
+        const f = (window.OpticaStorage.obtenerFormulaPaciente ? window.OpticaStorage.obtenerFormulaPaciente(p.id) : null) || p.ultima_formula || p.formula;
         if (!f) return;
-
-        const od = f.od || {};
-        const os = f.os || {};
 
         const setVal = (id, val) => {
             const el = document.getElementById(id);
             if (el && val !== undefined && val !== null && val !== '') el.value = val;
         };
 
-        setVal('wizRxOdSph', od.sph || f.od_esfera);
-        setVal('wizRxOdCyl', od.cyl || f.od_cilindro);
-        setVal('wizRxOdAxis', od.axis || f.od_eje);
-        setVal('wizRxOdAdd', od.add || f.od_adicion);
-        setVal('wizRxOdAv', od.av || f.od_av);
+        const odSph = f.od?.sph || f.od_esfera || f.der_esf || '';
+        const odCyl = f.od?.cyl || f.od_cilindro || f.der_cil || '';
+        const odAxis = f.od?.axis || f.od_eje || f.der_eje || '';
+        const odAdd = f.od?.add || f.od_adicion || f.der_add || '';
+        const odAv = f.od?.av || f.od_av || f.der_av || '';
 
-        setVal('wizRxOsSph', os.sph || f.os_esfera);
-        setVal('wizRxOsCyl', os.cyl || f.os_cilindro);
-        setVal('wizRxOsAxis', os.axis || f.os_eje);
-        setVal('wizRxOsAdd', os.add || f.os_adicion);
-        setVal('wizRxOsAv', os.av || f.os_av);
+        const osSph = f.os?.sph || f.os_esfera || f.izq_esf || '';
+        const osCyl = f.os?.cyl || f.os_cilindro || f.izq_cil || '';
+        const osAxis = f.os?.axis || f.os_eje || f.izq_eje || '';
+        const osAdd = f.os?.add || f.os_adicion || f.izq_add || '';
+        const osAv = f.os?.av || f.os_av || f.izq_av || '';
 
-        setVal('wizRxDp', f.dp);
-        setVal('wizRxAlt', f.alt);
-        setVal('wizTipoLente', f.tipo_lente);
+        setVal('wizRxOdSph', odSph);
+        setVal('wizRxOdCyl', odCyl);
+        setVal('wizRxOdAxis', odAxis);
+        setVal('wizRxOdAdd', odAdd);
+        setVal('wizRxOdAv', odAv);
+
+        setVal('wizRxOsSph', osSph);
+        setVal('wizRxOsCyl', osCyl);
+        setVal('wizRxOsAxis', osAxis);
+        setVal('wizRxOsAdd', osAdd);
+        setVal('wizRxOsAv', osAv);
+
+        if (f.dp) setVal('wizRxDp', f.dp);
+        if (f.alt) setVal('wizRxAlt', f.alt);
+        if (f.tipo_lente) setVal('wizTipoLente', f.tipo_lente);
     } catch (e) {
         console.warn('copiarFormulaPacienteAWizard error:', e);
     }
+};
+
+window.abrirModalFormulaPropia = function() {
+    const form = document.getElementById('formFormulaPropia');
+    if (form) form.reset();
+    const today = new Date().toISOString().split('T')[0];
+    const fechaInp = document.getElementById('propiaFechaOrigen');
+    if (fechaInp) fechaInp.value = today;
+    openModal('modalFormulaPropia');
+};
+
+window.cerrarModalFormulaPropia = function() {
+    closeModal('modalFormulaPropia');
+};
+
+window.aplicarFormulaPropiaAWizard = function(e) {
+    if (e) e.preventDefault();
+    const getVal = id => document.getElementById(id)?.value?.trim() || '';
+    const setVal = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val;
+    };
+
+    const docOrigen = getVal('propiaDoctorOrigen');
+    const fechaOrigen = getVal('propiaFechaOrigen');
+    const obs = getVal('propiaObservaciones');
+
+    setVal('wizRxOdSph', getVal('propiaOdSph'));
+    setVal('wizRxOdCyl', getVal('propiaOdCyl'));
+    setVal('wizRxOdAxis', getVal('propiaOdAxis'));
+    setVal('wizRxOdAdd', getVal('propiaOdAdd'));
+    setVal('wizRxOdAv', getVal('propiaOdAv'));
+
+    setVal('wizRxOsSph', getVal('propiaOsSph'));
+    setVal('wizRxOsCyl', getVal('propiaOsCyl'));
+    setVal('wizRxOsAxis', getVal('propiaOsAxis'));
+    setVal('wizRxOsAdd', getVal('propiaOsAdd'));
+    setVal('wizRxOsAv', getVal('propiaOsAv'));
+
+    setVal('wizRxDp', getVal('propiaDp'));
+    setVal('wizRxAlt', getVal('propiaAlt'));
+
+    const notasExistentes = document.getElementById('wizCristalesNotas')?.value || '';
+    let notaFormula = `[Fórmula externa: ${docOrigen || 'Especialista Externo'} (${fechaOrigen || 'Reciente'})]`;
+    if (obs) notaFormula += ` - ${obs}`;
+    setVal('wizCristalesNotas', notasExistentes ? `${notasExistentes} | ${notaFormula}` : notaFormula);
+
+    // Persistir de forma permanente en el expediente del paciente
+    const pacActivo = AppState.wizard.paciente;
+    if (pacActivo && pacActivo.id && window.OpticaStorage && window.OpticaStorage.actualizarPaciente) {
+        const formulaObj = {
+            od: {
+                sph: getVal('propiaOdSph'),
+                cyl: getVal('propiaOdCyl'),
+                axis: getVal('propiaOdAxis'),
+                add: getVal('propiaOdAdd'),
+                av: getVal('propiaOdAv')
+            },
+            os: {
+                sph: getVal('propiaOsSph'),
+                cyl: getVal('propiaOsCyl'),
+                axis: getVal('propiaOsAxis'),
+                add: getVal('propiaOsAdd'),
+                av: getVal('propiaOsAv')
+            },
+            dp: getVal('propiaDp'),
+            alt: getVal('propiaAlt'),
+            doctor_externo: docOrigen || 'Especialista Externo',
+            fecha_origen: fechaOrigen,
+            origen: 'FÓRMULA_EXTERNA'
+        };
+
+        window.OpticaStorage.actualizarPaciente(pacActivo.id, {
+            formula: formulaObj,
+            ultima_formula: formulaObj
+        });
+        pacActivo.formula = formulaObj;
+        pacActivo.ultima_formula = formulaObj;
+    }
+
+    closeModal('modalFormulaPropia');
+    showAdminToast('Fórmula propia externa cargada y guardada exitosamente en el expediente.', 'success');
 };
 
 window.avanzarWizardPaso2 = function() {
@@ -2451,7 +4179,9 @@ window.completarVentaYGenerarRecibo = function() {
             referencia: p.referencia || 'Taquilla'
         })),
         formula_prescripcion: AppState.wizard.cristales.rx,
-        notas: AppState.wizard.cristales.notas || ''
+        notas: AppState.wizard.cristales.notas || '',
+        fecha_entrega: document.getElementById('wizFechaEntrega')?.value || null,
+        fecha_promesa: document.getElementById('wizFechaEntrega')?.value || null
     };
 
     const reciboCreado = storageFn(ventaPayload);
@@ -2540,8 +4270,17 @@ function renderRecibosTable() {
 
     let recibos = window.OpticaStorage.getRecibos(AppState.sedeFiltro);
 
-    if (filtroEst !== 'TODOS') {
-        recibos = recibos.filter(r => r.estado === filtroEst);
+    // Ordenar: el más reciente arriba y el más viejo abajo
+    recibos.sort((a, b) => new Date(b.created_at || b.fecha_iso || b.fecha || 0) - new Date(a.created_at || a.fecha_iso || a.fecha || 0));
+
+    if (filtroEst !== 'TODOS' && filtroEst !== 'todos') {
+        if (filtroEst === 'ABONO_PENDIENTE') {
+            recibos = recibos.filter(r => (r.saldo_pendiente_usd > 0.05 || r.estado === 'ABONADO' || r.estado === 'PENDIENTE' || r.estado_pago === 'ABONO_PENDIENTE') && r.estado !== 'PAGADO' && r.estado_pago !== 'PAGADO');
+        } else if (filtroEst === 'PAGADO') {
+            recibos = recibos.filter(r => (r.estado === 'PAGADO' || r.estado_pago === 'PAGADO') && r.saldo_pendiente_usd <= 0.05);
+        } else {
+            recibos = recibos.filter(r => r.estado === filtroEst || r.estado_pago === filtroEst);
+        }
     }
 
     if (q) {
@@ -2653,12 +4392,27 @@ function renderDualReceiptHtml(r, config) {
     const totalBs = tasa ? (parseFloat(r.total_usd) * parseFloat(tasa)).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : null;
     const saldoBs = tasa && r.saldo_pendiente_usd > 0.05 ? (parseFloat(r.saldo_pendiente_usd) * parseFloat(tasa)).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : null;
 
-    // Fecha prometida estimada (4 días hábiles)
-    const now = new Date(r.fecha_iso || Date.now());
-    const fechaPromesa = new Date(now.getTime() + 4 * 24 * 60 * 60 * 1000).toLocaleDateString('es-VE');
+    // Fecha de entrega prometida (prioridad al campo editable del cajero)
+    let fechaPromesa = '';
+    const rawEntrega = r.fecha_entrega || r.fecha_promesa;
+    if (rawEntrega) {
+        if (typeof rawEntrega === 'string' && rawEntrega.includes('-')) {
+            const parts = rawEntrega.split('T')[0].split('-');
+            if (parts.length === 3) {
+                fechaPromesa = `${parts[2]}/${parts[1]}/${parts[0]}`;
+            } else {
+                fechaPromesa = rawEntrega;
+            }
+        } else {
+            fechaPromesa = rawEntrega;
+        }
+    } else {
+        const now = new Date(r.fecha_iso || Date.now());
+        fechaPromesa = new Date(now.getTime() + 4 * 24 * 60 * 60 * 1000).toLocaleDateString('es-VE');
+    }
 
     // Código QR que enlaza al rastreador
-    const trackingUrl = `${window.location.origin}${window.location.pathname.replace('admin.html', 'index.html')}#page-3`;
+    const trackingUrl = `${window.location.origin}${window.location.pathname.replace(/admin(master)?\.html/i, 'index.html')}#page-3`;
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=95x95&data=${encodeURIComponent(trackingUrl + '?cedula=' + (r.paciente_cedula || ''))}`;
 
     const chk = (checked, label) => `
@@ -2939,9 +4693,11 @@ window.procesarAbonoRecibo = function(e) {
 /// =============================================================================
 // MÓDULO 5: TALLER & LABORATORIO ÓPTICO (KANBAN 5 FASES)
 /// =============================================================================
-const FASES_LAB_ORDER = ['FASE_1', 'FASE_2', 'FASE_3', 'FASE_4', 'FASE_5'];
+const FASES_LAB_ORDER = ['FASE_1', 'FASE_PEDIDO_PROV', 'FASE_RECIBIDO_PROV', 'FASE_2', 'FASE_3', 'FASE_4', 'FASE_5'];
 const TITULOS_CORTOS_FASE = {
     FASE_1: '1. Enviado al Lab',
+    FASE_PEDIDO_PROV: 'Pedido a Proveedor',
+    FASE_RECIBIDO_PROV: 'Recibido Proveedor',
     FASE_2: '2. En Proceso',
     FASE_3: '3. Listo en Lab',
     FASE_4: '4. Listo Entrega',
@@ -2949,10 +4705,18 @@ const TITULOS_CORTOS_FASE = {
 };
 
 function renderLaboratorioKanban() {
-    const filtroSede = document.getElementById('filtroSedeLab')?.value || AppState.sedeFiltro;
+    const curPath = (window.location.pathname || '').toLowerCase();
+    let effectiveSede = AppState.sedeFiltro;
+    if (curPath.includes('maracay') || AppState.currentRole === 'lab_maracay') effectiveSede = 'Maracay';
+    if (curPath.includes('sanjuan') || AppState.currentRole === 'lab_sanjuan') effectiveSede = 'San Juan de los Morros';
+    const filtroSedeEl = document.getElementById('filtroSedeLab');
+    let filtroSede = effectiveSede;
+    if (filtroSedeEl && (curPath.includes('adminmaster') || AppState.currentRole === 'master')) {
+        filtroSede = filtroSedeEl.value || effectiveSede;
+    }
     let ordenes = window.OpticaStorage.getOrdenesLaboratorio(filtroSede !== 'todas' ? filtroSede : null);
 
-    // Filtro de búsqueda en tiempo real (Soporta 100+ clientes)
+    // Filtro de búsqueda en tiempo real (Soporta número de recibo, paciente, cédula o ID)
     const searchInput = document.getElementById('filtroBuscarLab');
     const q = (searchInput?.value || '').trim().toLowerCase();
     if (q) {
@@ -2960,7 +4724,10 @@ function renderLaboratorioKanban() {
             (o.paciente_nombre || '').toLowerCase().includes(q) ||
             (o.paciente_cedula || '').toLowerCase().includes(q) ||
             (o.paciente_telefono || '').toLowerCase().includes(q) ||
-            (o.id || '').toLowerCase().includes(q)
+            (o.id || '').toLowerCase().includes(q) ||
+            (o.recibo_id || '').toLowerCase().includes(q) ||
+            (o.recibo_correlativo || '').toLowerCase().includes(q) ||
+            (o.correlativo || '').toLowerCase().includes(q)
         );
     }
 
@@ -2986,22 +4753,46 @@ function renderLaboratorioKanban() {
     }
 
     const f1 = ordenes.filter(o => o.fase === 'FASE_1');
+    const fPedidoProv = ordenes.filter(o => o.fase === 'FASE_PEDIDO_PROV');
+    const fRecibidoProv = ordenes.filter(o => o.fase === 'FASE_RECIBIDO_PROV');
     const f2 = ordenes.filter(o => o.fase === 'FASE_2');
     const f3 = ordenes.filter(o => o.fase === 'FASE_3');
     const f4 = ordenes.filter(o => o.fase === 'FASE_4');
     const f5 = ordenes.filter(o => o.fase === 'FASE_5');
 
-    const c1 = document.getElementById('countFase1');
-    const c2 = document.getElementById('countFase2');
-    const c3 = document.getElementById('countFase3');
-    const c4 = document.getElementById('countFase4');
-    const c5 = document.getElementById('countFase5');
+    const setTxt = (id, count) => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = count;
+    };
+    setTxt('countFase1', f1.length);
+    setTxt('countFasePedidoProv', fPedidoProv.length);
+    setTxt('countFaseRecibidoProv', fRecibidoProv.length);
+    setTxt('countFase2', f2.length);
+    setTxt('countFase3', f3.length);
+    setTxt('countFase4', f4.length);
+    setTxt('countFase5', f5.length);
 
-    if (c1) c1.innerText = f1.length;
-    if (c2) c2.innerText = f2.length;
-    if (c3) c3.innerText = f3.length;
-    if (c4) c4.innerText = f4.length;
-    if (c5) c5.innerText = f5.length;
+    // Renderizar barra superior de lista de recibos en cada fase
+    const renderReceiptsBar = (containerId, list) => {
+        const bar = document.getElementById(containerId);
+        if (!bar) return;
+        const reciboIds = [...new Set(list.map(o => o.recibo_id || o.correlativo).filter(Boolean))];
+        if (reciboIds.length === 0) {
+            bar.innerHTML = '<strong>Recibos:</strong> <span class="text-muted" style="font-size: 0.72rem;">Sin recibos</span>';
+        } else {
+            bar.innerHTML = `<strong>Recibos (${reciboIds.length}):</strong> ` + reciboIds.map(rid => `
+                <span class="receipt-chip" title="Recibo ${rid}">${rid}</span>
+            `).join('');
+        }
+    };
+
+    renderReceiptsBar('receiptsFase1', f1);
+    renderReceiptsBar('receiptsFasePedidoProv', fPedidoProv);
+    renderReceiptsBar('receiptsFaseRecibidoProv', fRecibidoProv);
+    renderReceiptsBar('receiptsFase2', f2);
+    renderReceiptsBar('receiptsFase3', f3);
+    renderReceiptsBar('receiptsFase4', f4);
+    renderReceiptsBar('receiptsFase5', f5);
 
     const renderCol = (containerId, list) => {
         const box = document.getElementById(containerId);
@@ -3016,7 +4807,59 @@ function renderLaboratorioKanban() {
             return;
         }
 
-        box.innerHTML = list.map(o => `
+        box.innerHTML = list.map(o => {
+            let fechaCambioFormat = '--';
+            const fc = o.fecha_cambio_fase || o.fecha_ingreso;
+            if (fc) {
+                try {
+                    const d = new Date(fc);
+                    fechaCambioFormat = d.toLocaleDateString('es-VE') + ' ' + d.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit', hour12: true });
+                } catch(e) {
+                    fechaCambioFormat = fc;
+                }
+            }
+
+            // Obtener fórmula técnica del paciente o de la orden
+            let f = o.formula;
+            if (!f && o.paciente_id) {
+                const pObj = window.OpticaStorage.getPacienteById(o.paciente_id);
+                f = pObj?.ultima_formula || pObj?.formula;
+            }
+            let formulaHtml = '';
+            if (f) {
+                const odSph = f.od?.sph || f.od_esfera || '0.00';
+                const odCyl = f.od?.cyl || f.od_cilindro || '';
+                const odAxis = f.od?.axis || f.od_eje ? `${f.od?.axis || f.od_eje}°` : '';
+                const osSph = f.os?.sph || f.os_esfera || '0.00';
+                const osCyl = f.os?.cyl || f.os_cilindro || '';
+                const osAxis = f.os?.axis || f.os_eje ? `${f.os?.axis || f.os_eje}°` : '';
+                const dp = f.dp || f.dnp || f.od?.dp || '--';
+                const add = f.add || f.od?.add || f.od_adicion || '';
+
+                formulaHtml = `
+                <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 6px; padding: 5px 8px; margin-bottom: 0.5rem; font-size: 0.74rem;">
+                    <div style="display: flex; justify-content: space-between; font-weight: 700; color: #166534; margin-bottom: 2px;">
+                        <span><i class="fa-solid fa-glasses"></i> Prescripción / Fórm.</span>
+                        <span>DP: ${dp}mm ${add ? `| Add: +${add}` : ''}</span>
+                    </div>
+                    <div style="font-family: monospace; color: #0F172A; display: flex; flex-direction: column; gap: 1px;">
+                        <div><strong>OD:</strong> ${odSph} ${odCyl ? `(${odCyl})` : ''} ${odAxis}</div>
+                        <div><strong>OS:</strong> ${osSph} ${osCyl ? `(${osCyl})` : ''} ${osAxis}</div>
+                    </div>
+                </div>`;
+            }
+
+            const monturaCristalesHtml = `
+            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; padding: 5px 8px; font-size: 0.76rem; margin-bottom: 0.5rem;">
+                <div style="color: #334155; margin-bottom: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${o.montura || 'Montura del Paciente'}">
+                    <i class="fa-solid fa-glasses" style="color: #0284C7; width: 14px;"></i> <strong>Montura:</strong> ${o.montura || 'Montura del Paciente'}
+                </div>
+                <div style="color: #334155; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${o.cristales || 'Cristales Oftálmicos'}">
+                    <i class="fa-solid fa-circle-dot" style="color: #D97706; width: 14px;"></i> <strong>Cristales:</strong> ${o.cristales || 'Cristales Oftálmicos'}
+                </div>
+            </div>`;
+
+            return `
             <div class="kanban-card" id="card-${o.id}">
                 <!-- Encabezado de la Tarjeta: Nombre del Paciente y Acciones -->
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.35rem; gap: 0.4rem;">
@@ -3034,8 +4877,8 @@ function renderLaboratorioKanban() {
                     </div>
                 </div>
 
-                <!-- Datos de Identificación y Contacto (Organizado por Cédula y Teléfono) -->
-                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; padding: 6px 10px; font-size: 0.82rem; margin-bottom: 0.65rem;">
+                <!-- Datos de Identificación y Contacto -->
+                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; padding: 6px 10px; font-size: 0.82rem; margin-bottom: 0.5rem;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
                         <span style="color: #64748B;">Cédula:</span>
                         <strong style="color: #0F172A; font-family: monospace; font-size: 0.88rem;">${o.paciente_cedula || 'Sin Cédula'}</strong>
@@ -3045,10 +4888,19 @@ function renderLaboratorioKanban() {
                         <span style="color: #1E293B; font-weight: 600;">${o.paciente_telefono || 'Sin teléfono'}</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 3px; border-top: 1px solid #EEF2F6; padding-top: 3px;">
+                        <span class="badge-tag badge-blue" style="font-size: 0.7rem; font-weight: 700;"><i class="fa-solid fa-receipt"></i> ${o.recibo_id || 'S/R'}</span>
                         <span class="badge-tag badge-gray" style="font-size: 0.68rem; padding: 1px 5px;">${o.sede}</span>
                         <span style="font-size: 0.68rem; color: #94A3B8; font-weight: 600;">${o.id}</span>
                     </div>
+                    <!-- Hora y Fecha del último cambio de fase -->
+                    <div style="font-size: 0.72rem; color: #475569; margin-top: 4px; display: flex; align-items: center; gap: 4px;">
+                        <i class="fa-solid fa-clock" style="color: #0080EA;"></i> Fase desde: <strong>${fechaCambioFormat}</strong>
+                    </div>
                 </div>
+
+                ${monturaCristalesHtml}
+
+                ${formulaHtml}
 
                 ${o.notas ? `
                     <div style="font-size: 0.75rem; color: #475569; font-style: italic; background: #FFFBEB; border-left: 2px solid #F59E0B; padding: 4px 8px; margin-bottom: 0.6rem; border-radius: 4px;">
@@ -3072,6 +4924,8 @@ function renderLaboratorioKanban() {
 
                     <select class="form-control" style="font-size: 0.78rem; font-weight: 700; height: 32px; padding: 2px 8px; border: 1.5px solid #0080EA; border-radius: 5px; width: 100%; cursor: pointer;" onchange="cambiarFaseLaboratorioDirecto('${o.id}', this.value)" title="Cambiar faceta directamente">
                         <option value="FASE_1" ${o.fase === 'FASE_1' ? 'selected' : ''}>1. Enviado al Lab</option>
+                        <option value="FASE_PEDIDO_PROV" ${o.fase === 'FASE_PEDIDO_PROV' ? 'selected' : ''}>Pedido a Proveedor (Interno)</option>
+                        <option value="FASE_RECIBIDO_PROV" ${o.fase === 'FASE_RECIBIDO_PROV' ? 'selected' : ''}>Recibido de Proveedor (Interno)</option>
                         <option value="FASE_2" ${o.fase === 'FASE_2' ? 'selected' : ''}>2. En Proceso (Tallado)</option>
                         <option value="FASE_3" ${o.fase === 'FASE_3' ? 'selected' : ''}>3. Listo en Lab (Montaje)</option>
                         <option value="FASE_4" ${o.fase === 'FASE_4' ? 'selected' : ''}>4. Listo Entrega (Sede)</option>
@@ -3086,10 +4940,13 @@ function renderLaboratorioKanban() {
                     ` : ''}
                 </div>
             </div>
-        `).join('');
+            `;
+        }).join('');
     };
 
     renderCol('kanbanFase1', f1);
+    renderCol('kanbanFasePedidoProv', fPedidoProv);
+    renderCol('kanbanFaseRecibidoProv', fRecibidoProv);
     renderCol('kanbanFase2', f2);
     renderCol('kanbanFase3', f3);
     renderCol('kanbanFase4', f4);
@@ -3165,7 +5022,12 @@ window.abrirModalAsignarFaceta = function(pacienteId = null, ordenId = null) {
     if (infoPill) infoPill.style.display = 'none';
 
     // Poblar selector de pacientes ordenados alfabéticamente por Nombre, Apellido y Cédula
-    const pacientes = (window.OpticaStorage.getPacientes() || []).slice().sort((a, b) => {
+    let rawPacientes = (window.OpticaStorage.getPacientes() || []).slice();
+    if (AppState.sedeFiltro && AppState.sedeFiltro !== 'todas') {
+        const filtrados = rawPacientes.filter(p => !p.sede || p.sede.toLowerCase().includes(AppState.sedeFiltro.toLowerCase()) || AppState.sedeFiltro.toLowerCase().includes(p.sede.toLowerCase()));
+        if (filtrados.length > 0) rawPacientes = filtrados;
+    }
+    const pacientes = rawPacientes.sort((a, b) => {
         const nameA = `${a.nombre || ''} ${a.apellido || ''}`.trim().toLowerCase();
         const nameB = `${b.nombre || ''} ${b.apellido || ''}`.trim().toLowerCase();
         return nameA.localeCompare(nameB);
@@ -3174,6 +5036,18 @@ window.abrirModalAsignarFaceta = function(pacienteId = null, ordenId = null) {
     if (selP) {
         selP.innerHTML = '<option value="">-- Seleccionar Paciente (Ordenado A-Z) --</option>' +
             pacientes.map(p => `<option value="${p.id}">${p.nombre} ${p.apellido || ''} — C.I: ${p.cedula || 'S/C'} (${p.telefono || p.telefono_wa || 'Sin tel'})</option>`).join('');
+    }
+
+    if (selSede) {
+        if (AppState.currentRole === 'lab_maracay') {
+            selSede.value = 'Maracay';
+            selSede.disabled = true;
+        } else if (AppState.currentRole === 'lab_sanjuan') {
+            selSede.value = 'San Juan de los Morros';
+            selSede.disabled = true;
+        } else {
+            selSede.disabled = false;
+        }
     }
 
     if (ordenId) {
@@ -3188,7 +5062,11 @@ window.abrirModalAsignarFaceta = function(pacienteId = null, ordenId = null) {
             if (inpTel) inpTel.value = ord.paciente_telefono || '';
             if (inpMont) inpMont.value = ord.montura || '';
             if (inpCris) inpCris.value = ord.cristales || '';
-            if (selSede) selSede.value = ord.sede || 'Maracay';
+            if (selSede) {
+                if (AppState.currentRole === 'lab_maracay') selSede.value = 'Maracay';
+                else if (AppState.currentRole === 'lab_sanjuan') selSede.value = 'San Juan de los Morros';
+                else selSede.value = ord.sede || 'Maracay';
+            }
             if (selFase) selFase.value = ord.fase || 'FASE_1';
             if (txtNotas) txtNotas.value = ord.notas || '';
 
@@ -3198,7 +5076,11 @@ window.abrirModalAsignarFaceta = function(pacienteId = null, ordenId = null) {
         // Modo Nueva Asignación
         if (hiddenId) hiddenId.value = '';
         if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-glasses"></i> Asignar Cliente a Laboratorio`;
-        if (selSede && AppState.sedeFiltro !== 'todas') selSede.value = AppState.sedeFiltro;
+        if (selSede) {
+            if (AppState.currentRole === 'lab_maracay') selSede.value = 'Maracay';
+            else if (AppState.currentRole === 'lab_sanjuan') selSede.value = 'San Juan de los Morros';
+            else if (AppState.sedeFiltro !== 'todas') selSede.value = AppState.sedeFiltro;
+        }
         if (selFase) selFase.value = 'FASE_1';
 
         if (pacienteId) {
@@ -3244,7 +5126,7 @@ window.onFacetaPacienteChange = function() {
 
         if (inpCed) inpCed.value = cedula;
         if (inpTel) inpTel.value = telefono;
-        if (selSede && p.sede) selSede.value = sede;
+        if (selSede && !selSede.disabled && p.sede) selSede.value = sede;
 
         if (infoPill) {
             infoPill.style.display = 'block';
@@ -3269,7 +5151,10 @@ window.guardarFacetaLaboratorio = function(event) {
     const p = window.OpticaStorage.getPacienteById(pacienteId);
     const montura = document.getElementById('facetaMonturaInput')?.value.trim() || 'Montura del Paciente';
     const cristales = document.getElementById('facetaCristalesInput')?.value.trim() || 'Cristales Oftálmicos';
-    const sede = document.getElementById('facetaSedeSelect')?.value || (p?.sede || 'Maracay');
+    let sede = document.getElementById('facetaSedeSelect')?.value;
+    if (AppState.currentRole === 'lab_maracay') sede = 'Maracay';
+    if (AppState.currentRole === 'lab_sanjuan') sede = 'San Juan de los Morros';
+    if (!sede) sede = p?.sede || 'Maracay';
     const fase = document.getElementById('facetaFaseSelect')?.value || 'FASE_1';
     const notas = document.getElementById('facetaNotasTextarea')?.value.trim() || '';
 
@@ -3557,12 +5442,60 @@ window.cerrarModalRecipe = function() {
 };
 
 window.imprimirRecipeActual = function() {
-    window.openModalAndPrint('modalRecipeOficial');
+    const oldModal = document.getElementById('modalRecipeOficial');
+    if (oldModal && oldModal.style.display !== 'none') {
+        window.openModalAndPrint('modalRecipeOficial');
+    } else if (liteMedicCurrentViewingRecipe) {
+        window.imprimirRecipeOficialDirecto(liteMedicCurrentViewingRecipe);
+    } else if (AppState.recipeActual) {
+        window.imprimirRecipeOficialDirecto(AppState.recipeActual);
+    } else {
+        const rcData = {
+            id: document.getElementById('reportId')?.value || 'RCP-' + Date.now().toString(36).toUpperCase(),
+            nombre: document.getElementById('recNombre')?.value || 'Paciente',
+            cedula: document.getElementById('recCedula')?.value || '--',
+            edad: document.getElementById('recEdad')?.value || '--',
+            fecha: document.getElementById('recFecha')?.value || new Date().toISOString().split('T')[0],
+            sede: document.getElementById('recSede')?.value || 'Maracay',
+            observaciones: document.getElementById('recObservaciones')?.value || '',
+            medicamentos: []
+        };
+        window.imprimirRecipeOficialDirecto(rcData);
+    }
 };
 
 window.imprimirRecipeDesdeTabla = function(recipeId) {
-    window.abrirModalRecipe(recipeId);
-    window.openModalAndPrint('modalRecipeOficial');
+    let rc = window.OpticaStorage ? window.OpticaStorage.getRecipeById(recipeId) : null;
+    if (!rc) {
+        window.cargarRecipesLiteDesdeStorage();
+        rc = liteMedicRecipesCache.find(r => r.id === recipeId);
+    }
+    if (rc) {
+        window.imprimirRecipeOficialDirecto(rc);
+    } else {
+        window.abrirModalRecipe(recipeId);
+        window.openModalAndPrint('modalRecipeOficial');
+    }
+};
+
+window.verDetalleConsulta = function(id) {
+    if (!id) return;
+    const c = window.OpticaStorage ? window.OpticaStorage.getConsultaById(id) : null;
+    if (c) {
+        window.imprimirConsultaOftalmologicaById(id);
+        return;
+    }
+    const f = window.OpticaStorage ? window.OpticaStorage.getFichaConsultaById(id) : null;
+    if (f) {
+        window.imprimirFichaConsultaById(id);
+        return;
+    }
+    const h = window.OpticaStorage ? window.OpticaStorage.getHistoriaOptometricaById(id) : null;
+    if (h) {
+        window.imprimirHistoriaOptometricaById(id);
+        return;
+    }
+    showAdminToast('No se encontró el documento clínico solicitado.', 'error');
 };
 
 /// =============================================================================
@@ -3758,22 +5691,178 @@ window.imprimirInformeDesdeTabla = function(informeId) {
 window.switchWhatsAppSubTab = function(tab) {
     const btnDirecto = document.getElementById('waSubNavDirecto');
     const btnProgramados = document.getElementById('waSubNavProgramados');
+    const btnCumpleanos = document.getElementById('waSubNavCumpleanos');
     const contDirecto = document.getElementById('waSubTabDirectoContent');
     const contProgramados = document.getElementById('waSubTabProgramadosContent');
+    const contCumpleanos = document.getElementById('waSubTabCumpleanosContent');
+
+    if (btnDirecto) btnDirecto.classList.remove('active');
+    if (btnProgramados) btnProgramados.classList.remove('active');
+    if (btnCumpleanos) btnCumpleanos.classList.remove('active');
+    if (contDirecto) contDirecto.style.display = 'none';
+    if (contProgramados) contProgramados.style.display = 'none';
+    if (contCumpleanos) contCumpleanos.style.display = 'none';
 
     if (tab === 'programados') {
-        if (btnDirecto) btnDirecto.classList.remove('active');
         if (btnProgramados) btnProgramados.classList.add('active');
-        if (contDirecto) contDirecto.style.display = 'none';
         if (contProgramados) contProgramados.style.display = 'block';
         window.renderRecordatoriosWA();
         window.initProgramadorWA();
+    } else if (tab === 'cumpleanos') {
+        if (btnCumpleanos) btnCumpleanos.classList.add('active');
+        if (contCumpleanos) contCumpleanos.style.display = 'block';
+        window.renderCumpleanosWA();
     } else {
         if (btnDirecto) btnDirecto.classList.add('active');
-        if (btnProgramados) btnProgramados.classList.remove('active');
         if (contDirecto) contDirecto.style.display = 'block';
-        if (contProgramados) contProgramados.style.display = 'none';
     }
+};
+
+window.renderCumpleanosWA = function() {
+    if (!window.OpticaStorage || !window.OpticaStorage.getCumpleaneros) return;
+
+    const data = window.OpticaStorage.getCumpleaneros();
+    const historial = window.OpticaStorage.getRegistroFelicitacionesCumpleanos ? window.OpticaStorage.getRegistroFelicitacionesCumpleanos() : [];
+    const anoActual = new Date().getFullYear();
+    const felicitadosEsteAno = historial.filter(h => (h.ano === anoActual || (h.fecha && h.fecha.includes(String(anoActual))))).length;
+
+    // KPIs
+    const kpiHoy = document.getElementById('kpiCumpleHoyCount');
+    const kpiSemana = document.getElementById('kpiCumpleSemanaCount');
+    const kpiEnviados = document.getElementById('kpiCumpleEnviadosCount');
+    const badgeHoy = document.getElementById('badgeCumpleHoyTag');
+    const navBadge = document.getElementById('waBirthdayBadgeCount');
+
+    if (kpiHoy) kpiHoy.innerText = data.hoy.length;
+    if (kpiSemana) kpiSemana.innerText = data.semana.length;
+    if (kpiEnviados) kpiEnviados.innerText = felicitadosEsteAno;
+    if (badgeHoy) badgeHoy.innerText = `${data.hoy.length} Paciente${data.hoy.length === 1 ? '' : 's'}`;
+    if (navBadge) {
+        navBadge.innerText = data.hoy.length;
+        navBadge.style.display = data.hoy.length > 0 ? 'inline-flex' : 'none';
+    }
+
+    // 1. Pacientes que cumplen años hoy
+    const contHoy = document.getElementById('listaCumpleHoyContainer');
+    const emptyHoy = document.getElementById('cumpleHoyEmpty');
+    if (contHoy) {
+        if (data.hoy.length === 0) {
+            contHoy.innerHTML = '';
+            if (emptyHoy) emptyHoy.style.display = 'block';
+        } else {
+            if (emptyHoy) emptyHoy.style.display = 'none';
+            contHoy.innerHTML = data.hoy.map(p => `
+                <div class="kpi-mini-card" style="border: 1px solid #FECDD3; background: #FFF5F7; padding: 1rem; border-radius: 10px; display: flex; flex-direction: column; justify-content: space-between; gap: 0.75rem;">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.35rem;">
+                            <strong style="color: #9F1239; font-size: 1.02rem;">
+                                <i class="fa-solid fa-cake-candles" style="color: #E11D48; margin-right: 4px;"></i>
+                                ${p.nombre} ${p.apellido || ''}
+                            </strong>
+                            <span class="badge-tag" style="background: #E11D48; color: white; font-weight: 800; font-size: 0.75rem;">
+                                ¡Cumple ${p.edad_a_cumplir} años!
+                            </span>
+                        </div>
+                        <div style="font-size: 0.82rem; color: #475569; display: flex; flex-direction: column; gap: 2px;">
+                            <span><i class="fa-solid fa-id-card text-muted"></i> Cédula: <strong>${p.cedula || 'S/C'}</strong></span>
+                            <span><i class="fa-brands fa-whatsapp text-muted"></i> Teléfono: <strong>${p.telefono || p.telefono_wa || 'Sin teléfono'}</strong></span>
+                            <span><i class="fa-solid fa-location-dot text-muted"></i> Sede: <strong>${p.sede || 'Maracay'}</strong></span>
+                        </div>
+                    </div>
+                    <div>
+                        ${p.ya_felicitado ? `
+                            <div style="display: flex; align-items: center; justify-content: space-between; background: #DCFCE7; border: 1px solid #86EFAC; border-radius: 6px; padding: 6px 10px; font-size: 0.8rem; color: #166534; font-weight: 700;">
+                                <span><i class="fa-solid fa-circle-check"></i> Ya Felicitado este Año</span>
+                                <button type="button" class="btn btn-xs btn-outline-emerald" style="padding: 2px 6px;" onclick="enviarFelicitacionWhatsAppCumple('${p.id}', '${p.telefono || p.telefono_wa}', '${p.nombre}', '${p.sede}')">Reenviar</button>
+                            </div>
+                        ` : `
+                            <button type="button" class="btn btn-emerald w-100" style="font-weight: 800; font-size: 0.88rem; padding: 8px 12px; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);" onclick="enviarFelicitacionWhatsAppCumple('${p.id}', '${p.telefono || p.telefono_wa}', '${p.nombre}', '${p.sede}')">
+                                <i class="fa-brands fa-whatsapp" style="font-size: 1.1rem;"></i> Enviar Felicitación por WhatsApp
+                            </button>
+                        `}
+                    </div>
+                </div>
+            `).join('');
+        }
+    }
+
+    // 2. Próximos de la semana
+    const tbodySemana = document.getElementById('tablaCumpleSemanaBody');
+    if (tbodySemana) {
+        if (data.semana.length === 0) {
+            tbodySemana.innerHTML = '<tr><td colspan="7" class="text-center text-muted" style="padding: 1.5rem;">No hay más pacientes cumpliendo años en los próximos 7 días.</td></tr>';
+        } else {
+            tbodySemana.innerHTML = data.semana.map(p => `
+                <tr>
+                    <td><strong>${p.nombre} ${p.apellido || ''}</strong></td>
+                    <td><span class="badge-tag badge-gray">${p.cedula || 'S/C'}</span></td>
+                    <td>${p.telefono || p.telefono_wa || 'Sin teléfono'}</td>
+                    <td><span class="badge-tag badge-blue">${p.sede || 'Maracay'}</span></td>
+                    <td><strong>${p.fecha_nacimiento}</strong></td>
+                    <td><strong class="text-rose">${p.edad_a_cumplir} años</strong></td>
+                    <td style="text-align: right;">
+                        <button type="button" class="btn btn-xs btn-outline-primary" onclick="enviarFelicitacionWhatsAppCumple('${p.id}', '${p.telefono || p.telefono_wa}', '${p.nombre}', '${p.sede}')" title="Preparar felicitación">
+                            <i class="fa-brands fa-whatsapp"></i> Felicitación
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+    }
+
+    // 3. Historial de Felicitaciones Enviadas
+    const tbodyHist = document.getElementById('tablaHistorialFelicitacionesBody');
+    if (tbodyHist) {
+        if (historial.length === 0) {
+            tbodyHist.innerHTML = '<tr><td colspan="6" class="text-center text-muted" style="padding: 1.5rem;">Aún no se han enviado felicitaciones de cumpleaños desde el sistema.</td></tr>';
+        } else {
+            tbodyHist.innerHTML = historial.slice().reverse().map(h => `
+                <tr>
+                    <td><span class="cell-sub">${h.fecha}</span></td>
+                    <td><strong>${h.paciente_nombre}</strong></td>
+                    <td><span class="badge-tag badge-gray">${h.paciente_cedula || '--'}</span></td>
+                    <td>${h.telefono}</td>
+                    <td><span class="badge-tag badge-green"><i class="fa-brands fa-whatsapp"></i> WhatsApp</span></td>
+                    <td style="max-width: 320px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.78rem; color: #475569;" title="${h.mensaje}">
+                        ${h.mensaje}
+                    </td>
+                </tr>
+            `).join('');
+        }
+    }
+};
+
+window.enviarFelicitacionWhatsAppCumple = function(pacienteId, telefono, nombre, sede) {
+    if (!telefono || telefono === 'Sin teléfono' || telefono === '--') {
+        showAdminToast('El paciente no tiene un número de teléfono válido registrado.', 'warning');
+        return;
+    }
+
+    let phoneClean = telefono.replace(/\D/g, '');
+    if (phoneClean.startsWith('0')) {
+        phoneClean = '58' + phoneClean.substring(1);
+    } else if (phoneClean.length === 10) {
+        phoneClean = '58' + phoneClean;
+    }
+
+    const sedeNombre = sede || 'Centro Óptico Nieves';
+    const mensaje = `¡Feliz Cumpleaños, *${nombre}*! De parte de todo el equipo de *Centro Óptico Nieves* (${sedeNombre}) le enviamos un cordial saludo en su día y le deseamos mucha salud, éxitos y bendiciones. ¡Gracias por confiar en nosotros para el cuidado de su salud visual!`;
+
+    const waUrl = `https://wa.me/${phoneClean}?text=${encodeURIComponent(mensaje)}`;
+    window.open(waUrl, '_blank');
+
+    const p = window.OpticaStorage.getPacienteById(pacienteId);
+    window.OpticaStorage.registrarFelicitacionCumpleanos({
+        paciente_id: pacienteId,
+        paciente_nombre: nombre,
+        paciente_cedula: p ? p.cedula : '',
+        telefono: telefono,
+        mensaje: mensaje,
+        ano: new Date().getFullYear()
+    });
+
+    showAdminToast(`Felicitación enviada y registrada para ${nombre}.`, 'success');
+    window.renderCumpleanosWA();
 };
 
 function renderWhatsAppCenter() {
@@ -3791,6 +5880,14 @@ function renderWhatsAppCenter() {
         } else if (pacientes.length > 0) {
             sel.value = pacientes[0].id;
         }
+    }
+
+    // Actualizar badge de cumpleaños
+    const cumpleData = window.OpticaStorage.getCumpleaneros ? window.OpticaStorage.getCumpleaneros() : { hoy: [] };
+    const bBadge = document.getElementById('waBirthdayBadgeCount');
+    if (bBadge) {
+        bBadge.innerText = cumpleData.hoy.length;
+        bBadge.style.display = cumpleData.hoy.length > 0 ? 'inline-flex' : 'none';
     }
 
     // 2. Renderizar plantillas dinámicas (sistema y personalizadas)
@@ -3885,6 +5982,37 @@ window.eliminarPlantillaWA = function(event, id) {
     window.renderWhatsAppPlantillas();
     window.seleccionarPlantillaWA(AppState.whatsapp.plantillaSeleccionada);
     showAdminToast('Plantilla eliminada.');
+};
+
+window.filtrarPacientesWhatsApp = function(query) {
+    const q = (query || '').toLowerCase().trim();
+    const select = document.getElementById('waDestinatarioSelect');
+    if (!select) return;
+
+    const pacientes = window.OpticaStorage.getPacientes();
+    const sede = AppState.sedeFiltro || 'todas';
+    const filtrados = pacientes.filter(p => {
+        const matchSede = (sede === 'todas' || p.sede === sede);
+        const matchQuery = !q || (
+            (p.nombre || '').toLowerCase().includes(q) ||
+            (p.apellido || '').toLowerCase().includes(q) ||
+            (p.cedula || '').toLowerCase().includes(q) ||
+            (p.telefono || '').toLowerCase().includes(q)
+        );
+        return matchSede && matchQuery;
+    });
+
+    select.innerHTML = '<option value="">-- Seleccionar Paciente Registrado --</option>' + filtrados.map(p => {
+        const full = `${p.nombre || ''} ${p.apellido || ''}`.trim();
+        const ced = p.cedula ? ` (${p.cedula})` : '';
+        const tel = p.telefono ? ` - ${p.telefono}` : '';
+        return `<option value="${p.id}">${full}${ced}${tel}</option>`;
+    }).join('');
+
+    if (q && filtrados.length === 1) {
+        select.value = filtrados[0].id;
+        window.actualizarDestinatarioWhatsApp();
+    }
 };
 
 window.actualizarDestinatarioWhatsApp = function() {
@@ -4432,6 +6560,26 @@ window.eliminarRecordatorioWA = function(id) {
 /// =============================================================================
 // MÓDULO 9: CAJA DIARIA & ARQUEO MULTIMONEDA
 /// =============================================================================
+window.calcularMovimientoBsDesdeUsd = function() {
+    const usd = parseFloat(document.getElementById('movMontoUsdInput')?.value) || 0;
+    const config = window.OpticaStorage.getConfig();
+    const tasa = config.tasa_usd_ves || 842.21;
+    const inpBs = document.getElementById('movMontoBsInput');
+    if (inpBs) {
+        inpBs.value = (usd * tasa).toFixed(2);
+    }
+};
+
+window.calcularMovimientoUsdDesdeBs = function() {
+    const bs = parseFloat(document.getElementById('movMontoBsInput')?.value) || 0;
+    const config = window.OpticaStorage.getConfig();
+    const tasa = config.tasa_usd_ves || 842.21;
+    const inpUsd = document.getElementById('movMontoUsdInput');
+    if (inpUsd && tasa > 0) {
+        inpUsd.value = (bs / tasa).toFixed(2);
+    }
+};
+
 function renderCaja() {
     const resumen = window.OpticaStorage.getResumenCajaHoy(AppState.sedeFiltro);
 
@@ -4446,6 +6594,14 @@ function renderCaja() {
     setTxt('cajaZelleUsd', `$${resumen.zelle_usd.toFixed(2)}`);
     setTxt('cajaCasheaUsd', `$${(resumen.cashea_usd || 0).toFixed(2)}`);
     setTxt('cajaBalanceNeto', `$${resumen.balance_neto_usd.toFixed(2)}`);
+
+    // Separación de Gastos Operativos y Compras de Mercancía
+    setTxt('cajaTotalGastosUsd', `$${(resumen.total_gastos_usd || 0).toFixed(2)}`);
+    setTxt('cajaTotalGastosBs', `${(resumen.total_gastos_ves || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs`);
+    setTxt('cajaTotalComprasUsd', `$${(resumen.total_compras_usd || 0).toFixed(2)}`);
+    setTxt('cajaTotalComprasBs', `${(resumen.total_compras_ves || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs`);
+    setTxt('cajaTotalEgresosUsd', `$${(resumen.total_egresos_usd || 0).toFixed(2)}`);
+    setTxt('cajaTotalEgresosBs', `${(resumen.total_egresos_ves || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs`);
 
     const tbody = document.getElementById('tablaCajaBody');
     const empty = document.getElementById('cajaEmptyState');
@@ -4464,8 +6620,8 @@ function renderCaja() {
         <tr>
             <td><span class="cell-sub">${m.fecha.split(' ')[1] || m.fecha}</span></td>
             <td>
-                <span class="badge-tag ${m.tipo === 'INGRESO' ? 'badge-green' : 'badge-amber'}">
-                    ${m.tipo}
+                <span class="badge-tag ${m.tipo === 'INGRESO' ? 'badge-green' : (m.subtipo === 'COMPRA' ? 'badge-purple' : 'badge-amber')}">
+                    ${m.subtipo ? `${m.tipo}: ${m.subtipo}` : m.tipo}
                 </span>
             </td>
             <td><strong>${m.concepto}</strong></td>
@@ -4485,6 +6641,12 @@ window.abrirModalNuevoMovimientoCaja = function() {
     if (selSede) {
         selSede.value = AppState.sedeFiltro !== 'todas' ? AppState.sedeFiltro : 'Maracay';
     }
+    const config = window.OpticaStorage.getConfig();
+    const tasa = config.tasa_usd_ves || 842.21;
+    const tasaEl = document.getElementById('modalCajaTasaBcv');
+    if (tasaEl) {
+        tasaEl.innerText = `${parseFloat(tasa).toLocaleString('es-VE', { minimumFractionDigits: 2 })} Bs/$`;
+    }
     openModal('modalMovimientoCaja');
 };
 
@@ -4494,33 +6656,53 @@ window.cerrarModalMovimientoCaja = function() {
 
 window.guardarFormMovimientoCaja = function(e) {
     if (e) e.preventDefault();
-    const tipo = document.getElementById('movTipoSelect')?.value || 'EGRESO';
+    const rawTipo = document.getElementById('movTipoSelect')?.value || 'EGRESO_GASTO';
     const concepto = document.getElementById('movConceptoInput')?.value?.trim();
-    const montoUsd = parseFloat(document.getElementById('movMontoUsdInput')?.value) || 0;
+    let montoUsd = parseFloat(document.getElementById('movMontoUsdInput')?.value) || 0;
+    let montoVes = parseFloat(document.getElementById('movMontoBsInput')?.value) || 0;
     const metodo = document.getElementById('movMetodoSelect')?.value || 'efectivo_usd';
     const referencia = document.getElementById('movReferenciaInput')?.value?.trim() || '';
     const sede = document.getElementById('movSedeSelect')?.value || 'Maracay';
+
+    const config = window.OpticaStorage.getConfig();
+    const tasa = config.tasa_usd_ves || 842.21;
+
+    if (montoUsd <= 0 && montoVes > 0) {
+        montoUsd = Math.round((montoVes / tasa) * 100) / 100;
+    } else if (montoVes <= 0 && montoUsd > 0) {
+        montoVes = Math.round(montoUsd * tasa * 100) / 100;
+    }
 
     if (!concepto) {
         showAdminToast('Por favor ingrese el concepto del movimiento.', 'warning');
         return;
     }
     if (montoUsd <= 0) {
-        showAdminToast('Por favor ingrese un monto válido.', 'warning');
+        showAdminToast('Por favor ingrese un monto válido en USD o Bs.', 'warning');
         return;
     }
 
-    const config = window.OpticaStorage.getConfig();
-    const tasa = config.tasa_usd_ves || 842.21;
-    const montoVes = Math.round(montoUsd * tasa * 100) / 100;
+    let tipo = 'EGRESO';
+    let subtipo = 'GASTO';
+    if (rawTipo === 'INGRESO') {
+        tipo = 'INGRESO';
+        subtipo = null;
+    } else if (rawTipo === 'EGRESO_COMPRA') {
+        tipo = 'EGRESO';
+        subtipo = 'COMPRA';
+    } else {
+        tipo = 'EGRESO';
+        subtipo = 'GASTO';
+    }
 
     window.OpticaStorage.registrarMovimientoCaja({
         tipo,
+        subtipo,
         concepto,
         monto_usd: montoUsd,
         monto_ves: montoVes,
         metodo,
-        referencia: referencia || (tipo === 'INGRESO' ? 'Ingreso Manual' : 'Gasto Operativo'),
+        referencia: referencia || (tipo === 'INGRESO' ? 'Ingreso Manual' : (subtipo === 'COMPRA' ? 'Compra Mercancía' : 'Gasto Operativo')),
         sede
     });
 
@@ -4528,7 +6710,7 @@ window.guardarFormMovimientoCaja = function(e) {
     renderCaja();
     actualizarBadgesContadores();
     if (typeof window.sincronizarSelectoresMedicosEnFormularios === 'function') window.sincronizarSelectoresMedicosEnFormularios();
-    showAdminToast(`Movimiento (${tipo}) de $${montoUsd.toFixed(2)} registrado correctamente.`);
+    showAdminToast(`Movimiento (${tipo} - ${subtipo || 'GENERAL'}) de $${montoUsd.toFixed(2)} registrado correctamente.`, 'success');
 };
 
 window.imprimirCierreDeCaja = function() {
@@ -4591,6 +6773,12 @@ function renderCitasTable() {
                     <button type="button" class="btn btn-xs btn-primary" onclick="atenderPacienteDesdeCita('${c.cedula}')">
                         Atender
                     </button>
+                    <button type="button" class="btn btn-xs btn-outline-primary" onclick="abrirModalReprogramarCita('${c.id}')" title="Reprogramar fecha y hora">
+                        <i class="fa-solid fa-calendar-days"></i> Reprogramar
+                    </button>
+                    <button type="button" class="btn btn-xs btn-outline-danger" onclick="eliminarCitaConfirm('${c.id}')" title="Eliminar cita">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
                 </div>
             </td>
         </tr>
@@ -4612,6 +6800,158 @@ window.atenderPacienteDesdeCita = function(cedula) {
     } else {
         window.abrirModalNuevoPaciente();
     }
+};
+
+// =========================================================================
+// REPROGRAMAR & ELIMINAR CITAS
+// =========================================================================
+window.abrirModalReprogramarCita = function(id) {
+    const citas = window.OpticaStorage.getCitas();
+    const cita = citas.find(c => c.id === id);
+    if (!cita) {
+        showAdminToast('Cita no encontrada.', 'warning');
+        return;
+    }
+
+    const idHidden = document.getElementById('reprogCitaIdHidden');
+    const nomEl = document.getElementById('reprogPacienteNombre');
+    const infoEl = document.getElementById('reprogCitaActualInfo');
+    const fechaInp = document.getElementById('reprogNuevaFecha');
+    const horaSel = document.getElementById('reprogNuevaHora');
+    const motivoInp = document.getElementById('reprogMotivo');
+
+    if (idHidden) idHidden.value = cita.id;
+    if (nomEl) nomEl.innerText = `${cita.nombre} (C.I. ${cita.cedula || 'S/C'})`;
+    if (infoEl) infoEl.innerText = `Fecha y hora actual: ${cita.fecha} a las ${cita.hora} [${cita.sede}]`;
+    if (fechaInp) {
+        fechaInp.value = cita.fecha;
+        fechaInp.min = new Date().toISOString().split('T')[0];
+    }
+    if (horaSel) horaSel.value = cita.hora || '09:00 AM';
+    if (motivoInp) motivoInp.value = '';
+
+    openModal('modalReprogramarCita');
+};
+
+window.cerrarModalReprogramarCita = function() {
+    closeModal('modalReprogramarCita');
+};
+
+window.guardarReprogramarCita = function(e) {
+    if (e) e.preventDefault();
+    const id = document.getElementById('reprogCitaIdHidden')?.value;
+    const nuevaFecha = document.getElementById('reprogNuevaFecha')?.value;
+    const nuevaHora = document.getElementById('reprogNuevaHora')?.value;
+    const motivoReprog = document.getElementById('reprogMotivo')?.value?.trim();
+
+    if (!id || !nuevaFecha || !nuevaHora) {
+        showAdminToast('Por favor ingrese la nueva fecha y hora.', 'warning');
+        return;
+    }
+
+    const res = window.OpticaStorage.reprogramarCita(id, nuevaFecha, nuevaHora, motivoReprog);
+    if (res) {
+        closeModal('modalReprogramarCita');
+        renderCitasTable();
+        actualizarBadgesContadores();
+        showAdminToast(`Cita reprogramada con éxito para el ${nuevaFecha} a las ${nuevaHora}.`, 'success');
+    } else {
+        showAdminToast('Error al reprogramar la cita.', 'error');
+    }
+};
+
+window.eliminarCitaConfirm = function(id) {
+    if (!confirm('¿Está seguro de que desea eliminar permanentemente esta cita agendada?')) return;
+    const res = window.OpticaStorage.eliminarCita(id);
+    if (res) {
+        renderCitasTable();
+        actualizarBadgesContadores();
+        showAdminToast('Cita eliminada de la agenda.', 'info');
+    } else {
+        showAdminToast('No se pudo eliminar la cita.', 'error');
+    }
+};
+
+// =========================================================================
+// CONFIGURACIÓN DE FECHAS & DÍAS DISPONIBLES PARA PACIENTES (WEB)
+// =========================================================================
+let tempFechasBloqueadas = [];
+
+window.abrirModalFechasDisponibles = function() {
+    const config = window.OpticaStorage.getConfig();
+    const diasMar = (config.dias_habilitados && config.dias_habilitados['Maracay']) || [1, 2, 3, 4, 5, 6];
+    const diasSj = (config.dias_habilitados && config.dias_habilitados['San Juan de los Morros']) || [1, 2, 3, 4, 5, 6];
+    tempFechasBloqueadas = [...(config.fechas_bloqueadas || [])];
+
+    for (let d = 1; d <= 6; d++) {
+        const chkMar = document.getElementById(`cfgDiaMar_${d}`);
+        if (chkMar) chkMar.checked = diasMar.includes(d);
+        const chkSj = document.getElementById(`cfgDiaSj_${d}`);
+        if (chkSj) chkSj.checked = diasSj.includes(d);
+    }
+
+    const inpBloq = document.getElementById('inputBloquearFecha');
+    if (inpBloq) {
+        inpBloq.value = '';
+        inpBloq.min = new Date().toISOString().split('T')[0];
+    }
+
+    window.renderListaFechasBloqueadasModal();
+    openModal('modalConfigFechasCitas');
+};
+
+window.cerrarModalFechasDisponibles = function() {
+    closeModal('modalConfigFechasCitas');
+};
+
+window.agregarFechaBloqueadaModal = function() {
+    const inp = document.getElementById('inputBloquearFecha');
+    const val = inp?.value;
+    if (!val) {
+        showAdminToast('Seleccione una fecha para bloquear.', 'warning');
+        return;
+    }
+    if (!tempFechasBloqueadas.includes(val)) {
+        tempFechasBloqueadas.push(val);
+        tempFechasBloqueadas.sort();
+        window.renderListaFechasBloqueadasModal();
+        inp.value = '';
+        showAdminToast(`Fecha ${val} agregada a la lista de bloqueadas.`, 'info');
+    }
+};
+
+window.eliminarFechaBloqueadaModal = function(fecha) {
+    tempFechasBloqueadas = tempFechasBloqueadas.filter(f => f !== fecha);
+    window.renderListaFechasBloqueadasModal();
+};
+
+window.renderListaFechasBloqueadasModal = function() {
+    const cont = document.getElementById('listaFechasBloqueadas');
+    if (!cont) return;
+    if (tempFechasBloqueadas.length === 0) {
+        cont.innerHTML = '<span style="font-size: 0.78rem; color: #94A3B8;">No hay fechas bloqueadas actualmente.</span>';
+        return;
+    }
+    cont.innerHTML = tempFechasBloqueadas.map(f => `
+        <span class="badge-tag badge-rose" style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px;">
+            <i class="fa-solid fa-ban"></i> ${f}
+            <button type="button" onclick="eliminarFechaBloqueadaModal('${f}')" style="background: none; border: none; color: inherit; cursor: pointer; font-size: 0.8rem; padding: 0 2px;">&times;</button>
+        </span>
+    `).join('');
+};
+
+window.guardarModalFechasDisponibles = function(e) {
+    if (e) e.preventDefault();
+    const diasMar = [];
+    const diasSj = [];
+    for (let d = 1; d <= 6; d++) {
+        if (document.getElementById(`cfgDiaMar_${d}`)?.checked) diasMar.push(d);
+        if (document.getElementById(`cfgDiaSj_${d}`)?.checked) diasSj.push(d);
+    }
+
+    window.OpticaStorage.guardarConfigDisponibilidadCitas(diasMar, diasSj, tempFechasBloqueadas);
+    closeModal('modalConfigFechasCitas');
+    showAdminToast('Disponibilidad de fechas para pacientes web guardada exitosamente.', 'success');
 };
 
 window.abrirModalNuevaCita = function() {
@@ -4660,7 +7000,10 @@ window.guardarFormCita = function(e) {
     closeModal('modalFormCita');
     renderCitasTable();
     actualizarBadgesContadores();
+    if (typeof window.sincronizarSelectoresPacientes === 'function') window.sincronizarSelectoresPacientes();
     if (typeof window.sincronizarSelectoresMedicosEnFormularios === 'function') window.sincronizarSelectoresMedicosEnFormularios();
+    if (typeof window.renderPacientesTable === 'function') window.renderPacientesTable();
+    if (typeof window.renderPacientesDoctorTable === 'function') window.renderPacientesDoctorTable();
     showAdminToast(`Cita para ${nombre} agendada para el ${fecha} a las ${hora}.`);
 };
 
@@ -4740,59 +7083,12 @@ window.confirmarReseteoTotal = function() {
 // GESTIÓN DE PIN PARA CAMBIO DE MODO SEGURO (PIN: 2027)
 /// =============================================================================
 window.abrirModalCambiarModo = function() {
-    const inputPin = document.getElementById('inputPinCambiarModo');
-    const err = document.getElementById('pinErrorMsg');
-    if (inputPin) inputPin.value = '';
-    if (err) err.style.display = 'none';
-    window.openModal('modalCambiarModo');
-    setTimeout(() => {
-        if (inputPin) inputPin.focus();
-    }, 200);
+    console.info('El cambio rápido de modo con PIN ha sido desactivado en favor de portales independientes por rol.');
 };
 
-window.cerrarModalCambiarModo = function() {
-    window.closeModal('modalCambiarModo');
-};
+window.cerrarModalCambiarModo = function() {};
 
-window.verificarPinCambiarModo = function() {
-    const inputPin = document.getElementById('inputPinCambiarModo');
-    const err = document.getElementById('pinErrorMsg');
-    const pin = (inputPin?.value || '').trim();
-    if (pin === '2027') {
-        window.closeModal('modalCambiarModo');
-        const nextRole = AppState.currentRole === 'admin1' ? 'admin2' : 'admin1';
-
-        const accountKey = nextRole === 'admin1' ? 'administracionnieves' : 'mediconieves';
-        const account = AUTH_ACCOUNTS[accountKey];
-        if (account) {
-            const session = {
-                user: accountKey,
-                role: account.role,
-                name: account.name,
-                handle: account.handle,
-                timestamp: Date.now()
-            };
-            sessionStorage.setItem('optica_nieves_auth', JSON.stringify(session));
-            localStorage.setItem('optica_nieves_auth', JSON.stringify(session));
-        }
-
-        window.setAdminRole(nextRole, true);
-        if (nextRole === 'admin1') {
-            window.switchAdminTab('dashboard');
-        } else {
-            window.switchAdminTab('dashboard-medico');
-        }
-        if (inputPin) inputPin.value = '';
-        if (err) err.style.display = 'none';
-        window.showAdminToast('Acceso verificado. Modo ' + (nextRole === 'admin1' ? 'Administrativo' : 'Médico') + ' activado.', 'success');
-    } else {
-        if (err) err.style.display = 'block';
-        if (inputPin) {
-            inputPin.value = '';
-            inputPin.focus();
-        }
-    }
-};
+window.verificarPinCambiarModo = function() {};
 
 /// =============================================================================
 // =============================================================================
@@ -4833,7 +7129,7 @@ window.alSeleccionarPacienteOptometria = function(pacienteId) {
 
     const setVal = (id, val) => {
         const el = document.getElementById(id);
-        if (el) el.value = val !== undefined && val !== null ? val : '';
+        if (el && val !== undefined && val !== null) el.value = val;
     };
 
     setVal('hoNombre', `${p.nombre} ${p.apellido || ''}`.trim());
@@ -4844,28 +7140,42 @@ window.alSeleccionarPacienteOptometria = function(pacienteId) {
     setVal('hoDireccion', p.direccion || '');
     if (p.sede) setVal('hoSede', p.sede);
 
-    // Pre-cargar si tiene última fórmula
-    if (p.ultima_formula) {
-        const f = p.ultima_formula;
-        setVal('hoLensoOdEsf', f.od?.sph || '');
-        setVal('hoLensoOdCil', f.od?.cyl || '');
-        setVal('hoLensoOdEje', f.od?.axis || '');
-        setVal('hoLensoOdAdd', f.od?.add || '');
+    // Auto-obtener fórmula técnica previa del paciente
+    const f = (window.OpticaStorage.obtenerFormulaPaciente ? window.OpticaStorage.obtenerFormulaPaciente(p.id) : null) || p.ultima_formula || p.formula;
+    if (f) {
+        const odSph = f.od?.sph || f.od_esfera || f.der_esf || '';
+        const odCyl = f.od?.cyl || f.od_cilindro || f.der_cil || '';
+        const odAxis = f.od?.axis || f.od_eje || f.der_eje || '';
+        const odAdd = f.od?.add || f.od_adicion || f.der_add || '';
+        const odAv = f.od?.av || f.od_av || f.der_av || '20/20';
 
-        setVal('hoLensoOiEsf', f.os?.sph || '');
-        setVal('hoLensoOiCil', f.os?.cyl || '');
-        setVal('hoLensoOiEje', f.os?.axis || '');
-        setVal('hoLensoOiAdd', f.os?.add || '');
+        const osSph = f.os?.sph || f.os_esfera || f.izq_esf || '';
+        const osCyl = f.os?.cyl || f.os_cilindro || f.izq_cil || '';
+        const osAxis = f.os?.axis || f.os_eje || f.izq_eje || '';
+        const osAdd = f.os?.add || f.os_adicion || f.izq_add || '';
+        const osAv = f.os?.av || f.os_av || f.izq_av || '20/20';
 
-        setVal('hoRxOdEsfera', f.od?.sph || '');
-        setVal('hoRxOdCilindro', f.od?.cyl || '');
-        setVal('hoRxOdAdd', f.od?.add || '');
-        setVal('hoRxOdAvCc', f.od?.av || '20/20');
+        setVal('hoLensoOdEsf', odSph);
+        setVal('hoLensoOdCil', odCyl);
+        setVal('hoLensoOdEje', odAxis);
+        setVal('hoLensoOdAdd', odAdd);
 
-        setVal('hoRxOiEsfera', f.os?.sph || '');
-        setVal('hoRxOiCilindro', f.os?.cyl || '');
-        setVal('hoRxOiAdd', f.os?.add || '');
-        setVal('hoRxOiAvCc', f.os?.av || '20/20');
+        setVal('hoLensoOiEsf', osSph);
+        setVal('hoLensoOiCil', osCyl);
+        setVal('hoLensoOiEje', osAxis);
+        setVal('hoLensoOiAdd', osAdd);
+
+        setVal('hoRxOdEsfera', odSph);
+        setVal('hoRxOdCilindro', odCyl);
+        setVal('hoRxOdEje', odAxis);
+        setVal('hoRxOdAdd', odAdd);
+        setVal('hoRxOdAvCc', odAv);
+
+        setVal('hoRxOiEsfera', osSph);
+        setVal('hoRxOiCilindro', osCyl);
+        setVal('hoRxOiEje', osAxis);
+        setVal('hoRxOiAdd', osAdd);
+        setVal('hoRxOiAvCc', osAv);
         if (f.dp) setVal('hoRxDp', f.dp);
     }
 };
@@ -4967,9 +7277,35 @@ window.guardarHistoriaOptometrica = function() {
         observaciones: document.getElementById('hoObservaciones')?.value.trim() || ''
     };
 
+    // Auto-persistir al paciente en la base de datos central
+    if (nombre && nombre !== 'Paciente') {
+        const partes = nombre.split(' ');
+        const nom = partes[0] || nombre;
+        const ape = partes.slice(1).join(' ') || '';
+        const savedP = window.OpticaStorage.crearOActualizarPaciente({
+            id: pacienteId || undefined,
+            cedula: data.paciente_cedula,
+            nombre: nom,
+            apellido: ape,
+            telefono: data.paciente_telefono,
+            edad: data.paciente_edad,
+            sede: data.sede,
+            ocupacion: data.paciente_ocupacion,
+            direccion: data.paciente_direccion,
+            formula: {
+                od_esfera: data.od_esfera, od_cilindro: data.od_cilindro, od_eje: '', od_adicion: data.od_add, od_av: data.od_av_cc,
+                os_esfera: data.oi_esfera, os_cilindro: data.oi_cilindro, os_eje: '', os_adicion: data.oi_add, os_av: data.oi_av_cc,
+                dp: data.dp
+            }
+        });
+        if (savedP) data.paciente_id = savedP.id;
+        if (typeof window.sincronizarSelectoresPacientes === 'function') window.sincronizarSelectoresPacientes();
+    }
+
     const nueva = window.OpticaStorage.crearHistoriaOptometrica(data);
     showAdminToast(`1. Historia Optométrica ${nueva.id} guardada con éxito.`, 'success');
     actualizarBadgesContadores();
+    if (typeof window.sincronizarSelectoresPacientes === 'function') window.sincronizarSelectoresPacientes();
     if (typeof window.sincronizarSelectoresMedicosEnFormularios === 'function') window.sincronizarSelectoresMedicosEnFormularios();
     if (typeof window.renderPacientesDoctorTable === 'function') {
         window.renderPacientesDoctorTable();
@@ -5055,6 +7391,9 @@ window.imprimirHistoriaOptometricaById = function(id) {
 };
 
 window.popularModalHistoriaOptometrica = function(h) {
+    if (typeof window.asegurarModalImpresion === 'function') {
+        window.asegurarModalImpresion('modalHistoriaOptometricaOficial');
+    }
     const setT = (id, val) => {
         const el = document.getElementById(id);
         if (el) el.innerText = (val !== undefined && val !== null && val !== '') ? val : '--';
@@ -5159,40 +7498,130 @@ window.cerrarModalHistoriaOptometrica = function() {
     window.closeModal('modalHistoriaOptometricaOficial');
 };
 
-window.emitirRecipeDesdeHistoriaOptometrica = function() {
-    const pacienteId = document.getElementById('hoPacienteSelect')?.value;
+window.emitirRecipeDesdeConsulta = function() {
+    // 1. Obtener datos del paciente
+    const pacienteId = document.getElementById('consultaPacienteSelect')?.value || document.getElementById('fchPacienteSelect')?.value || document.getElementById('hoPacienteSelect')?.value || '';
     const paciente = pacienteId ? window.OpticaStorage.getPacienteById(pacienteId) : null;
 
-    const odEsf = document.getElementById('hoRxOdEsfera')?.value || '';
-    const osEsf = document.getElementById('hoRxOiEsfera')?.value || '';
+    let nombre = paciente ? `${paciente.nombre} ${paciente.apellido}`.trim() : (document.getElementById('cpBannerNombre')?.innerText || '').trim();
+    if (!nombre || nombre === 'Paciente' || nombre === '--') {
+        nombre = document.getElementById('fchNombre')?.value?.trim() || document.getElementById('hoNombre')?.value?.trim() || 'Paciente';
+    }
+    let cedula = paciente ? paciente.cedula : (document.getElementById('cpBannerCedula')?.innerText || '').trim();
+    if (!cedula || cedula === '--') {
+        cedula = document.getElementById('fchCedula')?.value?.trim() || document.getElementById('hoCedula')?.value?.trim() || '';
+    }
+    let edad = paciente ? paciente.edad : (document.getElementById('cpBannerEdad')?.innerText || '').trim();
+    if (!edad || edad === '--') {
+        edad = document.getElementById('fchEdad')?.value?.trim() || document.getElementById('hoEdad')?.value?.trim() || '';
+    }
+    let telefono = paciente ? paciente.telefono : (document.getElementById('cpBannerTel')?.innerText || '').trim();
+    if (!telefono || telefono === '--') {
+        telefono = document.getElementById('fchTelefono')?.value?.trim() || document.getElementById('hoTelefono')?.value?.trim() || '';
+    }
+    let sede = document.getElementById('consultaSede')?.value || document.getElementById('fchSede')?.value || document.getElementById('hoSede')?.value || (paciente ? paciente.sede : AppState.sedeFiltro || 'Maracay');
+    if (sede === 'todas') sede = 'Maracay';
 
-    window.switchAdminTab('recipes');
+    // Fórmulas
+    const odEsf = document.getElementById('cRxOdEsfera')?.value || document.getElementById('fchDerEsf')?.value || document.getElementById('hoRxOdEsfera')?.value || '0.00';
+    const odCil = document.getElementById('cRxOdCilindro')?.value || document.getElementById('fchDerCil')?.value || document.getElementById('hoRxOdCilindro')?.value || '0.00';
+    const odEje = document.getElementById('cRxOdEje')?.value || document.getElementById('fchDerEje')?.value || document.getElementById('hoRxOdEje')?.value || '';
+    const odAdd = document.getElementById('cRxOdAdicion')?.value || document.getElementById('fchDerAdd')?.value || document.getElementById('hoRxOdAdd')?.value || '';
+    const odAv  = document.getElementById('cRxOdAv')?.value || document.getElementById('hoRxOdAvCc')?.value || '20/20';
 
-    if (paciente) {
-        const pSel = document.getElementById('workspaceRecipePacienteSelect');
-        if (pSel) {
-            pSel.value = paciente.id;
-            window.alSeleccionarPacienteRecipeDirecto(paciente.id);
-        }
+    const osEsf = document.getElementById('cRxOsEsfera')?.value || document.getElementById('fchIzqEsf')?.value || document.getElementById('hoRxOiEsfera')?.value || '0.00';
+    const osCil = document.getElementById('cRxOsCilindro')?.value || document.getElementById('fchIzqCil')?.value || document.getElementById('hoRxOiCilindro')?.value || '0.00';
+    const osEje = document.getElementById('cRxOsEje')?.value || document.getElementById('fchIzqEje')?.value || document.getElementById('hoRxOiEje')?.value || '';
+    const osAdd = document.getElementById('cRxOsAdicion')?.value || document.getElementById('fchIzqAdd')?.value || document.getElementById('hoRxOiAdd')?.value || '';
+    const osAv  = document.getElementById('cRxOsAv')?.value || document.getElementById('hoRxOiAvCc')?.value || '20/20';
+
+    const dp = document.getElementById('fchDp')?.value || document.getElementById('hoRxDp')?.value || '';
+    const conducta = document.getElementById('consultaConducta')?.value?.trim() || document.getElementById('fchObservacion')?.value?.trim() || document.getElementById('hoObservaciones')?.value?.trim() || '';
+
+    // Guardar / actualizar permanentemente al paciente para que esté disponible en toda la aplicación
+    if (nombre && nombre !== 'Paciente') {
+        const partes = nombre.split(' ');
+        const nom = partes[0] || nombre;
+        const ape = partes.slice(1).join(' ') || '';
+        window.OpticaStorage.crearOActualizarPaciente({
+            id: pacienteId || undefined,
+            cedula: cedula !== '--' ? cedula : '',
+            nombre: nom,
+            apellido: ape,
+            edad: edad !== '--' ? edad : '',
+            telefono: telefono !== '--' ? telefono : '',
+            sede: sede,
+            formula: {
+                od_esfera: odEsf, od_cilindro: odCil, od_eje: odEje, od_adicion: odAdd, od_av: odAv,
+                os_esfera: osEsf, os_cilindro: osCil, os_eje: osEje, os_adicion: osAdd, os_av: osAv,
+                dp: dp
+            }
+        });
+        if (typeof window.sincronizarSelectoresPacientes === 'function') window.sincronizarSelectoresPacientes();
     }
 
-    const setVal = (id, val) => {
-        const el = document.getElementById(id);
-        if (el) el.value = val !== undefined ? val : '';
+    const docActivo = window.OpticaStorage.getMedicoActivo() || {
+        prefijo: 'Dr.',
+        nombre: 'Especialista Oftalmólogo',
+        apellido: '',
+        especialidad: 'OFTALMOLOGÍA',
+        colegio: '',
+        mpps: '',
+        cedula: ''
     };
 
-    setVal('rcpDirOdSph', odEsf);
-    setVal('rcpDirOdCyl', document.getElementById('hoRxOdCilindro')?.value);
-    setVal('rcpDirOdAdd', document.getElementById('hoRxOdAdd')?.value);
-    setVal('rcpDirOdAv', document.getElementById('hoRxOdAvCc')?.value || '20/20');
+    const observacionesGeneradas = [
+        `REFRACCIÓN SUBJETIVA:`,
+        `OD: Esf ${odEsf} | Cil ${odCil} | Eje ${odEje ? odEje + '°' : '--'} | Add ${odAdd || '--'} | AV ${odAv}`,
+        `OI: Esf ${osEsf} | Cil ${osCil} | Eje ${osEje ? osEje + '°' : '--'} | Add ${osAdd || '--'} | AV ${osAv}`,
+        dp ? `DP: ${dp} mm` : '',
+        conducta ? `\nINDICACIONES:\n${conducta}` : ''
+    ].filter(Boolean).join('\n');
 
-    setVal('rcpDirOsSph', osEsf);
-    setVal('rcpDirOsCyl', document.getElementById('hoRxOiCilindro')?.value);
-    setVal('rcpDirOsAdd', document.getElementById('hoRxOiAdd')?.value);
-    setVal('rcpDirOsAv', document.getElementById('hoRxOiAvCc')?.value || '20/20');
+    const recipeData = {
+        id: 'RCP-' + Date.now().toString(36).toUpperCase(),
+        nombre: nombre || 'Paciente',
+        cedula: cedula || '--',
+        edad: edad || '--',
+        fecha: new Date().toISOString().split('T')[0],
+        sede: sede,
+        medico_id: docActivo.id,
+        medico_nombre: `${docActivo.prefijo || 'Dr.'} ${docActivo.nombre || ''} ${docActivo.apellido || ''}`.trim(),
+        medico_especialidad: docActivo.especialidad || 'OFTALMOLOGÍA',
+        medico_colegio: docActivo.colegio || '',
+        medico_mpps: docActivo.mpps || '',
+        medico_cedula: docActivo.cedula || '',
+        medicamentos: [],
+        observaciones: observacionesGeneradas
+    };
 
-    setVal('rcpDirDp', document.getElementById('hoRxDp')?.value);
-    showAdminToast('Fórmula transferida con éxito al Espacio de Trabajo de Récipes.');
+    window.cargarRecipesLiteDesdeStorage();
+    liteMedicRecipesCache.unshift(recipeData);
+    window.guardarRecipesLiteEnStorage(liteMedicRecipesCache);
+
+    window.switchAdminTab('recipes');
+    window.loadRecipeView('nuevo');
+
+    const setV = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val || '';
+    };
+    setV('recNombre', recipeData.nombre);
+    setV('recCedula', recipeData.cedula);
+    setV('recEdad', recipeData.edad);
+    setV('recFecha', recipeData.fecha);
+    setV('recSede', recipeData.sede);
+    setV('recObservaciones', recipeData.observaciones);
+
+    window.imprimirRecipeOficialDirecto(recipeData);
+    showAdminToast('Récipe oficial generado e impreso con éxito.', 'success');
+};
+
+window.emitirRecipeDesdeModalConsulta = window.emitirRecipeDesdeConsulta;
+window.emitirRecipeDesdeHistoriaOptometrica = window.emitirRecipeDesdeConsulta;
+
+window.cerrarModalDetalleConsulta = function() {
+    window.closeModal('modalDetalleConsulta');
 };
 
 /// =============================================================================
@@ -5259,34 +7688,32 @@ window.alSeleccionarPacienteConsulta = function(pacienteId) {
     if (paciente.antecedentes) setVal('consultaAntPersonales', paciente.antecedentes);
 
     // Pre-cargar fórmula previa si existe
-    if (paciente.formula || paciente.ultima_formula) {
-        const f = paciente.formula || {
-            od_esfera: paciente.ultima_formula?.od?.sph,
-            od_cilindro: paciente.ultima_formula?.od?.cyl,
-            od_eje: paciente.ultima_formula?.od?.axis,
-            od_adicion: paciente.ultima_formula?.od?.add,
-            od_av: paciente.ultima_formula?.od?.av,
-            os_esfera: paciente.ultima_formula?.os?.sph,
-            os_cilindro: paciente.ultima_formula?.os?.cyl,
-            os_eje: paciente.ultima_formula?.os?.axis,
-            os_adicion: paciente.ultima_formula?.os?.add,
-            os_av: paciente.ultima_formula?.os?.av
-        };
+    const f = (window.OpticaStorage.obtenerFormulaPaciente ? window.OpticaStorage.obtenerFormulaPaciente(paciente.id) : null) || paciente.ultima_formula || paciente.formula;
+    if (f) {
+        const odSph = f.od?.sph || f.od_esfera || f.der_esf || '';
+        const odCyl = f.od?.cyl || f.od_cilindro || f.der_cil || '';
+        const odAxis = f.od?.axis || f.od_eje || f.der_eje || '';
+        const odAdd = f.od?.add || f.od_adicion || f.der_add || '';
+        const odAv = f.od?.av || f.od_av || f.der_av || '20/20';
 
-        setVal('cRxOdEsfera', f.od_esfera);
-        setVal('cRxOdCilindro', f.od_cilindro);
-        setVal('cRxOdEje', f.od_eje);
-        setVal('cRxOdAdicion', f.od_adicion);
-        setVal('cRxOdAv', f.od_av || '20/20');
-        setVal('cRxOsEsfera', f.os_esfera);
-        setVal('cRxOsCilindro', f.os_cilindro);
-        setVal('cRxOsEje', f.os_eje);
-        setVal('cRxOsAdicion', f.os_adicion);
-        setVal('cRxOsAv', f.os_av || '20/20');
-        setVal('cRxDp', f.dp);
-        setVal('cRxAlt', f.alt);
-        if (f.tipo_lente) setVal('cRxTipoLente', f.tipo_lente);
-        if (f.material) setVal('cRxMaterial', f.material);
+        const osSph = f.os?.sph || f.os_esfera || f.izq_esf || '';
+        const osCyl = f.os?.cyl || f.os_cilindro || f.izq_cil || '';
+        const osAxis = f.os?.axis || f.os_eje || f.izq_eje || '';
+        const osAdd = f.os?.add || f.os_adicion || f.izq_add || '';
+        const osAv = f.os?.av || f.os_av || f.izq_av || '20/20';
+
+        setVal('cRxOdEsfera', odSph);
+        setVal('cRxOdCilindro', odCyl);
+        setVal('cRxOdEje', odAxis);
+        setVal('cRxOdAdicion', odAdd);
+        setVal('cRxOdAv', odAv);
+
+        setVal('cRxOsEsfera', osSph);
+        setVal('cRxOsCilindro', osCyl);
+        setVal('cRxOsEje', osAxis);
+        setVal('cRxOsAdicion', osAdd);
+        setVal('cRxOsAv', osAv);
+        if (f.dp) setVal('cRxDp', f.dp);
     }
 };
 
@@ -5321,6 +7748,45 @@ window.guardarFichaConsulta = function() {
     }
 
     let paciente = pacienteId ? window.OpticaStorage.getPacienteById(pacienteId) : null;
+    const pNombre = paciente ? `${paciente.nombre} ${paciente.apellido}`.trim() : (document.getElementById('cpBannerNombre')?.innerText || '').trim();
+    const pCedula = paciente ? paciente.cedula : (document.getElementById('cpBannerCedula')?.innerText || '').trim();
+    const pEdad = paciente ? paciente.edad : (document.getElementById('cpBannerEdad')?.innerText || '').trim();
+    const pTel = paciente ? paciente.telefono : (document.getElementById('cpBannerTel')?.innerText || '').trim();
+    const pSede = document.getElementById('consultaSede')?.value || (paciente ? paciente.sede : 'Maracay');
+
+    // Auto-persistir al paciente permanentemente en la base de datos central de pacientes
+    if (pNombre && pNombre !== 'Paciente' && pNombre !== '--') {
+        const partes = pNombre.split(' ');
+        const nom = partes[0] || pNombre;
+        const ape = partes.slice(1).join(' ') || '';
+        const savedP = window.OpticaStorage.crearOActualizarPaciente({
+            id: paciente ? paciente.id : undefined,
+            cedula: (pCedula && pCedula !== '--') ? pCedula : '',
+            nombre: nom,
+            apellido: ape,
+            edad: (pEdad && pEdad !== '--') ? pEdad : '',
+            telefono: (pTel && pTel !== '--') ? pTel : '',
+            sexo: paciente ? paciente.sexo : 'M',
+            fecha_nacimiento: document.getElementById('consultaFechaNacimiento')?.value || '',
+            ocupacion: document.getElementById('consultaOcupacion')?.value.trim() || '',
+            direccion: document.getElementById('consultaDireccion')?.value.trim() || '',
+            sede: pSede,
+            formula: {
+                od_esfera: document.getElementById('cRxOdEsfera')?.value.trim() || '0.00',
+                od_cilindro: document.getElementById('cRxOdCilindro')?.value.trim() || '0.00',
+                od_eje: document.getElementById('cRxOdEje')?.value.trim() || '',
+                od_adicion: document.getElementById('cRxOdAdicion')?.value.trim() || '',
+                od_av: document.getElementById('cRxOdAv')?.value.trim() || '20/20',
+                os_esfera: document.getElementById('cRxOsEsfera')?.value.trim() || '0.00',
+                os_cilindro: document.getElementById('cRxOsCilindro')?.value.trim() || '0.00',
+                os_eje: document.getElementById('cRxOsEje')?.value.trim() || '',
+                os_adicion: document.getElementById('cRxOsAdicion')?.value.trim() || '',
+                os_av: document.getElementById('cRxOsAv')?.value.trim() || '20/20'
+            }
+        });
+        if (savedP) paciente = savedP;
+    }
+
     const tratamientos = [];
     document.querySelectorAll('input[name="cTratamiento"]:checked').forEach(cb => tratamientos.push(cb.value));
 
@@ -5331,7 +7797,7 @@ window.guardarFichaConsulta = function() {
         paciente_edad: paciente ? paciente.edad : (document.getElementById('cpBannerEdad')?.innerText || ''),
         paciente_sexo: paciente ? paciente.sexo : 'M',
         paciente_telefono: paciente ? paciente.telefono : '',
-        sede: document.getElementById('consultaSede')?.value || 'Maracay',
+        sede: pSede,
         profesional: document.getElementById('consultaProfesional')?.value.trim() || (window.OpticaStorage.getMedicoActivo() ? `${window.OpticaStorage.getMedicoActivo().prefijo} ${window.OpticaStorage.getMedicoActivo().nombre} ${window.OpticaStorage.getMedicoActivo().apellido}`.trim() : 'Especialista No Asignado'),
 
         // PDF 2 Campos Completos
@@ -5367,12 +7833,7 @@ window.guardarFichaConsulta = function() {
             os_cilindro: document.getElementById('cRxOsCilindro')?.value.trim() || '0.00',
             os_eje: document.getElementById('cRxOsEje')?.value.trim() || '',
             os_adicion: document.getElementById('cRxOsAdicion')?.value.trim() || '',
-            os_av: document.getElementById('cRxOsAv')?.value.trim() || '20/20',
-            dp: document.getElementById('cRxDp')?.value.trim() || '',
-            alt: document.getElementById('cRxAlt')?.value.trim() || '',
-            tipo_lente: document.getElementById('cRxTipoLente')?.value || 'Monofocal',
-            material: document.getElementById('cRxMaterial')?.value || 'CR-39 Orgánico',
-            tratamientos: tratamientos
+            os_av: document.getElementById('cRxOsAv')?.value.trim() || '20/20'
         },
 
         // Cicloplejia
@@ -5409,7 +7870,9 @@ window.guardarFichaConsulta = function() {
     const nueva = window.OpticaStorage.crearConsulta(consultaData);
     showAdminToast(`2. Historia de Consulta Oftalmológica ${nueva.id} guardada con éxito.`, 'success');
     actualizarBadgesContadores();
+    if (typeof window.sincronizarSelectoresPacientes === 'function') window.sincronizarSelectoresPacientes();
     if (typeof window.sincronizarSelectoresMedicosEnFormularios === 'function') window.sincronizarSelectoresMedicosEnFormularios();
+    if (typeof window.renderPacientesTable === 'function') window.renderPacientesTable();
     if (typeof window.renderPacientesDoctorTable === 'function') {
         window.renderPacientesDoctorTable();
     }
@@ -5417,6 +7880,9 @@ window.guardarFichaConsulta = function() {
 };
 
 window.imprimirConsultaActual = function() {
+    if (typeof window.asegurarModalImpresion === 'function') {
+        window.asegurarModalImpresion('modalConsultaOftalmologicaOficial');
+    }
     const fakeData = {
         id: AppState.consultaActual?.id || 'CNS-PREVIEW',
         fecha: new Date().toLocaleDateString('es-VE'),
@@ -5456,12 +7922,7 @@ window.imprimirConsultaActual = function() {
             os_cilindro: document.getElementById('cRxOsCilindro')?.value || '0.00',
             os_eje: document.getElementById('cRxOsEje')?.value ? `${document.getElementById('cRxOsEje')?.value}°` : '--',
             os_adicion: document.getElementById('cRxOsAdicion')?.value || '--',
-            os_av: document.getElementById('cRxOsAv')?.value || '20/20',
-            dp: document.getElementById('cRxDp')?.value || '--',
-            alt: document.getElementById('cRxAlt')?.value || '--',
-            tipo_lente: document.getElementById('cRxTipoLente')?.value || 'Monofocal',
-            material: document.getElementById('cRxMaterial')?.value || 'CR-39 Orgánico',
-            tratamientos: ['Antirreflejo', 'Filtro Azul']
+            os_av: document.getElementById('cRxOsAv')?.value || '20/20'
         },
 
         ciclo_od_esf: document.getElementById('consultaCicloOdEsf')?.value || '--',
@@ -5493,6 +7954,9 @@ window.imprimirConsultaActual = function() {
 };
 
 window.imprimirConsultaOftalmologicaById = function(id) {
+    if (typeof window.asegurarModalImpresion === 'function') {
+        window.asegurarModalImpresion('modalConsultaOftalmologicaOficial');
+    }
     const c = window.OpticaStorage.getConsultaById(id);
     if (!c) {
         showAdminToast('Consulta no encontrada.', 'error');
@@ -5503,6 +7967,9 @@ window.imprimirConsultaOftalmologicaById = function(id) {
 };
 
 window.popularModalConsultaOftalmologica = function(c) {
+    if (typeof window.asegurarModalImpresion === 'function') {
+        window.asegurarModalImpresion('modalConsultaOftalmologicaOficial');
+    }
     const setT = (id, val) => {
         const el = document.getElementById(id);
         if (el) el.innerText = (val !== undefined && val !== null && val !== '') ? val : '--';
@@ -5561,12 +8028,6 @@ window.popularModalConsultaOftalmologica = function(c) {
     setT('prnCoRxOiEje', f.os_eje ? `${f.os_eje}°` : '--');
     setT('prnCoRxOiAdd', f.os_adicion);
     setT('prnCoRxOiAv', f.os_av || '20/20');
-
-    setT('prnCoDp', f.dp);
-    setT('prnCoAlt', f.alt);
-    setT('prnCoTipoLente', f.tipo_lente);
-    setT('prnCoMaterial', f.material);
-    setT('prnCoTratamientos', f.tratamientos && f.tratamientos.length ? f.tratamientos.join(', ') : 'Ninguno');
 
     // Página 2: Cicloplejia
     setT('prnCoCicloOdEsf', c.ciclo_od_esf);
@@ -5670,17 +8131,27 @@ window.alSeleccionarPacienteFichaRapida = function(pacienteId) {
     setVal('fchEdad', p.edad || '');
     if (p.sede) setVal('fchSede', p.sede);
 
-    if (p.ultima_formula) {
-        const f = p.ultima_formula;
-        setVal('fchDerEsf', f.od?.sph || '');
-        setVal('fchDerCil', f.od?.cyl || '');
-        setVal('fchDerEje', f.od?.axis || '');
-        setVal('fchDerAdd', f.od?.add || '');
+    const f = (window.OpticaStorage.obtenerFormulaPaciente ? window.OpticaStorage.obtenerFormulaPaciente(p.id) : null) || p.ultima_formula || p.formula;
+    if (f) {
+        const odSph = f.od?.sph || f.od_esfera || f.der_esf || '';
+        const odCyl = f.od?.cyl || f.od_cilindro || f.der_cil || '';
+        const odAxis = f.od?.axis || f.od_eje || f.der_eje || '';
+        const odAdd = f.od?.add || f.od_adicion || f.der_add || '';
 
-        setVal('fchIzqEsf', f.os?.sph || '');
-        setVal('fchIzqCil', f.os?.cyl || '');
-        setVal('fchIzqEje', f.os?.axis || '');
-        setVal('fchIzqAdd', f.os?.add || '');
+        const osSph = f.os?.sph || f.os_esfera || f.izq_esf || '';
+        const osCyl = f.os?.cyl || f.os_cilindro || f.izq_cil || '';
+        const osAxis = f.os?.axis || f.os_eje || f.izq_eje || '';
+        const osAdd = f.os?.add || f.os_adicion || f.izq_add || '';
+
+        setVal('fchDerEsf', odSph);
+        setVal('fchDerCil', odCyl);
+        setVal('fchDerEje', odAxis);
+        setVal('fchDerAdd', odAdd);
+
+        setVal('fchIzqEsf', osSph);
+        setVal('fchIzqCil', osCyl);
+        setVal('fchIzqEje', osAxis);
+        setVal('fchIzqAdd', osAdd);
         if (f.dp) setVal('fchDp', f.dp);
     }
 };
@@ -5708,13 +8179,46 @@ window.guardarFichaConsultaRapida = function() {
         return;
     }
 
+    const cedula = document.getElementById('fchCedula')?.value.trim() || '';
+    const telefono = document.getElementById('fchTelefono')?.value.trim() || '';
+    const edad = document.getElementById('fchEdad')?.value.trim() || '';
+    const sede = document.getElementById('fchSede')?.value || 'Maracay';
+    const pacienteSelectId = document.getElementById('fchPacienteSelect')?.value || null;
+
+    let pacienteGuardado = null;
+    const partes = nombre.split(' ');
+    const nom = partes[0] || nombre;
+    const ape = partes.slice(1).join(' ') || '';
+    pacienteGuardado = window.OpticaStorage.crearOActualizarPaciente({
+        id: pacienteSelectId || undefined,
+        cedula: cedula,
+        nombre: nom,
+        apellido: ape,
+        telefono: telefono,
+        edad: edad,
+        sede: sede,
+        formula: {
+            od_esfera: document.getElementById('fchDerEsf')?.value.trim() || '',
+            od_cilindro: document.getElementById('fchDerCil')?.value.trim() || '',
+            od_eje: document.getElementById('fchDerEje')?.value.trim() || '',
+            od_adicion: document.getElementById('fchDerAdd')?.value.trim() || '',
+            od_av: '20/20',
+            os_esfera: document.getElementById('fchIzqEsf')?.value.trim() || '',
+            os_cilindro: document.getElementById('fchIzqCil')?.value.trim() || '',
+            os_eje: document.getElementById('fchIzqEje')?.value.trim() || '',
+            os_adicion: document.getElementById('fchIzqAdd')?.value.trim() || '',
+            os_av: '20/20',
+            dp: document.getElementById('fchDp')?.value.trim() || ''
+        }
+    });
+
     const data = {
-        paciente_id: document.getElementById('fchPacienteSelect')?.value || null,
+        paciente_id: pacienteGuardado ? pacienteGuardado.id : pacienteSelectId,
         paciente_nombre: nombre,
-        paciente_cedula: document.getElementById('fchCedula')?.value.trim() || '',
-        paciente_telefono: document.getElementById('fchTelefono')?.value.trim() || '',
-        paciente_edad: document.getElementById('fchEdad')?.value.trim() || '',
-        sede: document.getElementById('fchSede')?.value || 'Maracay',
+        paciente_cedula: cedula,
+        paciente_telefono: telefono,
+        paciente_edad: edad,
+        sede: sede,
         fecha: document.getElementById('fchFecha')?.value || new Date().toISOString().split('T')[0],
 
         der_esf: document.getElementById('fchDerEsf')?.value.trim() || '',
@@ -5736,7 +8240,9 @@ window.guardarFichaConsultaRapida = function() {
     const nueva = window.OpticaStorage.crearFichaConsulta(data);
     showAdminToast(`3. Ficha de Consulta ${nueva.id} guardada con éxito.`, 'success');
     actualizarBadgesContadores();
+    if (typeof window.sincronizarSelectoresPacientes === 'function') window.sincronizarSelectoresPacientes();
     if (typeof window.sincronizarSelectoresMedicosEnFormularios === 'function') window.sincronizarSelectoresMedicosEnFormularios();
+    if (typeof window.renderPacientesTable === 'function') window.renderPacientesTable();
     if (typeof window.renderPacientesDoctorTable === 'function') {
         window.renderPacientesDoctorTable();
     }
@@ -5744,6 +8250,9 @@ window.guardarFichaConsultaRapida = function() {
 };
 
 window.imprimirFichaConsultaRapidaActual = function() {
+    if (typeof window.asegurarModalImpresion === 'function') {
+        window.asegurarModalImpresion('modalFichaConsultaOficial');
+    }
     const fakeData = {
         id: 'FCH-PREVIEW',
         fecha: document.getElementById('fchFecha')?.value || new Date().toLocaleDateString('es-VE'),
@@ -5774,6 +8283,9 @@ window.imprimirFichaConsultaRapidaActual = function() {
 };
 
 window.imprimirFichaConsultaById = function(id) {
+    if (typeof window.asegurarModalImpresion === 'function') {
+        window.asegurarModalImpresion('modalFichaConsultaOficial');
+    }
     const f = window.OpticaStorage.getFichaConsultaById(id);
     if (!f) {
         showAdminToast('Ficha de consulta no encontrada.', 'error');
@@ -5784,6 +8296,9 @@ window.imprimirFichaConsultaById = function(id) {
 };
 
 window.popularModalFichaConsulta = function(f) {
+    if (typeof window.asegurarModalImpresion === 'function') {
+        window.asegurarModalImpresion('modalFichaConsultaOficial');
+    }
     const setT = (id, val) => {
         const el = document.getElementById(id);
         if (el) el.innerText = (val !== undefined && val !== null && val !== '') ? val : '--';
@@ -6762,6 +9277,24 @@ window.procesarRecipe = function(exportarDirecto = false) {
         liteMedicRecipesCache.unshift(recipeData);
     }
     window.guardarRecipesLiteEnStorage(liteMedicRecipesCache);
+
+    // Persistir datos del paciente en la base de datos central de pacientes
+    if (nombreVal && nombreVal !== 'Paciente') {
+        const partes = nombreVal.split(' ');
+        const nom = partes[0] || nombreVal;
+        const ape = partes.slice(1).join(' ') || '';
+        window.OpticaStorage.crearOActualizarPaciente({
+            cedula: cedulaVal,
+            nombre: nom,
+            apellido: ape,
+            edad: edadVal,
+            sede: sedeVal
+        });
+        if (typeof window.sincronizarSelectoresPacientes === 'function') window.sincronizarSelectoresPacientes();
+        if (typeof window.renderPacientesTable === 'function') window.renderPacientesTable();
+        if (typeof window.renderPacientesDoctorTable === 'function') window.renderPacientesDoctorTable();
+    }
+
     actualizarBadgesContadores();
     if (typeof window.sincronizarSelectoresMedicosEnFormularios === 'function') window.sincronizarSelectoresMedicosEnFormularios();
 
@@ -6784,6 +9317,9 @@ window.imprimirRecipeOficialDirecto = function(recipeData) {
 };
 
 window.poblarPlantillaImpresionRecipe = function(data) {
+    if (typeof window.asegurarModalImpresion === 'function') {
+        window.asegurarModalImpresion('modalPrintRecipeContainer');
+    }
     const activeDoc = {
         nombre: data.medico_nombre || '',
         especialidad: (data.medico_especialidad || 'OFTALMOLOGÍA').toUpperCase(),
@@ -7258,7 +9794,8 @@ window.agregarNuevoMedAlCatalogo = function() {
     showAdminToast(`Medicamento "${nombre}" agregado al catÃ¡logo.`);
 };
 
-function sincronizarSelectoresPacientesMedicos() {
+window.sincronizarSelectoresPacientes = function() {
+    if (!window.OpticaStorage || typeof window.OpticaStorage.getPacientes !== 'function') return;
     const pacientes = window.OpticaStorage.getPacientes();
     const selectorIds = [
         'recSelectPaciente',
@@ -7266,7 +9803,13 @@ function sincronizarSelectoresPacientesMedicos() {
         'consultaPacienteSelect',
         'fchPacienteSelect',
         'selectPacienteHistoriaOptometrica',
-        'workspaceRecipePacienteSelect'
+        'workspaceRecipePacienteSelect',
+        'waDestinatarioSelect',
+        'progDestinatarioSelect',
+        'facetaPacienteSelect',
+        'pacienteSelect',
+        'citaPacienteSelect',
+        'filtroPacienteRecibos'
     ];
 
     selectorIds.forEach(id => {
@@ -7279,13 +9822,23 @@ function sincronizarSelectoresPacientesMedicos() {
             defaultText = '-- Seleccionar Paciente para ver su evolución optométrica --';
         } else if (id === 'recSelectPaciente') {
             defaultText = '-- Buscar Paciente por Nombre o Cédula --';
+        } else if (id === 'waDestinatarioSelect' || id === 'progDestinatarioSelect') {
+            defaultText = '-- Seleccionar Paciente Destinatario --';
+        } else if (id === 'facetaPacienteSelect') {
+            defaultText = '-- Seleccionar Paciente (Ordenado A-Z) --';
         }
 
         sel.innerHTML = `<option value="">${defaultText}</option>`;
         pacientes.forEach(p => {
             const opt = document.createElement('option');
             opt.value = p.id;
-            opt.textContent = `${p.cedula ? `[${p.cedula}] ` : ''}${p.nombre} ${p.apellido || ''} (${p.sede || 'Maracay'})`;
+            if (id === 'waDestinatarioSelect' || id === 'progDestinatarioSelect') {
+                opt.textContent = `${p.nombre} ${p.apellido || ''} (${p.cedula || 'S/C'}) - ${p.telefono || 'Sin tel'}`;
+            } else if (id === 'facetaPacienteSelect') {
+                opt.textContent = `${p.nombre} ${p.apellido || ''} — C.I: ${p.cedula || 'S/C'} (${p.telefono || 'Sin tel'})`;
+            } else {
+                opt.textContent = `${p.cedula ? `[${p.cedula}] ` : ''}${p.nombre} ${p.apellido || ''} (${p.sede || 'Maracay'})`;
+            }
             sel.appendChild(opt);
         });
 
@@ -7293,7 +9846,11 @@ function sincronizarSelectoresPacientesMedicos() {
             sel.value = currentVal;
         }
     });
-}
+
+    if (typeof window.renderPacientesTable === 'function') window.renderPacientesTable();
+    if (typeof window.renderPacientesDoctorTable === 'function') window.renderPacientesDoctorTable();
+};
+window.sincronizarSelectoresPacientesMedicos = window.sincronizarSelectoresPacientes;
 
 
 
@@ -7614,7 +10171,9 @@ function renderInventarioTable() {
 
         if (tbody) {
             tbody.innerHTML = items.map(p => {
-                const stock = p.stock || 0;
+                const stock = p.cantidad !== undefined ? p.cantidad : (p.stock || 0);
+                const costo = parseFloat(p.costo_usd !== undefined ? p.costo_usd : (p.costo || 0));
+                const precio = parseFloat(p.precio_usd !== undefined ? p.precio_usd : (p.precio || 0));
                 const stockMin = p.stock_minimo || 3;
                 let statusBadge = '';
                 if (stock === 0) {
@@ -7625,7 +10184,7 @@ function renderInventarioTable() {
                     statusBadge = `<span class="badge-tag badge-green">Disponible (${stock})</span>`;
                 }
 
-                const precioBs = (parseFloat(p.precio || 0) * parseFloat(tasa)).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                const precioBs = (precio * parseFloat(tasa)).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
                 return `
                     <tr>
@@ -7638,32 +10197,35 @@ function renderInventarioTable() {
                                 </div>
                             `}
                         </td>
-                        <td><strong style="color: #0080EA; font-size: 0.85rem;">${p.sku || p.id}</strong></td>
+                        <td><strong style="color: #0080EA; font-size: 0.88rem; font-family: monospace;">${p.codigo_montura || p.sku || p.id}</strong></td>
                         <td>
-                            <strong>${p.nombre}</strong>
+                            <strong>${p.nombre}</strong><br>
+                            <small class="text-muted">${statusBadge}</small>
                         </td>
-                        <td><span class="badge-tag badge-blue">${p.categoria}</span></td>
-                        <td><span class="cell-sub">${p.marca || '--'} / ${p.material || '--'}</span></td>
+                        <td><span class="badge-tag badge-blue">${p.marca || '--'}</span></td>
+                        <td><span class="badge-tag badge-gray">${p.material || '--'}</span></td>
+                        <td><strong class="text-rose">$${costo.toFixed(2)}</strong></td>
                         <td>
-                            <strong>$${parseFloat(p.precio || 0).toFixed(2)}</strong><br>
+                            <strong class="text-emerald">$${precio.toFixed(2)}</strong><br>
                             <small class="cell-sub">Bs. ${precioBs}</small>
                         </td>
-                        <td><span class="cell-sub">${p.sede || 'Maracay'}</span></td>
                         <td>
                             <div style="display: flex; align-items: center; gap: 0.4rem;">
                                 <button type="button" class="btn btn-xs btn-outline-danger" style="padding: 1px 6px;" onclick="ajustarStockInventarioRapido('${p.id}', -1)">-</button>
-                                <span style="font-weight: 700; min-width: 24px; text-align: center;">${stock}</span>
+                                <strong style="min-width: 24px; text-align: center;">${stock}</strong>
                                 <button type="button" class="btn btn-xs btn-outline-primary" style="padding: 1px 6px;" onclick="ajustarStockInventarioRapido('${p.id}', 1)">+</button>
                             </div>
                         </td>
-                        <td>${statusBadge}</td>
+                        <td><span class="cell-sub">${p.sede || 'Maracay'}</span></td>
                         <td style="text-align: right;">
-                            <button type="button" class="btn btn-xs btn-outline-primary" onclick="abrirModalNuevoProducto('${p.id}')" title="Editar Producto">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                            </button>
-                            <button type="button" class="btn btn-xs btn-outline-danger" onclick="eliminarProductoInventario('${p.id}')" title="Eliminar Producto">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
+                            <div class="table-actions-row">
+                                <button type="button" class="btn btn-xs btn-outline-primary" onclick="abrirModalNuevoProducto('${p.id}')" title="Editar Producto">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button type="button" class="btn btn-xs btn-outline-danger" onclick="eliminarProductoInventario('${p.id}')" title="Eliminar Producto">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -7673,6 +10235,55 @@ function renderInventarioTable() {
 }
 
 window.renderInventarioTable = renderInventarioTable;
+
+// =========================================================================
+// GESTIÓN DE MARCAS PERMANENTES DE INVENTARIO
+// =========================================================================
+window.cargarSelectorMarcasInventario = function(selectedMarca = '') {
+    const marcas = window.OpticaStorage.getMarcasInventario();
+    const sel = document.getElementById('prodInvMarcaSelect');
+    if (sel) {
+        sel.innerHTML = marcas.map(m => `<option value="${m}" ${m === selectedMarca ? 'selected' : ''}>${m}</option>`).join('');
+    }
+    const lista = document.getElementById('listaMarcasInventario');
+    if (lista) {
+        lista.innerHTML = marcas.map(m => `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; margin-bottom: 4px;">
+                <strong>${m}</strong>
+                <button type="button" class="btn btn-xs btn-outline-danger" onclick="eliminarMarcaInventarioUI('${m}')" title="Eliminar Marca">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </div>
+        `).join('');
+    }
+};
+
+window.abrirModalGestionMarcas = function() {
+    window.cargarSelectorMarcasInventario();
+    openModal('modalGestionMarcas');
+};
+
+window.cerrarModalGestionMarcas = function() {
+    closeModal('modalGestionMarcas');
+};
+
+window.guardarNuevaMarcaModal = function(e) {
+    if (e) e.preventDefault();
+    const inp = document.getElementById('nuevaMarcaNombreInput');
+    const nombre = inp?.value?.trim();
+    if (!nombre) return;
+    window.OpticaStorage.guardarMarcaInventario(nombre);
+    if (inp) inp.value = '';
+    window.cargarSelectorMarcasInventario(nombre);
+    showAdminToast(`Marca "${nombre}" guardada permanentemente.`, 'success');
+};
+
+window.eliminarMarcaInventarioUI = function(nombre) {
+    if (!confirm(`¿Eliminar la marca "${nombre}"?`)) return;
+    window.OpticaStorage.eliminarMarcaInventario(nombre);
+    window.cargarSelectorMarcasInventario();
+    showAdminToast(`Marca "${nombre}" eliminada.`, 'info');
+};
 
 window.abrirModalNuevoProducto = function(prodId = null) {
     const form = document.getElementById('formProductoInventario');
@@ -7687,13 +10298,14 @@ window.abrirModalNuevoProducto = function(prodId = null) {
         if (p) {
             if (titleEl) titleEl.innerText = 'Editar Producto';
             if (idHidden) idHidden.value = p.id;
-            document.getElementById('prodInvSku').value = p.sku || p.id;
+            document.getElementById('prodInvSku').value = p.codigo_montura || p.sku || p.id;
             document.getElementById('prodInvCategoria').value = p.categoria || 'Monturas';
             document.getElementById('prodInvNombre').value = p.nombre || '';
-            document.getElementById('prodInvMarca').value = p.marca || '';
-            document.getElementById('prodInvMaterial').value = p.material || '';
-            document.getElementById('prodInvPrecio').value = p.precio || 0;
-            document.getElementById('prodInvStock').value = p.stock || 0;
+            window.cargarSelectorMarcasInventario(p.marca || '');
+            document.getElementById('prodInvMaterial').value = p.material || 'Acetato';
+            document.getElementById('prodInvCosto').value = p.costo_usd !== undefined ? p.costo_usd : (p.costo || 0);
+            document.getElementById('prodInvPrecio').value = p.precio_usd !== undefined ? p.precio_usd : (p.precio || 0);
+            document.getElementById('prodInvStock').value = p.cantidad !== undefined ? p.cantidad : (p.stock || 0);
             document.getElementById('prodInvStockMin').value = p.stock_minimo || 3;
             document.getElementById('prodInvSede').value = p.sede || 'Maracay';
 
@@ -7713,10 +10325,15 @@ window.abrirModalNuevoProducto = function(prodId = null) {
         if (titleEl) titleEl.innerText = 'Nuevo Producto';
         if (idHidden) idHidden.value = '';
         removerFotoProducto();
+        window.cargarSelectorMarcasInventario();
         
         // Auto-SKU único
         const defaultCat = document.getElementById('prodInvCategoria')?.value || 'Monturas';
         document.getElementById('prodInvSku').value = window.generarSkuUnico(defaultCat);
+        document.getElementById('prodInvMaterial').value = 'Acetato';
+        document.getElementById('prodInvCosto').value = '15.00';
+        document.getElementById('prodInvPrecio').value = '45.00';
+        document.getElementById('prodInvStock').value = '10';
 
         const sedeInput = document.getElementById('prodInvSede');
         if (sedeInput && AppState.sedeFiltro !== 'todas') sedeInput.value = AppState.sedeFiltro;
@@ -7735,8 +10352,9 @@ window.guardarProductoInventario = function(e) {
     const sku = document.getElementById('prodInvSku')?.value.trim();
     const categoria = document.getElementById('prodInvCategoria')?.value;
     const nombre = document.getElementById('prodInvNombre')?.value.trim();
-    const marca = document.getElementById('prodInvMarca')?.value.trim();
-    const material = document.getElementById('prodInvMaterial')?.value.trim();
+    const marca = document.getElementById('prodInvMarcaSelect')?.value || document.getElementById('prodInvMarca')?.value || 'Centro Óptico Nieves';
+    const material = document.getElementById('prodInvMaterial')?.value || 'Acetato';
+    const costo = parseFloat(document.getElementById('prodInvCosto')?.value) || 0;
     const precio = parseFloat(document.getElementById('prodInvPrecio')?.value) || 0;
     const stock = parseInt(document.getElementById('prodInvStock')?.value, 10) || 0;
     const stockMin = parseInt(document.getElementById('prodInvStockMin')?.value, 10) || 3;
@@ -7751,13 +10369,18 @@ window.guardarProductoInventario = function(e) {
     window.OpticaStorage.crearOActualizarProducto({
         id: id || undefined,
         sku: sku || window.generarSkuUnico(categoria),
+        codigo_montura: sku || window.generarSkuUnico(categoria),
         categoria,
         foto,
         nombre,
         marca,
         material,
-        precio,
-        stock,
+        costo_usd: costo,
+        costo: costo,
+        precio_usd: precio,
+        precio: precio,
+        cantidad: stock,
+        stock: stock,
         stock_minimo: stockMin,
         sede
     });

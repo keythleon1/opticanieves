@@ -4,79 +4,839 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Centro Óptico Nieves | Tú Visión es Nuestra Misión</title>
-    <!-- Favicon -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%230284C7%22><path d=%22M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z%22/></svg>">
-    <!-- Google Fonts: Plus Jakarta Sans & Space Grotesk -->
+    <link rel="icon" type="image/png" href="images/LOGOINDEX.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Custom Styles -->
-    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --color-marine: #1E107A;
+            --color-bright-blue: #0082D9;
+            --color-graphite: #58585A;
+            --bg-canvas: #F4F6F9;
+            --bg-card: #FFFFFF;
+            --border-light: #E2E8F0;
+            --border-card: #D8DFE8;
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-display: 'Plus Jakarta Sans', var(--font-sans);
+        }
+
+        html {
+            scroll-behavior: smooth;
+            background-color: var(--bg-canvas);
+            color: var(--color-marine);
+            font-family: var(--font-sans);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            line-height: 1.5;
+            background: var(--bg-canvas);
+            color: var(--color-graphite);
+            overflow-x: hidden;
+        }
+
+        /* BANNER - AZUL CLARO CON 25% DE TRANSPARENCIA DIFUMINADO */
+        .site-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100;
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            background: rgba(0, 130, 217, 0.25);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+            box-shadow: 0 4px 20px rgba(0, 130, 217, 0.12);
+            padding: 0.75rem 1.75rem 0.65rem;
+            text-align: center;
+        }
+
+        .header-inner {
+            max-width: 980px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+        }
+
+        .brand-block {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.85rem;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .brand-logo-img {
+            height: 56px;
+            width: auto;
+            max-width: 65px;
+            object-fit: contain;
+            flex-shrink: 0;
+            transition: transform 0.2s ease;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.35));
+        }
+
+        .brand-logo-img:hover {
+            transform: scale(1.05);
+        }
+
+        .brand-text-col {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+        }
+
+        .brand-title {
+            font-family: var(--font-display);
+            font-size: 1.45rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #FFFFFF;
+            line-height: 1.1;
+            text-shadow: 0 1px 4px rgba(10, 20, 60, 0.45);
+        }
+
+        .brand-tagline {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.95);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            text-shadow: 0 1px 3px rgba(10, 20, 60, 0.35);
+        }
+
+        /* NAVEGACIÓN SEGMENTADA COMPACTA */
+        .nav-segmented {
+            display: inline-flex;
+            background: rgba(255, 255, 255, 0.22);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 980px;
+            padding: 3px;
+            gap: 3px;
+        }
+
+        .nav-segmented a {
+            color: #FFFFFF;
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 0.36rem 1.1rem;
+            border-radius: 980px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .nav-segmented a:hover {
+            background: rgba(255, 255, 255, 0.32);
+        }
+
+        .nav-segmented a.active {
+            color: #FFFFFF;
+            background: #1E107A;
+            box-shadow: 0 2px 8px rgba(30, 16, 122, 0.4);
+        }
+
+        /* CONTENIDO PRINCIPAL */
+        main {
+            padding-top: 86px;
+        }
+
+        section {
+            position: relative;
+            padding: 4.75rem 1.5rem;
+        }
+
+        .section-bg-image {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.22;
+            pointer-events: none;
+            z-index: 1;
+            animation: cicloFotografico45s 135s infinite ease-in-out;
+            will-change: filter;
+        }
+
+        .section-header-centered {
+            text-align: center;
+            max-width: 640px;
+            margin: 0 auto 2.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .section-kicker {
+            font-size: 0.76rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--color-bright-blue);
+            margin-bottom: 0.45rem;
+            display: block;
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: 2.15rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.15;
+            color: var(--color-marine);
+            margin-bottom: 0.5rem;
+        }
+
+        .section-desc {
+            font-size: 0.95rem;
+            color: var(--color-graphite);
+        }
+
+        /* SECCIÓN 1: SEDES (MARACAY & SAN JUAN) */
+        .section-sedes {
+            padding: 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .sedes-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 640px;
+            width: 100%;
+        }
+
+        .sede-panel {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 4rem 3.5rem;
+            overflow: hidden;
+            background: #000000;
+            border-right: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .sede-panel:last-child {
+            border-right: none;
+        }
+
+        /* ==========================================================================
+           CICLO AUTOMÁTICO DE EFECTOS EN TODAS LAS IMÁGENES: 45s POR EFECTO
+           (135s ciclo total: 0-45s Normal, 45-90s Vintage, 90-135s Cinematográfico B/N)
+           ========================================================================== */
+        @keyframes cicloFotografico45s {
+            /* 1. MODO NORMAL OPTIMIZADO (0 a 45s) */
+            0%, 29.5% {
+                filter: grayscale(0%) sepia(0%) contrast(1.05) brightness(1.02);
+            }
+            /* Transición fluida a Vintage */
+            33.3%, 62.8% {
+                filter: sepia(0.70) contrast(1.20) brightness(0.92) saturate(1.30);
+            }
+            /* Transición fluida a Cinematográfico B/N */
+            66.6%, 96.2% {
+                filter: grayscale(100%) sepia(0%) contrast(1.40) brightness(0.82);
+            }
+            /* Retorno suave a Normal */
+            100% {
+                filter: grayscale(0%) sepia(0%) contrast(1.05) brightness(1.02);
+            }
+        }
+
+        .sede-bg {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            z-index: 1;
+            transform: none !important;
+            animation: cicloFotografico45s 135s infinite ease-in-out;
+            will-change: filter;
+        }
+
+        .sede-scrim {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.08) 0%, rgba(10, 8, 40, 0.45) 55%, rgba(5, 4, 25, 0.88) 100%);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .sede-content {
+            position: relative;
+            z-index: 3;
+            max-width: 480px;
+            color: #FFFFFF;
+        }
+
+        .sede-city-title {
+            font-family: var(--font-display);
+            font-size: 2.35rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: #FFFFFF;
+            line-height: 1.1;
+            margin-bottom: 0.75rem;
+        }
+
+        .sede-meta-box {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.92);
+            line-height: 1.45;
+        }
+
+        .sede-address {
+            color: rgba(255, 255, 255, 0.92);
+            font-size: 0.95rem;
+        }
+
+        .sede-contact-row {
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            flex-wrap: wrap;
+        }
+
+        .sede-phone-pill {
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: #FFFFFF;
+            letter-spacing: 0.02em;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 0.4rem 0.9rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+
+        .btn-whatsapp-sede {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            background: #25D366;
+            color: #FFFFFF;
+            font-size: 0.86rem;
+            font-weight: 700;
+            padding: 0.45rem 1rem;
+            border-radius: 8px;
+            transition: background 0.2s ease, transform 0.2s ease;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+        }
+
+        .btn-whatsapp-sede:hover {
+            background: #20bd5a;
+            transform: translateY(-1px);
+        }
+
+        /* SECCIÓN 2: ESTATUS DE LENTES (CON FONDO ÓPTICO) */
+        .section-tracker {
+            background: #F4F6F9;
+            min-height: 640px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-bottom: 1px solid var(--border-light);
+            overflow: hidden;
+        }
+
+        .tracker-box-apple {
+            position: relative;
+            z-index: 2;
+            max-width: 680px;
+            margin: 0 auto;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-card);
+            border-radius: 20px;
+            padding: 2.75rem 2.25rem;
+            box-shadow: 0 16px 40px rgba(30, 16, 122, 0.08);
+        }
+
+        .tracker-search-row {
+            display: flex;
+            gap: 0.65rem;
+            margin-top: 1.25rem;
+        }
+
+        .cedula-input-group {
+            display: flex;
+            flex: 1;
+            background: #F8FAFC;
+            border: 1.5px solid var(--border-light);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .cedula-input-group:focus-within {
+            border-color: var(--color-bright-blue);
+            box-shadow: 0 0 0 3px rgba(0, 130, 217, 0.15);
+            background: #FFFFFF;
+        }
+
+        .select-prefix-apple {
+            background: #EEF2F6;
+            border: none;
+            color: var(--color-marine);
+            font-weight: 700;
+            font-size: 0.95rem;
+            padding: 0.85rem 1rem;
+            outline: none;
+            cursor: pointer;
+            border-right: 1px solid var(--border-light);
+        }
+
+        .input-cedula-apple {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 0.85rem 1rem;
+            font-size: 0.95rem;
+            color: var(--color-marine);
+            font-weight: 500;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .btn-apple-primary {
+            background: var(--color-marine);
+            color: #FFFFFF;
+            border: none;
+            padding: 0.85rem 1.6rem;
+            border-radius: 12px;
+            font-size: 0.92rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.15s ease;
+            white-space: nowrap;
+        }
+
+        .btn-apple-primary:hover {
+            background: var(--color-bright-blue);
+            transform: translateY(-1px);
+        }
+
+        /* RESULTADO DEL TRACKER */
+        .tracker-result-box {
+            margin-top: 1.75rem;
+            padding-top: 1.75rem;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .tracker-patient-summary {
+            background: #F8FAFC;
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .tracker-patient-name {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--color-marine);
+        }
+
+        .tracker-patient-details {
+            display: flex;
+            gap: 1.25rem;
+            font-size: 0.86rem;
+            color: var(--color-graphite);
+            margin-top: 0.35rem;
+            flex-wrap: wrap;
+        }
+
+        .badge-status-apple {
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            padding: 0.4rem 0.9rem;
+            border-radius: 980px;
+            background: rgba(0, 130, 217, 0.12);
+            color: var(--color-bright-blue);
+            border: 1px solid rgba(0, 130, 217, 0.25);
+            white-space: nowrap;
+        }
+
+        .badge-status-apple.badge-green {
+            background: rgba(37, 211, 102, 0.15);
+            color: #128C7E;
+            border-color: rgba(37, 211, 102, 0.3);
+        }
+
+        .tracker-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 1.15rem;
+        }
+
+        .timeline-step {
+            display: flex;
+            gap: 1.15rem;
+            position: relative;
+        }
+
+        .timeline-step::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 32px;
+            bottom: -20px;
+            width: 2px;
+            background: #E2E8F0;
+        }
+
+        .timeline-step:last-child::before {
+            display: none;
+        }
+
+        .step-node {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #EEF2F6;
+            border: 1.5px solid #CBD5E1;
+            color: var(--color-graphite);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.82rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            z-index: 2;
+        }
+
+        .timeline-step.completed .step-node {
+            background: var(--color-marine);
+            border-color: var(--color-marine);
+            color: #FFFFFF;
+        }
+
+        .timeline-step.active .step-node {
+            background: var(--color-bright-blue);
+            border-color: var(--color-bright-blue);
+            color: #FFFFFF;
+            box-shadow: 0 0 14px rgba(0, 130, 217, 0.4);
+        }
+
+        .step-content {
+            flex: 1;
+            padding-top: 0.15rem;
+        }
+
+        .step-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.25rem;
+            gap: 0.5rem;
+        }
+
+        .step-title {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--color-marine);
+        }
+
+        .step-badge {
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            background: #EEF2F6;
+            color: var(--color-graphite);
+        }
+
+        .step-badge.done {
+            background: rgba(37, 211, 102, 0.15);
+            color: #128C7E;
+        }
+
+        .step-badge.process {
+            background: rgba(0, 130, 217, 0.12);
+            color: var(--color-bright-blue);
+        }
+
+        .step-desc {
+            font-size: 0.85rem;
+            color: var(--color-graphite);
+            line-height: 1.4;
+        }
+
+        /* SECCIÓN 3: SOLICITAR CITA (CON FONDO OFTALMOLÓGICO) */
+        .section-booking {
+            background: #ECEFF3;
+            min-height: 680px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .booking-card-apple {
+            position: relative;
+            z-index: 2;
+            max-width: 680px;
+            margin: 0 auto;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-card);
+            border-radius: 20px;
+            padding: 2.75rem 2.25rem;
+            box-shadow: 0 16px 40px rgba(30, 16, 122, 0.08);
+        }
+
+        .booking-form-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1.15rem;
+            margin-top: 1.25rem;
+        }
+
+        .form-group-apple {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .form-label-apple {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--color-marine);
+        }
+
+        .form-control-apple,
+        .form-select-apple {
+            width: 100%;
+            background: #F8FAFC;
+            border: 1.5px solid var(--border-light);
+            border-radius: 12px;
+            padding: 0.8rem 1rem;
+            font-size: 0.95rem;
+            color: var(--color-marine);
+            font-weight: 500;
+            outline: none;
+            font-family: inherit;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .form-control-apple:focus,
+        .form-select-apple:focus {
+            border-color: var(--color-bright-blue);
+            box-shadow: 0 0 0 3px rgba(0, 130, 217, 0.15);
+            background: #FFFFFF;
+        }
+
+        .hint-apple {
+            font-size: 0.78rem;
+            color: var(--color-graphite);
+            margin-top: 2px;
+        }
+
+        .btn-booking-full {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #FFFFFF;
+            background: var(--color-marine);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.15s ease;
+            margin-top: 0.5rem;
+            box-shadow: 0 6px 16px rgba(30, 16, 122, 0.2);
+        }
+
+        .btn-booking-full:hover {
+            background: var(--color-bright-blue);
+            transform: translateY(-1px);
+        }
+
+        /* TOAST NOTIFICACIONES */
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+        }
+
+        .toast {
+            background: var(--color-marine);
+            color: #FFFFFF;
+            padding: 0.85rem 1.4rem;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(30, 16, 122, 0.25);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* RESPONSIVIDAD */
+        @media (max-width: 900px) {
+            .sedes-grid {
+                grid-template-columns: 1fr;
+                min-height: auto;
+            }
+            .sede-panel {
+                min-height: 440px;
+                padding: 3rem 2rem 2.25rem;
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            }
+            .sede-panel:last-child {
+                border-bottom: none;
+            }
+            .sede-city-title {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .site-header {
+                padding: 0.6rem 0.95rem 0.55rem;
+            }
+            .brand-logo-img {
+                height: 46px;
+                width: auto;
+                max-width: 54px;
+            }
+            .brand-title {
+                font-size: 1.25rem;
+            }
+            .brand-tagline {
+                font-size: 0.72rem;
+            }
+            .nav-segmented {
+                width: 100%;
+                justify-content: center;
+                overflow-x: auto;
+            }
+            .nav-segmented a {
+                padding: 0.35rem 0.75rem;
+                font-size: 0.75rem;
+            }
+            main {
+                padding-top: 80px;
+            }
+            section {
+                padding: 3.25rem 1.15rem;
+            }
+            .section-title {
+                font-size: 1.75rem;
+            }
+            .tracker-box-apple,
+            .booking-card-apple {
+                padding: 1.75rem 1.25rem;
+                border-radius: 16px;
+            }
+            .tracker-search-row {
+                flex-direction: column;
+            }
+            .btn-apple-primary {
+                width: 100%;
+            }
+            .sede-panel {
+                padding: 2.75rem 1.25rem 1.75rem;
+                min-height: 380px;
+            }
+            .sede-city-title {
+                font-size: 1.75rem;
+            }
+            .toast-container {
+                left: 1rem;
+                right: 1rem;
+                bottom: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
 
-    <!-- ==========================================================================
-         BARRA DE NAVEGACIÓN (LOGO Y ACCESO AL SISTEMA)
-         ========================================================================== -->
-    <header class="main-header">
-        <div class="container nav-wrapper" style="display: flex; justify-content: space-between; align-items: center;">
-            <a href="index.html" class="logo-brand">
-                <div class="logo-text">
-                    <h1 class="logo-title-friendly">Centro Óptico <span class="brand-accent">Nieves</span></h1>
-                    <span class="logo-subtitle">Tú Visión es Nuestra Misión</span>
+    <!-- CABECERA CENTRADA Y COMPACTA (20% TRANSPARENCIA NEGRA CON BLUR) -->
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="index.html" class="brand-block">
+                <img src="images/LOGOINDEX.png" alt="Centro Óptico Nieves" class="brand-logo-img">
+                <div class="brand-text-col">
+                    <h1 class="brand-title">Centro Óptico Nieves</h1>
+                    <span class="brand-tagline">Tú Visión es Nuestra Misión</span>
                 </div>
             </a>
+            <nav class="nav-segmented">
+                <a href="#sedes">Sedes</a>
+                <a href="#estatus">Estatus de Lentes</a>
+                <a href="#agendar">Solicitar Cita</a>
+            </nav>
         </div>
     </header>
 
-    <!-- ==========================================================================
-         PÁGINA 1: FONDO DUAL DE SEDES (MARACAY & SAN JUAN DE LOS MORROS)
-         ========================================================================== -->
-    <main class="main-content">
+    <main>
         <!-- ==========================================================================
-             PÁGINA 1: FONDO DUAL DE SEDES (MARACAY & SAN JUAN DE LOS MORROS)
+             1. SEDES (MARACAY & SAN JUAN DE LOS MORROS)
              ========================================================================== -->
-        <section id="page-1" class="page-section hero-dual-section">
-            <div class="dual-bg-container">
+        <section id="sedes" class="section-sedes">
+            <div class="sedes-grid">
                 <!-- Panel Maracay -->
-                <div class="city-panel city-maracay">
-                    <div class="city-bg-image" style="background-image: url('images/MRCY.jpg');"></div>
-                    <div class="city-color-mood mood-maracay"></div>
-                    <div class="city-overlay"></div>
-                    <div class="city-info">
-                        <span class="city-badge">
-                            <i class="fa-solid fa-store"></i> C.C. Las Américas &bull; PB Local 64
-                        </span>
-                        <h2 class="city-name">Maracay</h2>
-                        <span class="city-state">Cristales Ópticos E&amp;G II CA &bull; J-50484746-1</span>
-                        <div class="city-details-text" style="font-size: 0.88rem; color: rgba(255,255,255,0.95); margin-top: 0.35rem; line-height: 1.4;">
-                            <div><i class="fa-solid fa-location-dot"></i> C.C. Las Américas, Planta Baja, Local 64, Maracay, Edo. Aragua</div>
-                            <div style="font-weight: 700; margin-top: 0.2rem;"><i class="fa-brands fa-whatsapp"></i> 0412-441.95.17</div>
+                <div class="sede-panel">
+                    <div class="sede-bg" style="background-image: url('images/MRCY.jpg');"></div>
+                    <div class="sede-scrim"></div>
+                    <div class="sede-content">
+                        <h2 class="sede-city-title">Maracay</h2>
+                        <div class="sede-meta-box">
+                            <span class="sede-address">C.C Las Américas, Planta Baja, Local 64, Maracay</span>
+                            <div class="sede-contact-row">
+                                <span class="sede-phone-pill">0412-441.95.17</span>
+                                <a href="https://wa.me/584124419517?text=Hola%20Centro%20%C3%93ptico%20Nieves,%20deseo%20informaci%C3%B3n%20sobre%20la%20Sede%20Maracay" target="_blank" rel="noopener noreferrer" class="btn-whatsapp-sede">
+                                    Escribir por WhatsApp
+                                </a>
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Divisor Central (Línea pura sin icono) -->
-                <div class="dual-divider">
-                    <div class="divider-line"></div>
                 </div>
 
                 <!-- Panel San Juan de los Morros -->
-                <div class="city-panel city-sanjuan">
-                    <div class="city-bg-image" style="background-image: url('images/SJM.jpeg');"></div>
-                    <div class="city-color-mood mood-sanjuan"></div>
-                    <div class="city-overlay"></div>
-                    <div class="city-info">
-                        <span class="city-badge">
-                            <i class="fa-solid fa-store"></i> C.C. La Galería &bull; Nivel Mezzanina Local 16A
-                        </span>
-                        <h2 class="city-name">San Juan de los Morros</h2>
-                        <span class="city-state">Centro Óptico Nieves CA &bull; J-40968579-9</span>
-                        <div class="city-details-text" style="font-size: 0.88rem; color: rgba(255,255,255,0.95); margin-top: 0.35rem; line-height: 1.4;">
-                            <div><i class="fa-solid fa-location-dot"></i> C.C La Galería, Nivel Mezzanina, Local 16A, San Juan de los Morros, Edo. Guárico</div>
-                            <div style="font-weight: 700; margin-top: 0.2rem;"><i class="fa-brands fa-whatsapp"></i> 0424-357.71.94</div>
+                <div class="sede-panel">
+                    <div class="sede-bg" style="background-image: url('images/SJM.jpeg');"></div>
+                    <div class="sede-scrim"></div>
+                    <div class="sede-content">
+                        <h2 class="sede-city-title">San Juan de los Morros</h2>
+                        <div class="sede-meta-box">
+                            <span class="sede-address">C.C La Galería, Nivel Mezzanina, Local 16A, San Juan de los Morros</span>
+                            <div class="sede-contact-row">
+                                <span class="sede-phone-pill">0424-357.71.94</span>
+                                <a href="https://wa.me/584243577194?text=Hola%20Centro%20%C3%93ptico%20Nieves,%20deseo%20informaci%C3%B3n%20sobre%20la%20Sede%20San%20Juan%20de%20los%20Morros" target="_blank" rel="noopener noreferrer" class="btn-whatsapp-sede">
+                                    Escribir por WhatsApp
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -84,117 +844,147 @@
         </section>
 
         <!-- ==========================================================================
-             PÁGINA 2: CASILLA PARA AGENDAR CITA (ARAGUA & GUÁRICO)
+             2. ESTATUS DE LENTES (CON FONDO ÓPTICO TALLER / LABORATORIO)
              ========================================================================== -->
-        <section id="page-2" class="page-section booking-page-section">
-            <div class="container booking-container">
-                <div class="booking-card-modern">
-                    <div class="booking-card-header">
-                        <span class="badge-tag badge-blue">
-                            <i class="fa-solid fa-calendar-check"></i> Cita oftalmológica
-                        </span>
-                        <h2>Agenda tu Cita en Centro Óptico Nieves</h2>
-                        <p>Complete sus datos para registrar su atención personalizada.</p>
-                    </div>
+        <section id="estatus" class="section-tracker">
+            <div class="section-bg-image" style="background-image: url('images/laboratorio-bg.jpg');"></div>
+            <div class="section-header-centered">
+                <span class="section-kicker">Laboratorio Óptico</span>
+                <h2 class="section-title">Estatus de tus Lentes</h2>
+                <p class="section-desc">Ingresa tu número de cédula para consultar en tiempo real la fase de elaboración técnica y fecha de retiro en tienda.</p>
+            </div>
 
-                    <form id="simpleBookingForm" class="simple-booking-form">
-                        <div class="form-grid-simple">
-                            <!-- Nombre y Apellido -->
-                            <div class="form-group-item">
-                                <label for="fullName" class="form-label">
-                                    Nombre y Apellido
-                                </label>
-                                <input type="text" id="fullName" name="fullName" class="form-control-simple" placeholder="Ej: Carlos Mendoza" required>
-                            </div>
-
-                            <!-- Cédula de Identidad -->
-                            <div class="form-group-item">
-                                <label for="idNumber" class="form-label">
-                                    Cédula de Identidad
-                                </label>
-                                <div class="input-cedula-wrapper">
-                                    <select id="idPrefix" name="idPrefix" class="form-select-prefix">
-                                        <option value="V-">V-</option>
-                                        <option value="E-">E-</option>
-                                    </select>
-                                    <input type="text" id="idNumber" name="idNumber" class="form-control-simple" placeholder="Ej: 21.345.678" required>
-                                </div>
-                            </div>
-
-                            <!-- Teléfono / WhatsApp -->
-                            <div class="form-group-item">
-                                <label for="phoneNumber" class="form-label">
-                                    Número Telefónico / WhatsApp
-                                </label>
-                                <input type="tel" id="phoneNumber" name="phoneNumber" class="form-control-simple" placeholder="Ej: 0412-1234567" required>
-                            </div>
-
-                            <!-- Estado (Solo Aragua y Guárico) -->
-                            <div class="form-group-item">
-                                <label for="stateSelectSimple" class="form-label">
-                                    Estado
-                                </label>
-                                <select id="stateSelectSimple" name="state" class="form-select-simple" required>
-                                    <option value="" disabled selected>-- Seleccione el Estado --</option>
-                                    <option value="Aragua">Aragua (CC Las Américas - Maracay)</option>
-                                    <option value="Guarico">Guárico (CC Galería - San Juan de los Morros)</option>
-                                </select>
-                            </div>
-
-                            <!-- Botón de Envío -->
-                            <div class="form-group-full" style="margin-top: 1rem; text-align: center;">
-                                <button type="submit" class="btn btn-booking-submit">
-                                    Confirmar Cita
-                                </button>
-                            </div>
+            <div class="tracker-box-apple">
+                <form id="lensTrackerForm">
+                    <div class="tracker-search-row">
+                        <div class="cedula-input-group">
+                            <select id="searchCedulaPrefix" class="select-prefix-apple">
+                                <option value="V-">V-</option>
+                                <option value="E-">E-</option>
+                            </select>
+                            <input type="text" id="searchCedulaNumber" class="input-cedula-apple" placeholder="Número de Cédula (Ej: 19.452.880)" required autocomplete="off">
                         </div>
-                    </form>
-                </div>
+                        <button type="submit" class="btn-apple-primary">
+                            Consultar Estatus
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Contenedor dinámico de resultados -->
+                <div id="trackerResultBox" class="tracker-result-box" style="display: none;"></div>
             </div>
         </section>
 
         <!-- ==========================================================================
-             PÁGINA 3: CONSULTA Y RASTREO DE ESTATUS DE LENTES
+             3. SOLICITAR CITA (CON FONDO CLÍNICO OFTALMOLÓGICO)
              ========================================================================== -->
-        <section id="page-3" class="page-section tracker-page-section">
-            <div class="container tracker-container">
-                <div class="tracker-card-modern">
-                    <div class="tracker-card-header">
-                        <span class="badge-tag badge-blue">
-                            <i class="fa-solid fa-glasses"></i> Laboratorio Óptico
-                        </span>
-                        <h2>Estatus de tus Lentes</h2>
-                        <p>Ingresa tu número de cédula para consultar en tiempo real la fase de elaboración técnica y fecha de retiro en tienda.</p>
-                    </div>
+        <section id="agendar" class="section-booking">
+            <div class="section-bg-image" style="background-image: url('images/consulta-bg.jpg');"></div>
+            <div class="section-header-centered">
+                <span class="section-kicker">Atención Oftalmológica</span>
+                <h2 class="section-title">Solicitar Cita</h2>
+                <p class="section-desc">Seleccione su día preferido y sede. El equipo asignará su hora exacta y le notificará la disponibilidad.</p>
+            </div>
 
-                    <form id="lensTrackerForm" class="lens-tracker-form">
-                        <div class="tracker-search-bar">
-                            <div class="input-cedula-wrapper" style="flex: 1;">
-                                <select id="searchCedulaPrefix" class="form-select-prefix">
+            <div class="booking-card-apple">
+                <!-- QUÉ INCLUYE LA CONSULTA OFTALMOLÓGICA -->
+                <div style="background: rgba(0, 130, 217, 0.05); border: 1px solid rgba(0, 130, 217, 0.2); border-radius: 14px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; text-align: left;">
+                    <div style="display: flex; align-items: center; gap: 0.55rem; font-family: var(--font-display); font-weight: 800; color: var(--color-marine); font-size: 1.02rem; margin-bottom: 0.75rem; letter-spacing: -0.01em;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0082D9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        <span>QUÉ INCLUYE LA CONSULTA OFTALMOLÓGICA</span>
+                    </div>
+                    <ul style="list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.65rem; padding: 0; margin: 0; font-size: 0.88rem; color: #334155; font-weight: 600;">
+                        <li style="display: flex; align-items: center; gap: 0.5rem;"><span style="color: #0082D9; font-weight: 800;">&bull;</span> Biomicroscopía</li>
+                        <li style="display: flex; align-items: center; gap: 0.5rem;"><span style="color: #0082D9; font-weight: 800;">&bull;</span> Toma de Presión Intraocular</li>
+                        <li style="display: flex; align-items: center; gap: 0.5rem;"><span style="color: #0082D9; font-weight: 800;">&bull;</span> Fondo de Ojo (con dilatación de pupila)</li>
+                        <li style="display: flex; align-items: center; gap: 0.5rem;"><span style="color: #0082D9; font-weight: 800;">&bull;</span> Descarte Glaucoma</li>
+                        <li style="display: flex; align-items: center; gap: 0.5rem;"><span style="color: #0082D9; font-weight: 800;">&bull;</span> Descarte de Cataratas</li>
+                        <li style="display: flex; align-items: center; gap: 0.5rem;"><span style="color: #0082D9; font-weight: 800;">&bull;</span> Descarte de Retinopatías Diabética e Hipertensiva</li>
+                        <li style="display: flex; align-items: center; gap: 0.5rem;"><span style="color: #0082D9; font-weight: 800;">&bull;</span> Fórmula de Lentes</li>
+                    </ul>
+                </div>
+
+                <form id="simpleBookingForm">
+                    <div class="booking-form-grid">
+                        <div class="form-group-apple">
+                            <label for="fullName" class="form-label-apple">Nombre y Apellido</label>
+                            <input type="text" id="fullName" name="fullName" class="form-control-apple" placeholder="Ej: Carlos Mendoza" required autocomplete="name">
+                        </div>
+
+                        <div class="form-group-apple">
+                            <label for="idNumber" class="form-label-apple">Cédula de Identidad</label>
+                            <div class="cedula-input-group">
+                                <select id="idPrefix" name="idPrefix" class="select-prefix-apple">
                                     <option value="V-">V-</option>
                                     <option value="E-">E-</option>
                                 </select>
-                                <input type="text" id="searchCedulaNumber" class="form-control-simple" placeholder="Número de Cédula (Ej: 19.452.880)" required>
+                                <input type="text" id="idNumber" name="idNumber" class="input-cedula-apple" placeholder="Ej: 21.345.678" required autocomplete="off">
                             </div>
-                            <button type="submit" class="btn btn-tracker-submit">
-                                <i class="fa-solid fa-magnifying-glass"></i> Consultar Estatus
-                            </button>
                         </div>
-                    </form>
 
-                    <!-- Resultado de la Búsqueda -->
-                    <div id="trackerResultBox" class="tracker-result-box" style="display: none;">
-                        <!-- Contenido dinámico renderizado por JS -->
+                        <div class="form-group-apple">
+                            <label for="phoneNumber" class="form-label-apple">Número Telefónico / WhatsApp</label>
+                            <input type="tel" id="phoneNumber" name="phoneNumber" class="form-control-apple" placeholder="Ej: 0412-1234567" required autocomplete="tel">
+                        </div>
+
+                        <div class="form-group-apple">
+                            <label for="stateSelectSimple" class="form-label-apple">Estado / Sede</label>
+                            <select id="stateSelectSimple" name="state" class="form-select-apple" required onchange="actualizarFechasDisponiblesCliente()">
+                                <option value="" disabled selected>Seleccione la Sede</option>
+                                <option value="Aragua">Aragua (CC Las Américas - Maracay)</option>
+                                <option value="Guarico">Guárico (CC Galería - San Juan de los Morros)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group-apple">
+                            <label for="appointmentDateSimple" class="form-label-apple">Fecha de la Cita</label>
+                            <input type="date" id="appointmentDateSimple" name="appointmentDate" class="form-control-apple" required>
+                            <small id="hintFechasDisponibles" class="hint-apple">Seleccione el día preferido para su evaluación.</small>
+                        </div>
+
+                        <div class="form-group-apple">
+                            <label for="appointmentShiftSimple" class="form-label-apple">Turno Preferido</label>
+                            <select id="appointmentShiftSimple" name="appointmentShift" class="form-select-apple" required>
+                                <option value="Mañana (09:00 AM - 12:30 PM)">Mañana (09:00 AM - 12:30 PM)</option>
+                                <option value="Tarde (01:30 PM - 05:00 PM)">Tarde (01:30 PM - 05:00 PM)</option>
+                            </select>
+                            <small class="hint-apple">Dentro del sistema se le colocará la hora y el mensaje de confirmación.</small>
+                        </div>
+
+                        <button type="submit" class="btn-booking-full" id="btnSolicitarTurnoCita">
+                            Solicitar Turno y Día de la Consulta
+                        </button>
                     </div>
-                </div>
+                </form>
             </div>
         </section>
     </main>
 
-    <!-- Scripts -->
+    <!-- SCRIPTS OFICIALES DEL SISTEMA -->
     <script src="js/venezuela-data.js"></script>
     <script src="js/products-data.js"></script>
     <script src="js/storage.js"></script>
     <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.nav-segmented a');
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(sec => {
+                    const top = sec.offsetTop - 100;
+                    if (window.pageYOffset >= top) {
+                        current = sec.getAttribute('id');
+                    }
+                });
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === '#' + current) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

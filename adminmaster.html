@@ -1,0 +1,2778 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centro Óptico Nieves | Alta Gerencia Ejecutiva Master</title>
+    <!-- Favicon SVG sin emojis -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%230284C7%22><path d=%22M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z%22/></svg>">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2pdf.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Estilos Base y Tema Ejecutivo Clínico -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/admin-theme.css">
+
+    <style>
+        /* ESTILOS EXCLUSIVOS PARA ALTA GERENCIA MASTER */
+        .master-header-card {
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+            border-radius: 14px;
+            padding: 1.5rem 1.75rem;
+            color: #FFFFFF;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.25);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.25rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .master-header-titles h2 {
+            font-size: 1.45rem;
+            font-weight: 800;
+            margin: 0 0 0.35rem 0;
+            color: #FFFFFF;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+        }
+        .master-header-titles p {
+            font-size: 0.88rem;
+            color: #94A3B8;
+            margin: 0;
+        }
+        .master-sede-pill-bar {
+            display: inline-flex;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 0.3rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            gap: 0.35rem;
+        }
+        .btn-filter-sede-master {
+            background: transparent;
+            border: none;
+            color: #94A3B8;
+            padding: 0.5rem 1rem;
+            border-radius: 7px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+        .btn-filter-sede-master:hover {
+            color: #FFFFFF;
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .btn-filter-sede-master.active {
+            background: #0284C7;
+            color: #FFFFFF;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+        }
+
+        /* KPI Cards Alta Gerencia */
+        .master-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .master-kpi-card {
+            background: #FFFFFF;
+            border-radius: 12px;
+            padding: 1.25rem 1.4rem;
+            border: 1px solid #E2E8F0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .master-kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+        }
+        .master-kpi-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+        .master-kpi-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+        }
+        .master-kpi-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .master-kpi-number {
+            font-size: 1.65rem;
+            font-weight: 800;
+            color: #0F172A;
+            line-height: 1.1;
+            margin: 0.25rem 0;
+            letter-spacing: -0.02em;
+        }
+        .master-kpi-sub {
+            font-size: 0.8rem;
+            color: #64748B;
+            font-weight: 600;
+        }
+
+        /* 2-Column Analytics Layout */
+        .master-analytics-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        @media (max-width: 1024px) {
+            .master-analytics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .analytics-card {
+            background: #FFFFFF;
+            border-radius: 12px;
+            border: 1px solid #E2E8F0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .analytics-card-header {
+            padding: 1.1rem 1.4rem;
+            border-bottom: 1px solid #F1F5F9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #FAFAFA;
+        }
+        .analytics-card-header h3 {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #0F172A;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+        }
+        .analytics-card-body {
+            padding: 1.25rem 1.4rem;
+            flex: 1;
+        }
+
+        /* Comparison Progress Bars */
+        .comp-bar-row {
+            margin-bottom: 1.15rem;
+        }
+        .comp-bar-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 0.45rem;
+            color: #334155;
+        }
+        .progress-track-custom {
+            height: 12px;
+            background: #F1F5F9;
+            border-radius: 6px;
+            overflow: hidden;
+            display: flex;
+        }
+        .progress-fill-mrcy {
+            background: linear-gradient(90deg, #0284C7, #38BDF8);
+            border-radius: 6px 0 0 6px;
+            transition: width 0.4s ease;
+        }
+        .progress-fill-sjm {
+            background: linear-gradient(90deg, #059669, #34D399);
+            border-radius: 0 6px 6px 0;
+            transition: width 0.4s ease;
+        }
+
+        /* Method Bars */
+        .method-bar-wrap {
+            margin-bottom: 0.85rem;
+        }
+        .method-bar-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.82rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            color: #475569;
+        }
+        .method-progress-track {
+            height: 9px;
+            background: #F1F5F9;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .method-progress-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.4s ease;
+        }
+
+        /* Audit Feed */
+        .audit-feed-box {
+            max-height: 480px;
+            overflow-y: auto;
+        }
+        .audit-feed-item:hover {
+            background: #F8FAFC !important;
+        }
+        .badge-sede-mrcy {
+            background: #E0F2FE;
+            color: #0369A1;
+        }
+        .badge-sede-sjm {
+            background: #D1FAE5;
+            color: #047857;
+        }
+    </style>
+</head>
+<body class="admin-body">
+
+    <!-- ==========================================================================
+         PANTALLA DE ACCESO Y AUTENTICACIÓN SEGURA
+         ========================================================================== -->
+    <div id="adminLoginScreen" class="admin-login-screen">
+        <div class="login-card">
+            <div class="login-brand-box">
+                <img src="images/LOGOINDEX.png" alt="" aria-hidden="true" class="login-logo-img">
+                <h2 class="login-title">Centro Óptico Nieves</h2>
+            </div>
+
+            <div id="loginErrorBox" class="login-error-box" style="display: none;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span id="loginErrorMsg">Usuario o contraseña incorrectos.</span>
+            </div>
+
+            <form id="adminLoginForm" class="login-form" onsubmit="event.preventDefault(); procesarLogin(event); return false;">
+                <div class="login-field-group">
+                    <label class="login-label" for="loginUsername">Usuario</label>
+                    <div class="login-input-wrap">
+                        <input type="text" id="loginUsername" class="login-input" placeholder="Usuario..." autocomplete="username">
+                        <i class="fa-solid fa-user login-input-icon"></i>
+                    </div>
+                </div>
+
+                <div class="login-field-group">
+                    <label class="login-label" for="loginPassword">Contraseña</label>
+                    <div class="login-input-wrap">
+                        <input type="password" id="loginPassword" class="login-input" placeholder="••••••••••••" autocomplete="current-password">
+                        <i class="fa-solid fa-lock login-input-icon"></i>
+                        <button type="button" class="login-pwd-toggle" onclick="togglePasswordVisibility()" title="Mostrar/ocultar contraseña">
+                            <i class="fa-regular fa-eye" id="loginEyeIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-login-submit" id="btnLoginSubmit">
+                    <i class="fa-solid fa-arrow-right-to-bracket" id="loginSubmitIcon"></i>
+                    <span id="loginSubmitText">Iniciar Sesión</span>
+                </button>
+
+                <div id="loginLoadingArea" class="login-loading-container" style="display: none;">
+                    <div class="login-loading-header">
+                        <span id="loginLoadingStatusText" class="login-loading-status">
+                            <i class="fa-solid fa-circle-notch fa-spin"></i> Conectando al sistema...
+                        </span>
+                        <span id="loginLoadingPercent" class="login-loading-percent">0%</span>
+                    </div>
+                    <div class="login-progress-track">
+                        <div id="loginProgressBar" class="login-progress-fill"></div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         ENTORNO PRINCIPAL DE ALTA GERENCIA MASTER
+         ========================================================================== -->
+    <div class="admin-wrapper" id="adminAppWrapper" style="display: none;">
+
+        <!-- BARRA LATERAL (SIDEBAR) -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <div class="sidebar-brand">
+                <div class="brand-logo-frame">
+                    <img src="images/LOGO.jpg" alt="Centro Óptico Nieves" class="sidebar-brand-img">
+                </div>
+                <div class="brand-titles">
+                    <h1 class="brand-name">Centro Óptico Nieves</h1>
+                </div>
+            </div>
+
+            <!-- Perfil de Usuario Master -->
+            <div class="user-profile-card-active" style="background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(255, 255, 255, 0.1);">
+                <div class="user-profile-avatar-active" style="background: linear-gradient(135deg, #0284C7, #38BDF8);">
+                    <i class="fa-solid fa-crown" id="userActiveAvatarIcon" style="color: #FFFFFF;"></i>
+                </div>
+                <div class="user-profile-text-active">
+                    <span class="user-profile-title-active" id="userActiveTitle">Superadmin Master</span>
+                    <span class="user-profile-handle-active" id="userActiveHandle">@administracionnieves</span>
+                </div>
+            </div>
+
+            <!-- Navegación Widescreen Alta Gerencia -->
+            <nav class="admin-sidebar-nav">
+                <div class="nav-section-label">DIRECCIÓN GENERAL</div>
+                
+                <button type="button" class="admin-nav-item active" data-tab="dashboard">
+                    <i class="fa-solid fa-gauge-high nav-icon" style="color: #38BDF8;"></i>
+                    <span>Alta Gerencia</span>
+                </button>
+
+                <button type="button" class="admin-nav-item" data-tab="pacientes360">
+                    <i class="fa-solid fa-id-card-clip nav-icon" style="color: #38BDF8;"></i>
+                    <span>Pacientes & Registro</span>
+                </button>
+
+                <div class="nav-section-label" style="margin-top: 0.85rem;">FINANZAS & COMUNICACIÓN</div>
+
+                <button type="button" class="admin-nav-item" data-tab="caja">
+                    <i class="fa-solid fa-cash-register nav-icon" style="color: #10B981;"></i>
+                    <span>Caja & Finanzas</span>
+                </button>
+
+                <button type="button" class="admin-nav-item" data-tab="whatsapp">
+                    <i class="fa-brands fa-whatsapp nav-icon" style="color: #22C55E;"></i>
+                    <span>Mensajería WhatsApp</span>
+                </button>
+
+                <button type="button" class="admin-nav-item" data-tab="auditoria">
+                    <i class="fa-solid fa-bell nav-icon" style="color: #F59E0B;"></i>
+                    <span>Notificaciones en Vivo</span>
+                </button>
+
+                <div class="nav-section-label" style="margin-top: 1rem;">ACCESO A SEDES &amp; TALLERES</div>
+
+                <a href="admin-maracay.html" class="admin-nav-item" style="text-decoration: none;">
+                    <i class="fa-solid fa-store nav-icon" style="color: #38BDF8;"></i>
+                    <span>Maracay: Administración</span>
+                </a>
+                <a href="laboratorio-maracay.html" class="admin-nav-item" style="text-decoration: none;">
+                    <i class="fa-solid fa-microscope nav-icon" style="color: #F59E0B;"></i>
+                    <span>Maracay: Taller Laboratorio</span>
+                </a>
+                <a href="admin-sanjuan.html" class="admin-nav-item" style="text-decoration: none;">
+                    <i class="fa-solid fa-store nav-icon" style="color: #38BDF8;"></i>
+                    <span>San Juan: Administración</span>
+                </a>
+                <a href="laboratorio-sanjuan.html" class="admin-nav-item" style="text-decoration: none;">
+                    <i class="fa-solid fa-microscope nav-icon" style="color: #F59E0B;"></i>
+                    <span>San Juan: Taller Laboratorio</span>
+                </a>
+                <a href="adminmedico.html" class="admin-nav-item" style="text-decoration: none;">
+                    <i class="fa-solid fa-user-doctor nav-icon" style="color: #10B981;"></i>
+                    <span>Consulta Médica</span>
+                </a>
+            </nav>
+
+            <div class="admin-sidebar-footer">
+                <div class="user-status-card">
+                    <span class="status-indicator-dot online"></span>
+                    <div class="user-status-info">
+                        <span class="user-name">Ambas Sedes (Aragua & Guárico)</span>
+                        <span class="user-role">Supervisión Master Conectada</span>
+                    </div>
+                </div>
+                <button type="button" class="btn-logout-sidebar" onclick="cerrarSesionAdmin()">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Cerrar Sesión</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- ÁREA PRINCIPAL -->
+        <main class="admin-main">
+            <!-- Barra Superior Flotante -->
+            <header class="admin-topbar">
+                <div class="topbar-left">
+                    <button type="button" class="btn-menu-toggle" id="btnMenuToggle" aria-label="Abrir Menú">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="topbar-titles-box">
+                        <h2 id="topbarTitle" class="topbar-heading">Alta Gerencia</h2>
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    <!-- Selector de Sede Global -->
+                    <div class="sede-filter-widget" title="Filtrar datos consolidados o por sede">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <select id="globalSedeSelect" class="sede-select-dropdown" onchange="setMasterSedeFiltro(this.value)">
+                            <option value="todas">Ambas Sedes (Consolidado)</option>
+                            <option value="Maracay">Sede Maracay (CC Las Américas)</option>
+                            <option value="San Juan de los Morros">Sede San Juan (CC Galería)</option>
+                        </select>
+                    </div>
+
+                    <!-- Indicador Tasa Oficial BCV con sincronización en vivo -->
+                    <div class="bcv-rate-pill" id="btnEditarTasa" title="Tasa Oficial BCV. Clic para editar o sincronizar.">
+                        <span class="rate-source-tag">BCV</span>
+                        <span class="rate-val" id="topbarTasaVal">847.44 Bs/$</span>
+                        <button type="button" class="btn-refresh-tasa" id="btnSyncTasaTopbar" title="Sincronizar tasa BCV en vivo" onclick="event.stopPropagation(); sincronizarTasaBCV(false);">
+                            <i class="fa-solid fa-arrows-rotate" id="iconSyncTasa"></i>
+                        </button>
+                        <i class="fa-solid fa-pen-to-square rate-edit-icon" title="Editar manualmente"></i>
+                    </div>
+
+                    <!-- Botón para Registrar Paciente Directo -->
+                    <button type="button" class="btn-topbar-action" onclick="abrirModalNuevoPaciente()" style="background: linear-gradient(135deg, #0284C7, #0369A1);">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>+ Registrar Paciente</span>
+                    </button>
+
+                    <!-- Botón Salir -->
+                    <button type="button" class="btn-logout-topbar" onclick="cerrarSesionAdmin()" title="Cerrar sesión del sistema">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>Salir</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Vistas del Panel Master -->
+            <div class="admin-content-area" id="masterAltaGerenciaContainer">
+
+                <!-- ==================================================================
+                     1. VISTA: ALTA GERENCIA (DASHBOARD ANALÍTICO & AUDITORÍA)
+                     ================================================================== -->
+                <section class="tab-view active" id="view-dashboard">
+                    <!-- Cabecera de Alta Gerencia con Switch Multisede -->
+                    <div class="master-header-card">
+                        <div class="master-header-titles">
+                            <h2>
+                                <i class="fa-solid fa-chart-pie" style="color: #38BDF8;"></i>
+                                Panel Ejecutivo de Alta Gerencia
+                            </h2>
+                            <p id="masterHeaderSedeBadge">
+                                <i class="fa-solid fa-layer-group"></i> Visión Consolidada (Ambas Sedes)
+                            </p>
+                        </div>
+                        <div class="master-sede-pill-bar">
+                            <button type="button" class="btn-filter-sede-master active" data-sede="todas" onclick="setMasterSedeFiltro('todas')">
+                                <i class="fa-solid fa-layer-group"></i> Ambas Sedes
+                            </button>
+                            <button type="button" class="btn-filter-sede-master" data-sede="Maracay" onclick="setMasterSedeFiltro('Maracay')">
+                                <i class="fa-solid fa-location-dot" style="color: #38BDF8;"></i> Maracay
+                            </button>
+                            <button type="button" class="btn-filter-sede-master" data-sede="San Juan de los Morros" onclick="setMasterSedeFiltro('San Juan de los Morros')">
+                                <i class="fa-solid fa-location-dot" style="color: #34D399;"></i> San Juan
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Fila 1: KPIs Ejecutivos de Rendimiento y Finanzas -->
+                    <div class="master-kpi-grid">
+                        <div class="master-kpi-card" style="border-left: 4px solid #0284C7;">
+                            <div class="master-kpi-top">
+                                <span class="master-kpi-label">Facturación Total Emitida</span>
+                                <div class="master-kpi-icon" style="background: #E0F2FE; color: #0284C7;">
+                                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                                </div>
+                            </div>
+                            <h3 class="master-kpi-number" id="masterKpiFacturacionUsd">$0.00</h3>
+                            <span class="master-kpi-sub" id="masterKpiFacturacionBs">0.00 Bs</span>
+                        </div>
+
+                        <div class="master-kpi-card" style="border-left: 4px solid #10B981;">
+                            <div class="master-kpi-top">
+                                <span class="master-kpi-label">Cobranza Efectiva (Recaudado)</span>
+                                <div class="master-kpi-icon" style="background: #D1FAE5; color: #10B981;">
+                                    <i class="fa-solid fa-sack-dollar"></i>
+                                </div>
+                            </div>
+                            <h3 class="master-kpi-number text-emerald" id="masterKpiCobradoUsd">$0.00</h3>
+                            <span class="master-kpi-sub" id="masterKpiCobradoBs">0.00 Bs</span>
+                        </div>
+
+                        <div class="master-kpi-card" style="border-left: 4px solid #F59E0B; cursor: pointer;" onclick="abrirModalSaldosPorCobrarMaster()" title="Clic para consultar detalles de Cuentas por Cobrar">
+                            <div class="master-kpi-top">
+                                <span class="master-kpi-label">Cuentas por Cobrar (Pendiente)</span>
+                                <div class="master-kpi-icon" style="background: #FEF3C7; color: #F59E0B;">
+                                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                                </div>
+                            </div>
+                            <h3 class="master-kpi-number" style="color: #D97706;" id="masterKpiCuentasCobrarUsd">$0.00</h3>
+                            <span class="master-kpi-sub" id="masterKpiCuentasCobrarBs">0.00 Bs</span>
+                        </div>
+
+                        <div class="master-kpi-card" style="border-left: 4px solid #06B6D4; cursor: pointer;" onclick="abrirModalOrdenesLabMaster()" title="Clic para auditar Órdenes en Laboratorio">
+                            <div class="master-kpi-top">
+                                <span class="master-kpi-label">Órdenes en Laboratorio</span>
+                                <div class="master-kpi-icon" style="background: #CFFAFE; color: #0891B2;">
+                                    <i class="fa-solid fa-microscope"></i>
+                                </div>
+                            </div>
+                            <h3 class="master-kpi-number" style="color: #0891B2;" id="masterKpiOrdenesLab">0</h3>
+                            <span class="master-kpi-sub" id="masterKpiOrdenesLabSub">En proceso y taller</span>
+                        </div>
+
+                        <div class="master-kpi-card" style="border-left: 4px solid #8B5CF6;">
+                            <div class="master-kpi-top">
+                                <span class="master-kpi-label">Utilidad Operativa Estimada</span>
+                                <div class="master-kpi-icon" style="background: #EDE9FE; color: #8B5CF6;">
+                                    <i class="fa-solid fa-chart-line"></i>
+                                </div>
+                            </div>
+                            <h3 class="master-kpi-number" style="color: #7C3AED;" id="masterKpiUtilidadUsd">$0.00</h3>
+                            <span class="master-kpi-sub" id="masterKpiUtilidadBs">0.00 Bs</span>
+                        </div>
+                    </div>
+
+                    <!-- Fila 1.1: KPIs Secundarios de Eficiencia & Clientes -->
+                    <div class="master-kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                        <div class="master-kpi-card" style="padding: 1rem 1.25rem;">
+                            <span class="master-kpi-label">Efectividad de Cobro</span>
+                            <h3 class="master-kpi-number" id="masterKpiTasaCobro" style="font-size: 1.45rem; color: #059669;">100%</h3>
+                            <span class="master-kpi-sub">Cobrado / Facturado</span>
+                        </div>
+
+                        <div class="master-kpi-card" style="padding: 1rem 1.25rem;">
+                            <span class="master-kpi-label">Ticket Promedio por Venta</span>
+                            <h3 class="master-kpi-number" id="masterKpiTicketPromedio" style="font-size: 1.45rem; color: #0F172A;">$0.00</h3>
+                            <span class="master-kpi-sub">Por orden de compra</span>
+                        </div>
+
+                        <div class="master-kpi-card" style="padding: 1rem 1.25rem;">
+                            <span class="master-kpi-label">Descuentos Concedidos</span>
+                            <h3 class="master-kpi-number" id="masterKpiDescuentosUsd" style="font-size: 1.45rem; color: #EA580C;">$0.00</h3>
+                            <span class="master-kpi-sub">Concesiones de margen</span>
+                        </div>
+
+                        <div class="master-kpi-card" style="padding: 1rem 1.25rem;">
+                            <span class="master-kpi-label">Egresos / Gastos Operativos</span>
+                            <h3 class="master-kpi-number text-rose" id="masterKpiEgresosUsd" style="font-size: 1.45rem;">$0.00</h3>
+                            <span class="master-kpi-sub">Gastos y compras caja</span>
+                        </div>
+
+                        <div class="master-kpi-card" style="padding: 1rem 1.25rem;">
+                            <span class="master-kpi-label">Total Pacientes Registrados</span>
+                            <h3 class="master-kpi-number" id="masterKpiTotalPacientes" style="font-size: 1.45rem; color: #0284C7;">0</h3>
+                            <span class="master-kpi-sub">En base de datos</span>
+                        </div>
+                    </div>
+
+                    <!-- Fila 2: Análisis de Ganancias vs Pérdidas & Rendimiento Comparativo -->
+                    <div class="master-analytics-grid">
+                        <!-- Columna Izquierda: Comparativa Sedes y Salud Financiera -->
+                        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                            <!-- Card 1: Comparativa Maracay vs San Juan -->
+                            <div class="analytics-card">
+                                <div class="analytics-card-header">
+                                    <h3>
+                                        <i class="fa-solid fa-code-compare" style="color: #0284C7;"></i>
+                                        Rendimiento Comparativo: Maracay vs San Juan
+                                    </h3>
+                                    <span style="font-size: 0.76rem; color: #64748B; font-weight: 600;">Participación en Ventas</span>
+                                </div>
+                                <div class="analytics-card-body">
+                                    <div class="comp-bar-row">
+                                        <div class="comp-bar-header">
+                                            <span><i class="fa-solid fa-location-dot" style="color: #0284C7;"></i> Sede Maracay (CC Las Américas)</span>
+                                            <span id="masterBarMrcyVal" style="color: #0284C7;">$0.00 (50%)</span>
+                                        </div>
+                                        <div class="progress-track-custom">
+                                            <div id="masterBarMrcy" class="progress-fill-mrcy" style="width: 50%;"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="comp-bar-row">
+                                        <div class="comp-bar-header">
+                                            <span><i class="fa-solid fa-location-dot" style="color: #059669;"></i> Sede San Juan de los Morros (CC Galería)</span>
+                                            <span id="masterBarSjmVal" style="color: #059669;">$0.00 (50%)</span>
+                                        </div>
+                                        <div class="progress-track-custom">
+                                            <div id="masterBarSjm" class="progress-fill-sjm" style="width: 50%;"></div>
+                                        </div>
+                                    </div>
+
+                                    <div style="margin-top: 1.25rem; padding: 0.85rem; background: #F8FAFC; border-radius: 8px; border: 1px solid #E2E8F0; font-size: 0.8rem; color: #475569; line-height: 1.5;">
+                                        <i class="fa-solid fa-lightbulb" style="color: #F59E0B; margin-right: 0.35rem;"></i>
+                                        <strong>Guía de Alta Gerencia:</strong> Este indicador refleja la cuota de facturación de cada sede sobre el total comercial del negocio. Utilice el selector superior para aislar las cuentas individuales de Maracay o San Juan.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Card 2: Análisis de Fugas, Pérdidas y Ganancias -->
+                            <div class="analytics-card">
+                                <div class="analytics-card-header">
+                                    <h3>
+                                        <i class="fa-solid fa-magnifying-glass-chart" style="color: #10B981;"></i>
+                                        Diagnóstico de Ganancias, Fugas y Cartera
+                                    </h3>
+                                    <span style="font-size: 0.76rem; color: #10B981; font-weight: 700;">Auditoría Financiera</span>
+                                </div>
+                                <div class="analytics-card-body">
+                                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.85rem; margin-bottom: 1rem;">
+                                        <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 8px; padding: 0.85rem;">
+                                            <div style="font-size: 0.75rem; font-weight: 700; color: #166534; text-transform: uppercase;">
+                                                <i class="fa-solid fa-circle-check"></i> Dinero en Mano
+                                            </div>
+                                            <div style="font-size: 1.15rem; font-weight: 800; color: #15803D; margin-top: 0.25rem;">
+                                                Liquidez Asegurada
+                                            </div>
+                                            <div style="font-size: 0.78rem; color: #166534; margin-top: 0.2rem;">
+                                                Pagos y abonos recibidos en caja
+                                            </div>
+                                        </div>
+
+                                        <div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px; padding: 0.85rem;">
+                                            <div style="font-size: 0.75rem; font-weight: 700; color: #92400E; text-transform: uppercase;">
+                                                <i class="fa-solid fa-triangle-exclamation"></i> Cartera en Riesgo
+                                            </div>
+                                            <div style="font-size: 1.15rem; font-weight: 800; color: #B45309; margin-top: 0.25rem;">
+                                                Saldos en la Calle
+                                            </div>
+                                            <div style="font-size: 0.78rem; color: #92400E; margin-top: 0.2rem;">
+                                                Clientes con abonos pendientes
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <p style="font-size: 0.82rem; color: #64748B; margin: 0; line-height: 1.5;">
+                                        El balance operativo compara los cobros directos contra las cuentas por cobrar y egresos registrados en caja. Los descuentos representan cesiones directas de margen de ganancia.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Columna Derecha: Métodos de Pago & Feed de Notificaciones en Vivo -->
+                        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                            <!-- Desglose Métodos de Pago -->
+                            <div class="analytics-card">
+                                <div class="analytics-card-header">
+                                    <h3>
+                                        <i class="fa-solid fa-wallet" style="color: #6366F1;"></i>
+                                        Desglose Multimoneda de Pagos
+                                    </h3>
+                                    <span style="font-size: 0.76rem; color: #64748B; font-weight: 600;">Distribución %</span>
+                                </div>
+                                <div class="analytics-card-body">
+                                    <div class="method-bar-wrap">
+                                        <div class="method-bar-labels">
+                                            <span><i class="fa-solid fa-dollar-sign" style="color: #10B981;"></i> Efectivo USD</span>
+                                            <span id="masterBarMetEfectivo">0%</span>
+                                        </div>
+                                        <div class="method-progress-track">
+                                            <div id="masterBarMetEfectivoFill" class="method-progress-fill" style="width: 0%; background: #10B981;"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="method-bar-wrap">
+                                        <div class="method-bar-labels">
+                                            <span><i class="fa-solid fa-mobile-screen" style="color: #0284C7;"></i> Pago Móvil (Bs)</span>
+                                            <span id="masterBarMetPagoMovil">0%</span>
+                                        </div>
+                                        <div class="method-progress-track">
+                                            <div id="masterBarMetPagoMovilFill" class="method-progress-fill" style="width: 0%; background: #0284C7;"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="method-bar-wrap">
+                                        <div class="method-bar-labels">
+                                            <span><i class="fa-solid fa-credit-card" style="color: #8B5CF6;"></i> Punto de Venta (Bs)</span>
+                                            <span id="masterBarMetPunto">0%</span>
+                                        </div>
+                                        <div class="method-progress-track">
+                                            <div id="masterBarMetPuntoFill" class="method-progress-fill" style="width: 0%; background: #8B5CF6;"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="method-bar-wrap">
+                                        <div class="method-bar-labels">
+                                            <span><i class="fa-solid fa-money-check" style="color: #06B6D4;"></i> Zelle ($ USD)</span>
+                                            <span id="masterBarMetZelle">0%</span>
+                                        </div>
+                                        <div class="method-progress-track">
+                                            <div id="masterBarMetZelleFill" class="method-progress-fill" style="width: 0%; background: #06B6D4;"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="method-bar-wrap">
+                                        <div class="method-bar-labels">
+                                            <span><i class="fa-solid fa-bag-shopping" style="color: #F59E0B;"></i> Cashea ($ USD)</span>
+                                            <span id="masterBarMetCashea">0%</span>
+                                        </div>
+                                        <div class="method-progress-track">
+                                            <div id="masterBarMetCasheaFill" class="method-progress-fill" style="width: 0%; background: #F59E0B;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Panel de Notificaciones en Vivo -->
+                            <div class="analytics-card">
+                                <div class="analytics-card-header">
+                                    <h3>
+                                        <i class="fa-solid fa-tower-broadcast" style="color: #EA580C;"></i>
+                                        Panel de Notificaciones en Vivo
+                                    </h3>
+                                    <div style="display: flex; align-items: center; gap: 0.45rem;">
+                                        <span id="badgeTotalNotificaciones" class="badge-tag" style="background: #FFF7ED; color: #EA580C; font-weight: 700; font-size: 0.72rem;">0</span>
+                                        <button type="button" class="btn btn-xs btn-outline-secondary" onclick="renderAuditoriaFeed()" title="Refrescar notificaciones">
+                                            <i class="fa-solid fa-arrows-rotate"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="audit-feed-box" id="panelAuditoriaFeedMaster">
+                                    <!-- Poblado dinámicamente con eventos en tiempo real -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fila 3: Métricas de Crecimiento & Productividad Comercial Master -->
+                    <div style="margin-top: 1.75rem; margin-bottom: 0.85rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+                        <div>
+                            <h3 style="font-size: 1.25rem; font-weight: 800; color: #0F172A; margin: 0; display: flex; align-items: center; gap: 0.55rem;">
+                                <i class="fa-solid fa-chart-line" style="color: #0284C7;"></i>
+                                Metas de Crecimiento Comercial & Estimaciones de Rentabilidad
+                            </h3>
+                            <p style="font-size: 0.84rem; color: #64748B; margin: 0.2rem 0 0 0;">
+                                Proyección de ingresos, récords de ventas y objetivos para superar las ganancias del último mes e impulsar la productividad.
+                            </p>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <span class="badge-tag" style="background: #ECFDF5; color: #059669; font-weight: 700; font-size: 0.8rem; padding: 0.4rem 0.8rem; border-radius: 6px;" id="masterBadgeMesActual">Mes Actual</span>
+                        </div>
+                    </div>
+
+                    <div class="master-productivity-grid">
+                        <div class="master-productivity-card card-success">
+                            <div>
+                                <span class="master-prod-title"><i class="fa-solid fa-trophy" style="color: #10B981;"></i> Día Récord del Mes</span>
+                                <h4 class="master-prod-val text-emerald" id="masterProdDiaRecordVal">$0.00</h4>
+                            </div>
+                            <span class="master-prod-sub" id="masterProdDiaRecordSub">Calculando mejor jornada...</span>
+                        </div>
+
+                        <div class="master-productivity-card">
+                            <div>
+                                <span class="master-prod-title"><i class="fa-solid fa-calculator" style="color: #0284C7;"></i> Promedio Diario de Ventas</span>
+                                <h4 class="master-prod-val" style="color: #0284C7;" id="masterProdPromedioDiarioVal">$0.00</h4>
+                            </div>
+                            <span class="master-prod-sub" id="masterProdPromedioDiarioSub">Sobre días con actividad comercial</span>
+                        </div>
+
+                        <div class="master-productivity-card card-purple">
+                            <div>
+                                <span class="master-prod-title"><i class="fa-solid fa-bullseye" style="color: #8B5CF6;"></i> Meta para Superar Mes Anterior</span>
+                                <h4 class="master-prod-val" style="color: #7C3AED;" id="masterProdMetaMesVal">$0.00</h4>
+                            </div>
+                            <span class="master-prod-sub" id="masterProdMetaMesSub">Objetivo de facturación consolidada</span>
+                        </div>
+
+                        <div class="master-productivity-card card-warning">
+                            <div>
+                                <span class="master-prod-title"><i class="fa-solid fa-fire-flame-curved" style="color: #F59E0B;"></i> Ritmo Diario Sugerido</span>
+                                <h4 class="master-prod-val" style="color: #D97706;" id="masterProdRitmoDiarioVal">$0.00 / día</h4>
+                            </div>
+                            <span class="master-prod-sub" id="masterProdRitmoDiarioSub">Faltante distribuido en días restantes</span>
+                        </div>
+                    </div>
+
+                    <!-- Fila 4: Control Diario de Ventas del Mes (Día por Día) -->
+                    <div class="master-daily-panel">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+                            <div>
+                                <h4 style="margin: 0; font-size: 1.15rem; font-weight: 800; color: #0F172A; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fa-solid fa-calendar-days" style="color: #2563EB;"></i>
+                                    Control Diario de Ventas del Mes (Todos los Días)
+                                </h4>
+                                <p style="margin: 0.2rem 0 0 0; font-size: 0.82rem; color: #64748B;">
+                                    Registro consolidado día por día con separación entre Maracay, San Juan y Total General.
+                                </p>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                <select id="masterSelectMesAnalitica" class="select-filter-sm" onchange="renderMasterAnaliticaMensual()" style="font-weight: 700; height: 38px;">
+                                    <!-- Opciones de mes pobladas dinámicamente -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Gráfico Comparativo Rápido Maracay vs San Juan Día a Día -->
+                        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 1.1rem 1.25rem; margin-bottom: 1.25rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; font-size: 0.82rem; font-weight: 700; color: #475569;">
+                                <span><i class="fa-solid fa-chart-simple"></i> Tendencia de Facturación Diaria por Sede</span>
+                                <div style="display: flex; gap: 1.25rem;">
+                                    <span style="display: flex; align-items: center; gap: 0.4rem;"><span style="width: 12px; height: 12px; background: #0284C7; border-radius: 3px;"></span> Maracay</span>
+                                    <span style="display: flex; align-items: center; gap: 0.4rem;"><span style="width: 12px; height: 12px; background: #10B981; border-radius: 3px;"></span> San Juan</span>
+                                </div>
+                            </div>
+                            <div id="masterDailyChartContainer" style="display: flex; align-items: flex-end; gap: 6px; height: 130px; padding-top: 10px; overflow-x: auto;">
+                                <!-- Barras de días generadas desde JS -->
+                            </div>
+                        </div>
+
+                        <!-- Tabla Detallada Día por Día -->
+                        <div class="table-responsive" style="max-height: 480px; overflow-y: auto; border: 1px solid #E2E8F0; border-radius: 10px;">
+                            <table class="master-daily-table">
+                                <thead style="position: sticky; top: 0; z-index: 2;">
+                                    <tr>
+                                        <th style="width: 130px;">Día / Fecha</th>
+                                        <th style="text-align: center;">Ventas Emitidas</th>
+                                        <th style="text-align: right;">Maracay ($ / Bs)</th>
+                                        <th style="text-align: right;">San Juan ($ / Bs)</th>
+                                        <th style="text-align: right;">Total Día ($ USD)</th>
+                                        <th style="text-align: right;">Total Día (Bs)</th>
+                                        <th style="text-align: right;">Acumulado ($)</th>
+                                        <th style="text-align: center;">Rendimiento</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="masterDailyTableBody">
+                                    <!-- Filas generadas dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==================================================================
+                     2. VISTA: PACIENTES 360 & REGISTRO DIRECTO A BASE DE DATOS
+                     ================================================================== -->
+                <section class="tab-view" id="view-pacientes360">
+                    <div class="view-header-bar">
+                        <div class="search-filter-box">
+                            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                            <input type="text" id="inputBuscarPaciente" class="search-input" placeholder="Buscar por Nombre, Cédula o Teléfono...">
+                        </div>
+                        <div class="header-actions-group">
+                            <select id="filtroSedePaciente" class="select-filter-sm">
+                                <option value="todas">Todas las Sedes</option>
+                                <option value="Maracay">Sede Maracay (CC Las Américas)</option>
+                                <option value="San Juan de los Morros">Sede San Juan (CC Galería)</option>
+                            </select>
+                            <button type="button" class="btn btn-primary" onclick="abrirModalNuevoPaciente()">
+                                <i class="fa-solid fa-user-plus"></i> Registrar Nuevo Paciente
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-card">
+                        <div class="table-responsive">
+                            <table class="modern-table">
+                                <thead>
+                                    <tr>
+                                        <th>Paciente</th>
+                                        <th>Cédula</th>
+                                        <th>Teléfono & WhatsApp</th>
+                                        <th>Sede</th>
+                                        <th>Fórmula Actual (OD / OS)</th>
+                                        <th>Estado de Cuenta</th>
+                                        <th style="text-align: right;">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaPacientesBody">
+                                    <!-- Renderizado dinámico -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="pacientesEmptyState" class="empty-state-view" style="display: none;">
+                            <div class="empty-state-icon"><i class="fa-solid fa-users"></i></div>
+                            <h3>Base de Datos de Pacientes Vacía</h3>
+                            <p>Registra pacientes de Maracay o San Juan para consultarlos y gestionarlos desde Alta Gerencia.</p>
+                            <button type="button" class="btn btn-primary" onclick="abrirModalNuevoPaciente()">
+                                <i class="fa-solid fa-user-plus"></i> Registrar Primer Paciente
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==================================================================
+                     3. VISTA: CAJA & FINANZAS ALTA GERENCIA
+                     ================================================================== -->
+                <section class="tab-view" id="view-caja">
+                    <div class="view-header-bar">
+                        <div>
+                            <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--color-primary-dark);">Arqueo & Finanzas de Alta Gerencia</h3>
+                            <p style="font-size: 0.85rem; color: var(--color-gray-500);">Control multisede de cuentas, recaudación y arqueo a tasa oficial BCV (<span id="cajaTasaDisplay">847.44 Bs/$</span>).</p>
+                        </div>
+                        <div class="header-actions-group">
+                            <button type="button" class="btn btn-secondary" onclick="abrirModalNuevoMovimientoCaja()">
+                                <i class="fa-solid fa-plus-minus"></i> Registrar Gasto / Movimiento
+                            </button>
+                            <button type="button" class="btn btn-primary" onclick="imprimirCierreDeCaja()">
+                                <i class="fa-solid fa-print"></i> Imprimir Cierre del Día
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Switch de Sedes para Caja Master -->
+                    <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.75rem 1.1rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+                        <span style="font-size: 0.85rem; font-weight: 700; color: #334155;">
+                            <i class="fa-solid fa-filter" style="color: #0284C7; margin-right: 0.35rem;"></i> Filtro de Cuentas por Sede:
+                        </span>
+                        <div style="display: flex; gap: 0.4rem;">
+                            <button type="button" class="btn btn-sm btn-outline-primary active" id="btnCajaFiltroTodas" onclick="filtrarCajaMaster('todas', this)">
+                                <i class="fa-solid fa-layer-group"></i> Consolidado (Ambas Sedes)
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="btnCajaFiltroMrcy" onclick="filtrarCajaMaster('Maracay', this)">
+                                <i class="fa-solid fa-location-dot"></i> Solo Maracay
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="btnCajaFiltroSjm" onclick="filtrarCajaMaster('San Juan de los Morros', this)">
+                                <i class="fa-solid fa-location-dot"></i> Solo San Juan
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="cash-summary-grid">
+                        <div class="cash-stat-card card-green">
+                            <span class="cash-stat-label">Efectivo USD ($)</span>
+                            <h3 class="cash-stat-number" id="cajaEfectivoUsd">$0.00</h3>
+                        </div>
+                        <div class="cash-stat-card card-blue">
+                            <span class="cash-stat-label">Pago Móvil (Bs)</span>
+                            <h3 class="cash-stat-number" id="cajaPagoMovilVes">0.00 Bs</h3>
+                        </div>
+                        <div class="cash-stat-card card-amber">
+                            <span class="cash-stat-label">Punto de Venta (Bs)</span>
+                            <h3 class="cash-stat-number" id="cajaPuntoVes">0.00 Bs</h3>
+                        </div>
+                        <div class="cash-stat-card card-purple">
+                            <span class="cash-stat-label">Zelle ($ USD)</span>
+                            <h3 class="cash-stat-number" id="cajaZelleUsd">$0.00</h3>
+                        </div>
+                        <div class="cash-stat-card" style="border-left: 4px solid #6366F1;">
+                            <span class="cash-stat-label">Cashea ($ USD)</span>
+                            <h3 class="cash-stat-number" id="cajaCasheaUsd">$0.00</h3>
+                        </div>
+                        <div class="cash-stat-card card-total">
+                            <span class="cash-stat-label">Balance Neto en Caja</span>
+                            <h3 class="cash-stat-number" id="cajaBalanceNeto">$0.00</h3>
+                        </div>
+                    </div>
+
+                    <!-- Desglose de Egresos: Gastos vs Compras -->
+                    <div class="cash-summary-grid" style="margin-top: 0.85rem;">
+                        <div class="cash-stat-card" style="border-left: 4px solid #F59E0B;">
+                            <span class="cash-stat-label"><i class="fa-solid fa-file-invoice-dollar" style="color: #F59E0B;"></i> Gastos Operativos (Hoy)</span>
+                            <h3 class="cash-stat-number" id="cajaTotalGastosUsd">$0.00</h3>
+                            <span class="cell-sub" id="cajaTotalGastosBs" style="font-size: 0.82rem; font-weight: 600; color: #64748B;">0.00 Bs</span>
+                        </div>
+                        <div class="cash-stat-card" style="border-left: 4px solid #8B5CF6;">
+                            <span class="cash-stat-label"><i class="fa-solid fa-cart-shopping" style="color: #8B5CF6;"></i> Compras de Mercancía (Hoy)</span>
+                            <h3 class="cash-stat-number" id="cajaTotalComprasUsd">$0.00</h3>
+                            <span class="cell-sub" id="cajaTotalComprasBs" style="font-size: 0.82rem; font-weight: 600; color: #64748B;">0.00 Bs</span>
+                        </div>
+                        <div class="cash-stat-card" style="border-left: 4px solid #EF4444;">
+                            <span class="cash-stat-label"><i class="fa-solid fa-arrow-trend-down text-rose"></i> Total Egresos del Día</span>
+                            <h3 class="cash-stat-number text-rose" id="cajaTotalEgresosUsd">$0.00</h3>
+                            <span class="cell-sub" id="cajaTotalEgresosBs" style="font-size: 0.82rem; font-weight: 600; color: #EF4444;">0.00 Bs</span>
+                        </div>
+                    </div>
+
+                    <div class="table-card" style="margin-top: 1.5rem;">
+                        <div class="panel-header" style="padding: 1rem 1.25rem; border-bottom: 1px solid #E2E8F0;">
+                            <h4 style="font-weight: 700; font-size: 1rem;"><i class="fa-solid fa-list-check"></i> Movimientos de Caja Registrados</h4>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="modern-table">
+                                <thead>
+                                    <tr>
+                                        <th>Hora</th>
+                                        <th>Tipo</th>
+                                        <th>Concepto</th>
+                                        <th>Método</th>
+                                        <th>Monto ($ USD)</th>
+                                        <th>Monto (Bs)</th>
+                                        <th>Referencia</th>
+                                        <th>Sede</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaCajaBody">
+                                    <!-- Renderizado dinámico -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="cajaEmptyState" class="empty-state-view" style="display: none;">
+                            <div class="empty-state-icon"><i class="fa-solid fa-cash-register"></i></div>
+                            <h3>Sin Movimientos de Caja Hoy</h3>
+                            <p>Las operaciones de las sedes registrarán los movimientos automáticos correspondientes.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==================================================================
+                     4. VISTA: MENSAJERÍA WHATSAPP (MANTENIDA)
+                     ================================================================== -->
+                <section class="tab-view" id="view-whatsapp">
+                    <div class="view-header-bar" style="margin-bottom: 1.25rem;">
+                        <div>
+                            <h3 style="font-size: 1.15rem; font-weight: 800; color: #0F172A;">Centro de Notificaciones WhatsApp</h3>
+                            <p style="font-size: 0.85rem; color: #64748B;">Comunicaciones oficiales a pacientes de Maracay y San Juan con plantillas y vista previa en tiempo real.</p>
+                        </div>
+                    </div>
+
+                    <!-- Sub-navegación: Mensajería Directa vs Mensajes Programados vs Cumpleaños -->
+                    <div class="wa-subnav-bar">
+                        <button type="button" class="wa-subnav-btn active" id="waSubNavDirecto" onclick="switchWhatsAppSubTab('directo')">
+                            Mensajería Directa y Vista Previa
+                        </button>
+                        <button type="button" class="wa-subnav-btn" id="waSubNavProgramados" onclick="switchWhatsAppSubTab('programados')">
+                            Mensajes Programados & Recordatorios
+                            <span id="waAlertBadgeCount" class="wa-alert-badge" style="display: none;">0</span>
+                        </button>
+                        <button type="button" class="wa-subnav-btn" id="waSubNavCumpleanos" onclick="switchWhatsAppSubTab('cumpleanos')" style="position: relative;">
+                            <i class="fa-solid fa-cake-candles"></i> Cumpleaños de Pacientes
+                            <span id="waBirthdayBadgeCount" class="wa-alert-badge" style="background: #E11D48; display: none;">0</span>
+                        </button>
+                    </div>
+
+                    <!-- SUBTAB 1: MENSAJERÍA DIRECTA CON SIMULADOR SMARTPHONE -->
+                    <div id="waSubTabDirectoContent">
+                        <div class="wa-dashboard-grid">
+                            <div class="dash-panel">
+                                <div class="wa-card-header">
+                                    <div class="wa-badge-icon"><i class="fa-brands fa-whatsapp"></i></div>
+                                    <div>
+                                        <h4 style="font-size: 1rem; font-weight: 800; color: #0F172A; margin: 0;">Configurar Mensaje de Salida</h4>
+                                        <span style="font-size: 0.78rem; color: #64748B;">Reemplazo dinámico de datos de paciente y sede</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" style="margin-top: 1.25rem;">
+                                    <label class="form-label" for="waDestinatarioSelect">
+                                        <i class="fa-solid fa-user"></i> Paciente Destinatario:
+                                    </label>
+                                    <div class="search-input-wrapper" style="margin-bottom: 0.5rem;">
+                                        <i class="fa-solid fa-magnifying-glass"></i>
+                                        <input type="text" id="inputBuscarPacienteWA" class="form-control" placeholder="Buscar paciente por nombre, cédula o teléfono..." oninput="filtrarPacientesWhatsApp(this.value)" autocomplete="off">
+                                    </div>
+                                    <select id="waDestinatarioSelect" class="form-control" onchange="onWhatsAppPacienteSeleccionado()">
+                                        <option value="">-- Seleccionar Paciente Registrado --</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="waPlantillaSelect">Plantilla Oficial:</label>
+                                    <select id="waPlantillaSelect" class="form-control" onchange="onWhatsAppPlantillaSeleccionada()">
+                                        <option value="lentes_listos">Lentes Listos para Retiro</option>
+                                        <option value="abono_pendiente">Abono Recibido / Saldo Pendiente</option>
+                                        <option value="recordatorio_cita">Recordatorio de Cita Médica</option>
+                                        <option value="garantia">Garantía y Cuidados de Cristales</option>
+                                        <option value="personalizado">Mensaje Libre Personalizado</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="waMensajeTexto">Cuerpo del Mensaje (Editable):</label>
+                                    <textarea id="waMensajeTexto" class="form-control" rows="8" placeholder="Escribe el mensaje o selecciona una plantilla..." oninput="actualizarPreviewWhatsAppDirecto()"></textarea>
+                                </div>
+
+                                <div style="display: flex; gap: 0.75rem; margin-top: 1rem;">
+                                    <button type="button" class="btn btn-emerald btn-lg w-100" onclick="enviarWhatsAppDirecto()">
+                                        <i class="fa-brands fa-whatsapp"></i> Abrir WhatsApp y Enviar
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Columna Derecha: Vista Previa Smartphone -->
+                            <div class="dash-panel" style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: #F8FAFC;">
+                                <div style="font-size: 0.85rem; font-weight: 700; color: #64748B; margin-bottom: 0.85rem;">
+                                    <i class="fa-solid fa-mobile-screen"></i> Simulación en Pantalla
+                                </div>
+                                <div class="wa-mockup-phone">
+                                    <div class="wa-mockup-header">
+                                        <i class="fa-solid fa-chevron-left" style="font-size: 0.85rem;"></i>
+                                        <div class="wa-mockup-avatar">
+                                            <i class="fa-solid fa-glasses"></i>
+                                        </div>
+                                        <div style="flex: 1; min-width: 0;">
+                                            <strong style="display: block; font-size: 0.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #FFFFFF;">Centro Óptico Nieves</strong>
+                                            <small style="color: rgba(255,255,255,0.75); font-size: 0.65rem;">En línea</small>
+                                        </div>
+                                    </div>
+                                    <div class="wa-mockup-body">
+                                        <div class="wa-chat-bubble" id="waDirectoPreviewBubble">
+                                            Selecciona un paciente y plantilla para previsualizar el mensaje aquí...
+                                            <span class="wa-bubble-time" id="waDirectoPreviewTime">12:00 PM</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SUBTAB 2: RECORDATORIOS PROGRAMADOS -->
+                    <div id="waSubTabProgramadosContent" style="display: none;">
+                        <div class="table-card">
+                            <div class="panel-header" style="padding: 1rem 1.25rem; border-bottom: 1px solid #E2E8F0;">
+                                <h4 style="font-weight: 700; font-size: 1rem;"><i class="fa-solid fa-clock-rotate-left"></i> Recordatorios de Entregas & Citas</h4>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="modern-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Paciente</th>
+                                            <th>Tipo</th>
+                                            <th>Fecha Prevista</th>
+                                            <th>Sede</th>
+                                            <th>Estado</th>
+                                            <th style="text-align: right;">Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="waProgramadosTableBody">
+                                        <!-- Renderizado dinámico -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="waProgramadosEmptyState" class="empty-state-view" style="display: none; padding: 2rem;">
+                                <div class="empty-state-icon"><i class="fa-solid fa-calendar-check"></i></div>
+                                <h3>Sin Notificaciones Pendientes</h3>
+                                <p>Todos los pacientes están al día con sus entregas y avisos.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SUBTAB 3: CUMPLEAÑOS -->
+                    <div id="waSubTabCumpleanosContent" style="display: none;">
+                        <div class="table-card">
+                            <div class="panel-header" style="padding: 1rem 1.25rem; border-bottom: 1px solid #E2E8F0;">
+                                <h4 style="font-weight: 700; font-size: 1rem;"><i class="fa-solid fa-cake-candles"></i> Cumpleaños de Pacientes</h4>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="modern-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Paciente</th>
+                                            <th>Fecha de Nacimiento</th>
+                                            <th>Edad</th>
+                                            <th>Sede</th>
+                                            <th style="text-align: right;">Felicitar por WhatsApp</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="waCumpleanosTableBody">
+                                        <!-- Renderizado dinámico -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="waCumpleanosEmptyState" class="empty-state-view" style="display: none; padding: 2rem;">
+                                <div class="empty-state-icon"><i class="fa-solid fa-cake-candles"></i></div>
+                                <h3>Sin Cumpleaños Próximos</h3>
+                                <p>No hay pacientes que cumplan años en los próximos días.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==================================================================
+                     5. VISTA: NOTIFICACIONES & AUDITORÍA EN VIVO (DEDICADA)
+                     ================================================================== -->
+                <section class="tab-view" id="view-auditoria">
+                    <div class="view-header-bar" style="margin-bottom: 1.25rem;">
+                        <div>
+                            <h3 style="font-size: 1.15rem; font-weight: 800; color: #0F172A;">Registro Central de Notificaciones & Auditoría en Vivo</h3>
+                            <p style="font-size: 0.85rem; color: #64748B;">Monitoreo en tiempo real de todos los eventos del sistema en Maracay, San Juan y Taller.</p>
+                        </div>
+                        <div class="header-actions-group">
+                            <select id="filtroSedeAuditoriaFull" class="select-filter-sm" onchange="filtrarAuditoriaFull()">
+                                <option value="todas">Todas las Sedes</option>
+                                <option value="Maracay">Sede Maracay</option>
+                                <option value="San Juan de los Morros">Sede San Juan</option>
+                            </select>
+                            <select id="filtroTipoAuditoriaFull" class="select-filter-sm" onchange="filtrarAuditoriaFull()">
+                                <option value="TODOS">Todos los Eventos</option>
+                                <option value="VENTA_EMITIDA">Ventas Emitidas</option>
+                                <option value="ABONO_REGISTRADO">Abonos Registrados</option>
+                                <option value="PACIENTE_REGISTRADO">Nuevos Pacientes</option>
+                                <option value="PACIENTE_ACTUALIZADO">Pacientes Editados</option>
+                                <option value="LAB_ORDEN_CREADA">Nuevas Órdenes Taller</option>
+                                <option value="LAB_FASE_CAMBIADA">Avances en Taller</option>
+                                <option value="MOVIMIENTO_CAJA">Movimientos de Caja</option>
+                            </select>
+                            <button type="button" class="btn btn-secondary" onclick="renderAuditoriaFeed()">
+                                <i class="fa-solid fa-arrows-rotate"></i> Actualizar en Vivo
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-card">
+                        <div style="padding: 1rem 1.25rem; border-bottom: 1px solid #E2E8F0; background: #FAFAFA;">
+                            <input type="text" id="busquedaAuditoriaInput" class="search-input" placeholder="Buscar por paciente, recibo, operador o descripción..." oninput="filtrarAuditoriaFull()" style="width: 100%; max-width: 480px;">
+                        </div>
+                        <div class="audit-feed-box" id="panelAuditoriaFeedMasterFull" style="max-height: 650px;">
+                            <!-- Mismo feed en versión amplia -->
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- ==========================================================================
+         MODALES OFICIALES PARA ALTA GERENCIA
+         ========================================================================== -->
+
+    <!-- 1. MODAL: REGISTRAR / EDITAR PACIENTE (CON ASIGNACIÓN DE CUALQUIER SEDE) -->
+    <div class="modal-backdrop" id="modalFormPaciente" style="display: none;">
+        <div class="modal-dialog modal-dialog-lg" style="max-width: 680px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <h3 id="modalPacienteTitle"><i class="fa-solid fa-user-plus"></i> Registrar Paciente en Base de Datos</h3>
+                        <span style="font-size: 0.8rem; color: rgba(255,255,255,0.85);">Ficha de identificación, contacto y demografía</span>
+                    </div>
+                    <button type="button" class="btn-modal-close" onclick="cerrarModalFormPaciente()">&times;</button>
+                </div>
+                <form id="formRegistroPaciente">
+                    <input type="hidden" id="pacienteIdHidden">
+                    <div class="modal-body" style="padding: 1.5rem 1.75rem;">
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label class="form-label">Cédula de Identidad *</label>
+                                <div class="input-cedula-wrapper">
+                                    <select id="pacienteCedulaPrefix" class="form-select-prefix">
+                                        <option value="V-">V-</option>
+                                        <option value="E-">E-</option>
+                                        <option value="J-">J-</option>
+                                        <option value="P-">P-</option>
+                                    </select>
+                                    <input type="text" id="pacienteCedulaNum" class="form-control" placeholder="18.450.920" required>
+                                </div>
+                            </div>
+                            <div class="form-group flex-2">
+                                <label class="form-label">Nombre Completo *</label>
+                                <input type="text" id="pacienteNombreInput" class="form-control" placeholder="Ej: Carlos Alberto Mendoza Pérez" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label class="form-label">Teléfono (Llamadas) *</label>
+                                <input type="tel" id="pacienteTelefonoInput" class="form-control" placeholder="Ej: 0412-1234567" onblur="autoCopiarTelefonoAWhatsapp()" required>
+                            </div>
+                            <div class="form-group flex-1">
+                                <label class="form-label">WhatsApp (Avisos) *</label>
+                                <input type="tel" id="pacienteWhatsappInput" class="form-control" placeholder="Ej: 0412-1234567" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label class="form-label">Email / Correo Electrónico</label>
+                                <input type="email" id="pacienteEmailInput" class="form-control" placeholder="Ej: paciente@correo.com">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label class="form-label">Fecha de Nacimiento</label>
+                                <input type="date" id="pacienteNacimientoInput" class="form-control" oninput="calcularEdadDesdeNacimiento()" onchange="calcularEdadDesdeNacimiento()" onblur="calcularEdadDesdeNacimiento()">
+                            </div>
+                            <div class="form-group" style="width: 100px;">
+                                <label class="form-label">Edad</label>
+                                <input type="number" id="pacienteEdadInput" class="form-control" placeholder="Años" min="0" max="125">
+                            </div>
+                            <div class="form-group flex-1">
+                                <label class="form-label">Sexo</label>
+                                <select id="pacienteSexoSelect" class="form-control">
+                                    <option value="M">Masculino</option>
+                                    <option value="F">Femenino</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label class="form-label">Ocupación / Profesión</label>
+                                <input type="text" id="pacienteOcupacionInput" class="form-control" placeholder="Ej: Administrador, Docente, Comerciante">
+                            </div>
+                            <div class="form-group flex-2">
+                                <label class="form-label">Dirección Corta</label>
+                                <input type="text" id="pacienteDireccionInput" class="form-control" placeholder="Ej: Urb. Calicanto, Maracay / CC Galería, SJM">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label class="form-label">Sede de Atención Asignada *</label>
+                                <select id="pacienteSedeSelect" class="form-control" required>
+                                    <option value="Maracay">Sede Maracay (CC Las Américas)</option>
+                                    <option value="San Juan de los Morros">Sede San Juan (CC Galería)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="cerrarModalFormPaciente()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fa-solid fa-floppy-disk"></i> Guardar Paciente
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. MODAL: FICHA 360 DEL PACIENTE -->
+    <div class="modal-backdrop" id="modalFicha360" style="display: none;">
+        <div class="modal-dialog modal-dialog-lg">
+            <div class="modal-content">
+                <div class="modal-header header-blue">
+                    <div>
+                        <span class="modal-badge-white">Expediente Clínico 360</span>
+                        <h3 id="f360Nombre" style="margin-top: 0.25rem;">Carlos Mendoza</h3>
+                        <span id="f360Cedula" class="modal-subhead-white">V-18.450.920</span>
+                    </div>
+                    <button type="button" class="btn-modal-close" onclick="cerrarModalFicha360()">&times;</button>
+                </div>
+                <div class="modal-body" style="padding: 0;">
+                    <div class="modal-subtabs">
+                        <button type="button" class="subtab-btn active" data-subtab="f360-optica" onclick="cambiarSubtab360('f360-optica')">
+                            Prescripción & Óptica
+                        </button>
+                        <button type="button" class="subtab-btn" data-subtab="f360-compras" onclick="cambiarSubtab360('f360-compras')">
+                            Compras & Recibos (<span id="f360CountRecibos">0</span>)
+                        </button>
+                        <button type="button" class="subtab-btn" data-subtab="f360-laboratorio" onclick="cambiarSubtab360('f360-laboratorio')">
+                            Taller (<span id="f360CountLab">0</span>)
+                        </button>
+                        <button type="button" class="subtab-btn" data-subtab="f360-clinica" onclick="cambiarSubtab360('f360-clinica')">
+                            Datos Clínicos
+                        </button>
+                    </div>
+
+                    <div style="padding: 1.5rem 2rem;">
+                        <div class="subtab-content active" id="subtab-f360-optica">
+                            <div class="rx-display-card">
+                                <div class="rx-display-title">
+                                    <span>Fórmula de Refracción Registrada:</span>
+                                    <button type="button" class="btn btn-xs btn-primary" onclick="editarPacienteDesde360()">
+                                        <i class="fa-solid fa-pen"></i> Actualizar Ficha
+                                    </button>
+                                </div>
+                                <div class="table-responsive" style="margin-top: 0.75rem;">
+                                    <table class="rx-table-modern">
+                                        <thead>
+                                            <tr>
+                                                <th>Ojo</th>
+                                                <th>Esfera</th>
+                                                <th>Cilindro</th>
+                                                <th>Eje</th>
+                                                <th>Adición</th>
+                                                <th>Agudeza</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><strong>OD (Derecho)</strong></td>
+                                                <td id="f360OdSph">--</td>
+                                                <td id="f360OdCyl">--</td>
+                                                <td id="f360OdAxis">--</td>
+                                                <td id="f360OdAdd">--</td>
+                                                <td id="f360OdAv">--</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>OS (Izquierdo)</strong></td>
+                                                <td id="f360OsSph">--</td>
+                                                <td id="f360OsCyl">--</td>
+                                                <td id="f360OsAxis">--</td>
+                                                <td id="f360OsAdd">--</td>
+                                                <td id="f360OsAv">--</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="rx-details-row">
+                                    <div><strong>Distancia Pupilar (DP):</strong> <span id="f360Dp">--</span> mm</div>
+                                    <div><strong>Altura Focal:</strong> <span id="f360Alt">--</span> mm</div>
+                                    <div><strong>Tipo Recomendado:</strong> <span id="f360TipoLente">--</span></div>
+                                    <div><strong>Material:</strong> <span id="f360Material">--</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="subtab-content" id="subtab-f360-compras" style="display: none;">
+                            <div id="f360RecibosList" class="f360-items-list"></div>
+                        </div>
+
+                        <div class="subtab-content" id="subtab-f360-laboratorio" style="display: none;">
+                            <div id="f360LabList" class="f360-items-list"></div>
+                        </div>
+
+                        <div class="subtab-content" id="subtab-f360-clinica" style="display: none;">
+                            <div class="info-meta-grid">
+                                <div class="meta-item"><span class="meta-label">Teléfono:</span><span class="meta-val" id="f360Tel">--</span></div>
+                                <div class="meta-item"><span class="meta-label">WhatsApp:</span><span class="meta-val" id="f360Wa">--</span></div>
+                                <div class="meta-item"><span class="meta-label">Email:</span><span class="meta-val" id="f360Email">--</span></div>
+                                <div class="meta-item"><span class="meta-label">Edad / Sexo:</span><span class="meta-val" id="f360EdadSexo">--</span></div>
+                                <div class="meta-item"><span class="meta-label">Nacimiento:</span><span class="meta-val" id="f360Nacimiento">--</span></div>
+                                <div class="meta-item"><span class="meta-label">Ocupación:</span><span class="meta-val" id="f360Ocupacion">--</span></div>
+                                <div class="meta-item"><span class="meta-label">Sede Preferida:</span><span class="meta-val" id="f360Sede">--</span></div>
+                                <div class="meta-item" style="grid-column: span 2;"><span class="meta-label">Dirección Corta:</span><span class="meta-val" id="f360Direccion">--</span></div>
+                            </div>
+                            <div class="clinical-notes-box" style="margin-top: 1rem;">
+                                <h4>Antecedentes & Alergias:</h4>
+                                <p id="f360Antecedentes" style="font-size: 0.9rem; color: var(--color-gray-700);">Ninguno reportado.</p>
+                                <h4 style="margin-top: 0.75rem;">Notas Clínicas:</h4>
+                                <p id="f360Notas" style="font-size: 0.9rem; color: var(--color-gray-700);">Sin observaciones adicionales.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModalFicha360()">Cerrar</button>
+                    <button type="button" class="btn btn-emerald" id="btnF360WhatsApp">
+                        <i class="fa-brands fa-whatsapp"></i> Chat WhatsApp
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. MODAL: ACTUALIZAR TASA OFICIAL BCV -->
+    <div class="modal-backdrop" id="modalEditarTasa" style="display: none;">
+        <div class="modal-dialog modal-dialog-sm">
+            <div class="modal-content">
+                <div class="modal-header header-amber">
+                    <h3><i class="fa-solid fa-coins"></i> Actualizar Tasa Oficial BCV</h3>
+                    <button type="button" class="btn-modal-close" onclick="cerrarModalTasa()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p style="font-size: 0.88rem; color: var(--color-gray-600); margin-bottom: 1rem;">
+                        Tasa oficial suministrada del Banco Central de Venezuela (<a href="https://www.bcv.org.ve/" target="_blank" style="color: #0284C7;">www.bcv.org.ve</a>).
+                    </p>
+
+                    <div style="margin-bottom: 1.25rem;">
+                        <button type="button" class="btn btn-outline-primary w-100" id="btnSyncTasaModal" onclick="sincronizarTasaBCV(false)" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; height: 40px; font-weight: 700; border-radius: 8px;">
+                            <i class="fa-solid fa-arrows-rotate" id="iconSyncModal"></i>
+                            <span>Sincronizar Tasa BCV en Vivo</span>
+                        </button>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="inputTasaModal">Tasa USD Oficial (Bs por $)</label>
+                        <input type="number" id="inputTasaModal" class="form-control form-control-lg" step="0.01" placeholder="Ej: 847.44">
+                    </div>
+                    <div class="form-group" style="margin-top: 0.75rem;">
+                        <label class="form-label" for="inputFechaTasaModal">Fecha Valor</label>
+                        <input type="text" id="inputFechaTasaModal" class="form-control" placeholder="Fecha valor de la tasa">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModalTasa()">Cancelar</button>
+                    <button type="button" class="btn btn-emerald" onclick="guardarTasaModal()">Guardar Tasa BCV</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. MODAL: REGISTRAR MOVIMIENTO DE CAJA OPERATIVA -->
+    <div class="modal-backdrop" id="modalMovimientoCaja" style="display: none;">
+        <div class="modal-dialog modal-dialog-sm">
+            <div class="modal-content">
+                <div class="modal-header header-emerald">
+                    <h3><i class="fa-solid fa-plus-minus"></i> Movimiento de Caja Operativa</h3>
+                    <button type="button" class="btn-modal-close" onclick="cerrarModalMovimientoCaja()">&times;</button>
+                </div>
+                <form id="formMovimientoCaja" onsubmit="guardarFormMovimientoCaja(event)">
+                    <div class="modal-body">
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label class="form-label">Tipo de Movimiento *</label>
+                                <select id="movTipoSelect" class="form-control" onchange="onTipoMovimientoCajaChange()" required>
+                                    <option value="EGRESO_GASTO" selected>Egreso: Gasto Operativo (Servicios, Nómina, Viáticos...)</option>
+                                    <option value="EGRESO_COMPRA">Egreso: Compra de Mercancía / Insumos / Monturas</option>
+                                    <option value="INGRESO">Ingreso Extra (+)</option>
+                                </select>
+                            </div>
+                            <div class="form-group flex-1">
+                                <label class="form-label">Sede *</label>
+                                <select id="movSedeSelect" class="form-control">
+                                    <option value="Maracay">Maracay</option>
+                                    <option value="San Juan de los Morros">San Juan de los Morros</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Concepto o Justificación *</label>
+                            <input type="text" id="movConceptoInput" class="form-control" placeholder="Ej: Compra de insumos, servicios, flete" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label class="form-label" id="lblMovMontoUsd">Monto ($ USD) *</label>
+                                <input type="number" id="movMontoUsdInput" class="form-control" step="0.01" min="0" placeholder="0.00" oninput="calcularMovimientoBsDesdeUsd()">
+                            </div>
+                            <div class="form-group flex-1">
+                                <label class="form-label" id="lblMovMontoBs">Monto en Bolívares (Bs) *</label>
+                                <input type="number" id="movMontoBsInput" class="form-control" step="0.01" min="0" placeholder="0.00" oninput="calcularMovimientoUsdDesdeBs()">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label class="form-label">Método de Salida / Pago *</label>
+                                <select id="movMetodoSelect" class="form-control">
+                                    <option value="efectivo_usd">Efectivo USD ($)</option>
+                                    <option value="cashea">Cashea ($ USD)</option>
+                                    <option value="pago_movil">Pago Móvil (Bs)</option>
+                                    <option value="punto_venta">Punto de Venta (Bs)</option>
+                                    <option value="transferencia">Transferencia Bancaria (Bs)</option>
+                                    <option value="zelle">Zelle ($)</option>
+                                </select>
+                            </div>
+                            <div class="form-group flex-1">
+                                <label class="form-label">Referencia / Comprobante</label>
+                                <input type="text" id="movReferenciaInput" class="form-control" placeholder="Ej: Factura 4102 / Recibo">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="cerrarModalMovimientoCaja()">Cancelar</button>
+                        <button type="submit" class="btn btn-emerald"><i class="fa-solid fa-check"></i> Registrar Movimiento</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. MODAL: DETALLE DE RECIBO (LECTURA / INSPECCIÓN) -->
+    <div class="modal-backdrop" id="modalReciboOficial" style="display: none;">
+        <div class="modal-dialog modal-dialog-lg">
+            <div class="modal-content">
+                <div class="modal-header header-blue">
+                    <div>
+                        <h3 id="reciboModalTitle"><i class="fa-solid fa-file-invoice-dollar"></i> Recibo de Pago</h3>
+                        <span id="reciboModalSubtitle" style="font-size: 0.8rem; color: rgba(255,255,255,0.85);">Comprobante oficial</span>
+                    </div>
+                    <button type="button" class="btn-modal-close" onclick="cerrarModalRecibo()">&times;</button>
+                </div>
+                <div class="modal-body" id="reciboModalBody" style="padding: 1.5rem;">
+                    <div id="receiptPrintArea"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModalRecibo()">Cerrar</button>
+                    <button type="button" class="btn btn-primary" onclick="imprimirReciboModal()">
+                        <i class="fa-solid fa-print"></i> Imprimir Recibo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- MODALES CLINICOS Y DE IMPRESION MASTER -->
+    <div class="modal-backdrop" id="modalDetalleConsulta" style="display: none;">
+        <div class="modal-dialog modal-dialog-lg" style="max-width: 900px;">
+            <div class="modal-content">
+                <div class="modal-header header-blue">
+                    <div>
+                        <span class="modal-badge-white"><i class="fa-solid fa-clipboard-user"></i> Expediente Clínico</span>
+                        <h3 id="mdcTitulo" style="margin-top: 0.25rem;">Consulta Oftalmológica</h3>
+                        <span id="mdcSubhead" class="modal-subhead-white">Código: CNS-2026-0001</span>
+                    </div>
+                    <button type="button" class="btn-modal-close" onclick="cerrarModalDetalleConsulta()">&times;</button>
+                </div>
+                <div class="modal-body" style="padding: 1.75rem 2rem; background: #FFFFFF;" id="printableConsultaSheet">
+                    <!-- Cabecera Institucional de Impresión -->
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0080EA; padding-bottom: 1rem; margin-bottom: 1.25rem;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <img src="images/LOGO.jpg" alt="Logo" style="width: 48px; height: 48px; border-radius: 4px; object-fit: cover;">
+                            <div>
+                                <h2 style="font-size: 1.35rem; font-weight: 800; color: #14197A; margin: 0;">CENTRO ÓPTICO NIEVES</h2>
+                                <p style="font-size: 0.82rem; color: #475569; margin: 2px 0;">Especialistas en el Cuidado de tus Ojos &bull; RIF: J-40968579-9</p>
+                                <p style="font-size: 0.8rem; color: #64748B; margin: 0;" id="mdcDoctorInfo">--</p>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <span class="badge-tag badge-blue" id="mdcSedeTag" style="font-size: 0.82rem;">Sede Maracay</span>
+                            <div style="font-size: 0.82rem; color: #64748B; margin-top: 0.35rem;">
+                                Fecha: <strong id="mdcFecha" style="color: #0F172A;">13/09/2026</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Datos del Paciente -->
+                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.25rem;">
+                        <div class="clinical-grid-4">
+                            <div><span style="font-size: 0.75rem; color: #64748B; text-transform: uppercase;">Paciente:</span><br><strong id="mdcPacienteNombre" style="color: #0F172A; font-size: 0.95rem;">--</strong></div>
+                            <div><span style="font-size: 0.75rem; color: #64748B; text-transform: uppercase;">Cédula:</span><br><strong id="mdcPacienteCedula" style="color: #0F172A; font-size: 0.95rem;">--</strong></div>
+                            <div><span style="font-size: 0.75rem; color: #64748B; text-transform: uppercase;">Edad:</span><br><strong id="mdcPacienteEdad" style="color: #0F172A; font-size: 0.95rem;">--</strong></div>
+                            <div><span style="font-size: 0.75rem; color: #64748B; text-transform: uppercase;">Teléfono:</span><br><strong id="mdcPacienteTel" style="color: #0F172A; font-size: 0.95rem;">--</strong></div>
+                        </div>
+                    </div>
+
+                    <!-- Anamnesis y Motivo -->
+                    <div style="margin-bottom: 1.25rem;">
+                        <h4 style="font-size: 0.92rem; font-weight: 800; color: #0369A1; border-bottom: 1px solid #E2E8F0; padding-bottom: 0.35rem; margin-bottom: 0.5rem;">
+                            MOTIVO DE CONSULTA & ANTECEDENTES
+                        </h4>
+                        <p style="font-size: 0.88rem; color: #1E293B; margin: 0 0 0.35rem;"><strong>Motivo:</strong> <span id="mdcMotivo">--</span></p>
+                        <p style="font-size: 0.88rem; color: #1E293B; margin: 0 0 0.35rem;"><strong>Enfermedad Actual:</strong> <span id="mdcEnfermedad">--</span></p>
+                        <p style="font-size: 0.85rem; color: #475569; margin: 0;"><strong>Antecedentes:</strong> <span id="mdcAntecedentes">--</span></p>
+                    </div>
+
+                    <!-- Refracción Prescrita -->
+                    <div style="margin-bottom: 1.25rem;">
+                        <h4 style="font-size: 0.92rem; font-weight: 800; color: #0369A1; border-bottom: 1px solid #E2E8F0; padding-bottom: 0.35rem; margin-bottom: 0.5rem;">
+                            REFRACCIÓN DEFINITIVA & PARÁMETROS ÓPTICOS
+                        </h4>
+                        <table class="table-optometrica" style="margin: 0.5rem 0;">
+                            <thead>
+                                <tr>
+                                    <th>Ojo</th>
+                                    <th>Esfera (Esf)</th>
+                                    <th>Cilindro (Cyl)</th>
+                                    <th>Eje (Axis)</th>
+                                    <th>Adición (Add)</th>
+                                    <th>AV Final</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>OD (Derecho)</strong></td>
+                                    <td id="mdcOdEsf">--</td>
+                                    <td id="mdcOdCyl">--</td>
+                                    <td id="mdcOdEje">--</td>
+                                    <td id="mdcOdAdd">--</td>
+                                    <td id="mdcOdAv">20/20</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>OS (Izquierdo)</strong></td>
+                                    <td id="mdcOsEsf">--</td>
+                                    <td id="mdcOsCyl">--</td>
+                                    <td id="mdcOsEje">--</td>
+                                    <td id="mdcOsAdd">--</td>
+                                    <td id="mdcOsAv">20/20</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Diagnóstico & Plan -->
+                    <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 8px; padding: 1rem 1.25rem;">
+                        <h4 style="font-size: 0.92rem; font-weight: 800; color: #166534; margin: 0 0 0.35rem;">
+                            DIAGNÓSTICO & CONDUCTA
+                        </h4>
+                        <p style="font-size: 0.9rem; color: #14532D; margin: 0 0 0.35rem;">
+                            <strong>Diagnóstico Refractivo:</strong> <span id="mdcDiagRefractivo">--</span>
+                        </p>
+                        <p style="font-size: 0.85rem; color: #166534; margin: 0 0 0.35rem;">
+                            <strong>Exploración / PIO:</strong> <span id="mdcBiomicroscopia">--</span>
+                        </p>
+                        <p style="font-size: 0.88rem; color: #14532D; margin: 0;">
+                            <strong>Plan & Indicaciones:</strong> <span id="mdcPlan">--</span>
+                        </p>
+                    </div>
+
+                    <!-- Firma Médica -->
+                    <div style="margin-top: 2.5rem; display: flex; justify-content: flex-end; text-align: center;">
+                        <div style="border-top: 1.5px solid #334155; width: 260px; padding-top: 0.45rem;">
+                            <strong style="font-size: 0.9rem; color: #0F172A;" id="mdcFirmaDoctor">--</strong><br>
+                            <span style="font-size: 0.78rem; color: #64748B;">Oftalmólogo &bull; Optometrista</span><br>
+                            <span style="font-size: 0.72rem; color: #94A3B8;">Centro Óptico Nieves</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModalDetalleConsulta()">Cerrar</button>
+                    <button type="button" class="btn btn-secondary" onclick="emitirRecipeDesdeModalConsulta()">
+                        <i class="fa-solid fa-file-prescription"></i> Emitir Récipe
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="imprimirConsultaActual()">
+                        <i class="fa-solid fa-print"></i> Imprimir Ficha
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="modalHistoriaOptometricaOficial" style="display: none;">
+        <div class="modal-dialog modal-dialog-lg" style="max-width: 880px;">
+            <div class="modal-content">
+                <div class="modal-header header-blue">
+                    <div>
+                        <h3><i class="fa-solid fa-eye"></i> Historia Optométrica Oficial</h3>
+                        <span style="font-size: 0.8rem; color: rgba(255,255,255,0.85);">Documento Clínico Oficial &bull; Oftalmología</span>
+                    </div>
+                    <button type="button" class="btn-modal-close" onclick="cerrarModalHistoriaOptometrica()">&times;</button>
+                </div>
+                <div class="modal-body" style="background: #E2E8F0; padding: 1.5rem; overflow-y: auto; max-height: calc(88vh - 120px);">
+                    <div class="clinical-doc-sheet" id="historiaOptometricaPrintArea">
+                        <div class="clinical-doc-watermark"></div>
+                        <!-- Membrete Médico del Doctor (Sin Datos Corporativos) -->
+                        <div class="clinical-doc-header">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <img src="images/LOGO.jpg" alt="Centro Óptico Nieves" class="header-doc-logo-img">
+                                <div>
+                                    <div class="cdoc-brand-title" id="prnHoDocNombre" style="font-size: 1.25rem; font-weight: 800; color: #0F172A;"></div>
+                                    <div class="cdoc-brand-rif" id="prnHoDocEspecialidad" style="font-size: 0.85rem; font-weight: 700; color: #0080EA;">OFTALMOLOGÍA</div>
+                                    <div style="font-size: 0.8rem; color: #475569; margin-top: 2px;" id="prnHoDocCreds"></div>
+                                </div>
+                            </div>
+                            <div class="cdoc-meta-right">
+                                <div style="font-size: 1.15rem; font-weight: 800; color: #0F172A; text-align: right;">HISTORIA PACIENTE</div>
+                                <div style="margin-top: 4px;"><strong>Fecha:</strong> <span id="prnHoFecha">--</span></div>
+                                <div><strong>Sede:</strong> <span id="prnHoSede">--</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Datos del Paciente -->
+                        <div style="margin-bottom: 0.85rem;">
+                            <div class="cdoc-field-row">
+                                <div class="cdoc-field" style="flex: 2;">
+                                    <strong>Nombre y Apellidos:</strong>
+                                    <span class="cdoc-line-fill" style="flex: 1;" id="prnHoNombre">--</span>
+                                </div>
+                                <div class="cdoc-field">
+                                    <strong>C.I.:</strong>
+                                    <span class="cdoc-line-fill" style="min-width: 100px;" id="prnHoCedula">--</span>
+                                </div>
+                                <div class="cdoc-field">
+                                    <strong>Edad:</strong>
+                                    <span class="cdoc-line-fill" style="min-width: 50px;" id="prnHoEdad">--</span>
+                                </div>
+                            </div>
+
+                            <div class="cdoc-field-row">
+                                <div class="cdoc-field">
+                                    <strong>Teléfono:</strong>
+                                    <span class="cdoc-line-fill" style="min-width: 120px;" id="prnHoTelefono">--</span>
+                                </div>
+                                <div class="cdoc-field" style="flex: 1;">
+                                    <strong>Ocupación:</strong>
+                                    <span class="cdoc-line-fill" style="flex: 1;" id="prnHoOcupacion">--</span>
+                                </div>
+                            </div>
+
+                            <div class="cdoc-field-row">
+                                <div class="cdoc-field" style="width: 100%;">
+                                    <strong>Dirección:</strong>
+                                    <span class="cdoc-line-fill" style="flex: 1;" id="prnHoDireccion">--</span>
+                                </div>
+                            </div>
+
+                            <div class="cdoc-field-row" style="margin-top: 4px;">
+                                <div class="cdoc-field">
+                                    <strong>Usuario de Lentes:</strong>
+                                    <span class="cdoc-line-fill" id="prnHoUsuarioLentes">--</span>
+                                </div>
+                                <div class="cdoc-field">
+                                    <strong>Ant:</strong>
+                                    <span>HTA [<span id="prnHoAntHta"> </span>]</span>
+                                    <span>DBT [<span id="prnHoAntDbt"> </span>]</span>
+                                    <span>Glaucoma [<span id="prnHoAntGlaucoma"> </span>]</span>
+                                </div>
+                                <div class="cdoc-field" style="flex: 1;">
+                                    <strong>Medicamento Actual:</strong>
+                                    <span class="cdoc-line-fill" style="flex: 1;" id="prnHoMedicamento">--</span>
+                                </div>
+                            </div>
+
+                            <div class="cdoc-field-row" style="margin-top: 4px;">
+                                <div class="cdoc-field" style="width: 100%;">
+                                    <strong>Motivo de Consulta:</strong>
+                                    <span class="cdoc-line-fill" style="flex: 1;" id="prnHoMotivo">--</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lensometría -->
+                        <div class="cdoc-block-title">LENSOMETRÍA</div>
+                        <table class="cdoc-table">
+                            <thead>
+                                <tr>
+                                    <th>OJO</th>
+                                    <th>ESFERA</th>
+                                    <th>CILINDRO</th>
+                                    <th>EJE</th>
+                                    <th>ADD</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>OD</strong></td>
+                                    <td id="prnHoLensoOdEsf">--</td>
+                                    <td id="prnHoLensoOdCil">--</td>
+                                    <td id="prnHoLensoOdEje">--</td>
+                                    <td id="prnHoLensoOdAdd">--</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>OI</strong></td>
+                                    <td id="prnHoLensoOiEsf">--</td>
+                                    <td id="prnHoLensoOiCil">--</td>
+                                    <td id="prnHoLensoOiEje">--</td>
+                                    <td id="prnHoLensoOiAdd">--</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Pruebas Preliminares -->
+                        <div class="cdoc-block-title">PRUEBAS PRELIMINARES</div>
+                        <table class="cdoc-table">
+                            <thead>
+                                <tr>
+                                    <th>PRUEBA</th>
+                                    <th>OD</th>
+                                    <th>OI</th>
+                                    <th>OBSERVACIONES / VALOR</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>AV / SC</strong></td>
+                                    <td id="prnHoAvScOd">--</td>
+                                    <td id="prnHoAvScOi">--</td>
+                                    <td>Visión habitual sin corrección</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>AV / PH</strong></td>
+                                    <td id="prnHoAvPhOd">--</td>
+                                    <td id="prnHoAvPhOi">--</td>
+                                    <td>Potencial estenopeico</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>PPC</strong></td>
+                                    <td colspan="2" id="prnHoPpc">--</td>
+                                    <td>Punto Próximo de Convergencia</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>PPA</strong></td>
+                                    <td id="prnHoPpaOd">--</td>
+                                    <td id="prnHoPpaOi">--</td>
+                                    <td>Punto Próximo de Acomodación</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Cover Test Unilateral</strong></td>
+                                    <td id="prnHoCoverUniOd">--</td>
+                                    <td id="prnHoCoverUniOi">--</td>
+                                    <td>Detección de tropias</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Cover Test Alternantes</strong></td>
+                                    <td id="prnHoCoverAltOd">--</td>
+                                    <td id="prnHoCoverAltOi">--</td>
+                                    <td>Detección de forias</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Reflejos Pupilares</strong></td>
+                                    <td colspan="2" id="prnHoReflejos">--</td>
+                                    <td>PIRRLA / Normales</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Motilidad Ocular</strong></td>
+                                    <td id="prnHoMotilidadOd">--</td>
+                                    <td id="prnHoMotilidadOi">--</td>
+                                    <td>Suave y continua</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Duocromo</strong></td>
+                                    <td id="prnHoDuocromoOd">--</td>
+                                    <td id="prnHoDuocromoOi">--</td>
+                                    <td>Neutro / Balance bicromático</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>LUCES DE WORTH</strong></td>
+                                    <td colspan="3" style="font-weight: bold; font-size: 0.95rem; background: #F8FAFC;" id="prnHoLucesWorth">--</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Examen Físico Ocular -->
+                        <div class="cdoc-field-row" style="margin-top: 0.5rem;">
+                            <div class="cdoc-field" style="width: 100%;">
+                                <strong>Biomicroscopía:</strong>
+                                <span class="cdoc-line-fill" style="flex: 1;" id="prnHoBiomicroscopia">--</span>
+                            </div>
+                        </div>
+                        <div class="cdoc-field-row">
+                            <div class="cdoc-field" style="width: 100%;">
+                                <strong>Oftalmoscopía:</strong>
+                                <span class="cdoc-line-fill" style="flex: 1;" id="prnHoOftalmoscopia">--</span>
+                            </div>
+                        </div>
+
+                        <!-- RX Definitivo -->
+                        <div class="cdoc-block-title">RX DEFINITIVO</div>
+                        <table class="cdoc-table">
+                            <thead>
+                                <tr>
+                                    <th>OJO</th>
+                                    <th>ESFERA</th>
+                                    <th>CILINDRO</th>
+                                    <th>ADD</th>
+                                    <th>AV CC</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>OD</strong></td>
+                                    <td id="prnHoRxOdEsf" style="font-weight: bold;">--</td>
+                                    <td id="prnHoRxOdCil" style="font-weight: bold;">--</td>
+                                    <td id="prnHoRxOdAdd" style="font-weight: bold;">--</td>
+                                    <td id="prnHoRxOdAvCc">--</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>OI</strong></td>
+                                    <td id="prnHoRxOiEsf" style="font-weight: bold;">--</td>
+                                    <td id="prnHoRxOiCil" style="font-weight: bold;">--</td>
+                                    <td id="prnHoRxOiAdd" style="font-weight: bold;">--</td>
+                                    <td id="prnHoRxOiAvCc">--</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="cdoc-field-row">
+                            <div class="cdoc-field">
+                                <strong>DP:</strong>
+                                <span class="cdoc-line-fill" style="min-width: 60px;" id="prnHoRxDp">--</span> mm
+                            </div>
+                            <div class="cdoc-field" style="flex: 1;">
+                                <strong>Observaciones:</strong>
+                                <span class="cdoc-line-fill" style="flex: 1;" id="prnHoObservaciones">--</span>
+                            </div>
+                        </div>
+
+                        <!-- Firma -->
+                        <div style="margin-top: 2rem; display: flex; justify-content: flex-end; text-align: center;">
+                            <div style="width: 250px; border-top: 1px solid #0F172A; padding-top: 4px;">
+                                <strong style="font-size: 0.9rem;" id="prnHoFirma"></strong><br>
+                                <span style="font-size: 0.8rem; color: #475569;" id="prnHoFirmaEspecialidad">Oftalmología</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModalHistoriaOptometrica()">Cerrar</button>
+                    <button type="button" class="btn btn-primary" onclick="openModalAndPrint('modalHistoriaOptometricaOficial')">
+                        <i class="fa-solid fa-print"></i> Imprimir Documento
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="modalConsultaOftalmologicaOficial" style="display: none;">
+        <div class="modal-dialog modal-dialog-lg" style="max-width: 900px;">
+            <div class="modal-content">
+                <div class="modal-header header-blue">
+                    <div>
+                        <h3><i class="fa-solid fa-file-medical"></i> Consulta Oftalmológica</h3>
+                        <span style="font-size: 0.8rem; color: rgba(255,255,255,0.85);">Expediente formal completo con protocolo oftalmológico</span>
+                    </div>
+                    <button type="button" class="btn-modal-close" onclick="cerrarModalConsultaOftalmologica()">&times;</button>
+                </div>
+                <div class="modal-body" style="background: #CBD5E1; padding: 1.5rem; overflow-y: auto; max-height: calc(88vh - 120px);">
+                    <div class="clinical-doc-sheet" id="consultaOftalmologicaPrintArea">
+                        <div class="clinical-doc-watermark"></div>
+                        
+                        <!-- PÁGINA 1 -->
+                        <div class="cdoc-page-1">
+                            <div class="clinical-doc-header">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                <img src="images/LOGO.jpg" alt="Centro Óptico Nieves" class="header-doc-logo-img">
+                                    <div>
+                                        <div class="cdoc-brand-title" id="prnCoDocNombre" style="font-size: 1.25rem; font-weight: 800; color: #0F172A;"></div>
+                                        <div class="cdoc-brand-rif" id="prnCoDocEspecialidad" style="font-size: 0.85rem; font-weight: 700; color: #0080EA;">OFTALMOLOGÍA</div>
+                                        <div style="font-size: 0.8rem; color: #475569; margin-top: 2px;" id="prnCoDocCreds"></div>
+                                    </div>
+                                </div>
+                                <div class="cdoc-meta-right">
+                                    <div style="font-size: 1.1rem; font-weight: 800; color: #0F172A; text-align: right;">CONSULTA OFTALMOLÓGICA</div>
+                                    <div><strong>Código:</strong> <span id="prnCoCodigo">CNS-0000</span></div>
+                                    <div><strong>Fecha:</strong> <span id="prnCoFecha">--</span></div>
+                                    <div><strong>Sede:</strong> <span id="prnCoSede">--</span></div>
+                                    
+                                </div>
+                            </div>
+
+                            <!-- Identificación del Paciente -->
+                            <div class="cdoc-field-row">
+                                <div class="cdoc-field" style="flex: 2;">
+                                    <strong>Paciente:</strong>
+                                    <span class="cdoc-line-fill" style="flex: 1;" id="prnCoNombre">--</span>
+                                </div>
+                                <div class="cdoc-field">
+                                    <strong>C.I.:</strong>
+                                    <span class="cdoc-line-fill" style="min-width: 90px;" id="prnCoCedula">--</span>
+                                </div>
+                                <div class="cdoc-field">
+                                    <strong>Edad:</strong>
+                                    <span class="cdoc-line-fill" style="min-width: 45px;" id="prnCoEdad">--</span>
+                                </div>
+                            </div>
+
+                            <div class="cdoc-field-row">
+                                <div class="cdoc-field">
+                                    <strong>F. Nacimiento:</strong>
+                                    <span class="cdoc-line-fill" style="min-width: 90px;" id="prnCoNacimiento">--</span>
+                                </div>
+                                <div class="cdoc-field">
+                                    <strong>Teléfono:</strong>
+                                    <span class="cdoc-line-fill" style="min-width: 110px;" id="prnCoTel">--</span>
+                                </div>
+                                <div class="cdoc-field" style="flex: 1;">
+                                    <strong>Ocupación:</strong>
+                                    <span class="cdoc-line-fill" style="flex: 1;" id="prnCoOcupacion">--</span>
+                                </div>
+                            </div>
+
+                            <div class="cdoc-field-row">
+                                <div class="cdoc-field" style="width: 100%;">
+                                    <strong>Dirección:</strong>
+                                    <span class="cdoc-line-fill" style="flex: 1;" id="prnCoDireccion">--</span>
+                                </div>
+                            </div>
+
+                            <!-- 1. Anamnesis y Enfermedad Actual -->
+                            <div class="cdoc-block-title">1. MOTIVO DE CONSULTA & ENFERMEDAD ACTUAL</div>
+                            <div class="cdoc-field-row">
+                                <div class="cdoc-field" style="width: 100%;">
+                                    <strong>Motivo:</strong>
+                                    <span class="cdoc-line-fill" style="flex: 1;" id="prnCoMotivo">--</span>
+                                </div>
+                            </div>
+                            <div style="font-size: 0.88rem; margin: 0.4rem 0; line-height: 1.35; text-align: justify;" id="prnCoEnfermedad">
+                                --
+                            </div>
+
+                            <!-- 2. Antecedentes -->
+                            <div class="cdoc-block-title">2. ANTECEDENTES</div>
+                            <div style="font-size: 0.86rem; margin-bottom: 0.5rem;">
+                                <div><strong>Personales Patológicos:</strong> <span id="prnCoAntPersonales">--</span></div>
+                                <div style="margin-top: 2px;"><strong>Oftalmológicos:</strong> <span id="prnCoAntOftalmologicos">--</span></div>
+                                <div style="margin-top: 2px;"><strong>Familiares:</strong> <span id="prnCoAntFamiliares">--</span></div>
+                            </div>
+
+                            <!-- 3. Agudeza Visual Lejana & Cercana -->
+                            <div class="cdoc-block-title">3. AGUDEZA VISUAL LEJANA (AVL) & CERCANA (AVC)</div>
+                            <table class="cdoc-table">
+                                <thead>
+                                    <tr>
+                                        <th>OJO</th>
+                                        <th>AVL (SC)</th>
+                                        <th>AVL (CC)</th>
+                                        <th>AVL (PH)</th>
+                                        <th>AVC (CERCANA)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>OD</strong></td>
+                                        <td id="prnCoAvlScOd">--</td>
+                                        <td id="prnCoAvlCcOd">--</td>
+                                        <td id="prnCoAvlPhOd">--</td>
+                                        <td id="prnCoAvcOd">--</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>OI</strong></td>
+                                        <td id="prnCoAvlScOi">--</td>
+                                        <td id="prnCoAvlCcOi">--</td>
+                                        <td id="prnCoAvlPhOi">--</td>
+                                        <td id="prnCoAvcOi">--</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- 4. Refracción Subjetiva Definitiva -->
+                            <div class="cdoc-block-title">4. REFRACCIÓN SUBJETIVA DEFINITIVA</div>
+                            <table class="cdoc-table">
+                                <thead>
+                                    <tr>
+                                        <th>OJO</th>
+                                        <th>ESFERA</th>
+                                        <th>CILINDRO</th>
+                                        <th>EJE</th>
+                                        <th>ADD</th>
+                                        <th>AV FINAL</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>OD</strong></td>
+                                        <td id="prnCoRxOdEsf" style="font-weight: bold;">--</td>
+                                        <td id="prnCoRxOdCil" style="font-weight: bold;">--</td>
+                                        <td id="prnCoRxOdEje">--</td>
+                                        <td id="prnCoRxOdAdd">--</td>
+                                        <td id="prnCoRxOdAv">--</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>OI</strong></td>
+                                        <td id="prnCoRxOiEsf" style="font-weight: bold;">--</td>
+                                        <td id="prnCoRxOiCil" style="font-weight: bold;">--</td>
+                                        <td id="prnCoRxOiEje">--</td>
+                                        <td id="prnCoRxOiAdd">--</td>
+                                        <td id="prnCoRxOiAv">--</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- SALTO DE PÁGINA PARA IMPRESIÓN -->
+                        <div class="page-break" style="margin-top: 2rem; border-top: 2px dashed #94A3B8; padding-top: 1.5rem;"></div>
+
+                        <!-- PÁGINA 2 -->
+                        <div class="cdoc-page-2">
+                            <div class="clinical-doc-header">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 4px; background: #0080EA; display: flex; align-items: center; justify-content: center; color: #FFF; font-size: 1.1rem;">
+                                        <i class="fa-solid fa-user-doctor"></i>
+                                    </div>
+                                    <div>
+                                        <div class="cdoc-brand-title" id="prnCoDocNombrePage2" style="font-size: 1rem; font-weight: 800; color: #0F172A;"></div>
+                                        <div style="font-size: 0.8rem; font-weight: 700; color: #0080EA;" id="prnCoDocEspecialidadPage2">OFTALMOLOGÍA</div>
+                                    </div>
+                                </div>
+                                <div class="cdoc-meta-right">
+                                    <div><strong>Paciente:</strong> <span id="prnCoNombre2">--</span></div>
+                                    <div style="font-size: 0.75rem; color: #64748B;">(Página 2 de 2)</div>
+                                </div>
+                            </div>
+
+                            <!-- 5. Refracción Ciclopléjica & Balance Muscular -->
+                            <div class="cdoc-block-title">5. REFRACCIÓN CICLOPLÉJICA & BALANCE MUSCULAR</div>
+                            <table class="cdoc-table">
+                                <thead>
+                                    <tr>
+                                        <th>OJO</th>
+                                        <th>ESFERA CICLOPLEJIA</th>
+                                        <th>CILINDRO CICLOPLEJIA</th>
+                                        <th>EJE</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>OD</strong></td>
+                                        <td id="prnCoCicloOdEsf">--</td>
+                                        <td id="prnCoCicloOdCil">--</td>
+                                        <td id="prnCoCicloOdEje">--</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>OI</strong></td>
+                                        <td id="prnCoCicloOiEsf">--</td>
+                                        <td id="prnCoCicloOiCil">--</td>
+                                        <td id="prnCoCicloOiEje">--</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="cdoc-field-row" style="margin-top: 4px;">
+                                <div class="cdoc-field" style="width: 100%;">
+                                    <strong>Balance Muscular:</strong>
+                                    <span class="cdoc-line-fill" style="flex: 1;" id="prnCoBalanceMuscular">--</span>
+                                </div>
+                            </div>
+
+                            <!-- 6. Biomicroscopía, PIO & Fondo de Ojos -->
+                            <div class="cdoc-block-title">6. BIOMICROSCOPÍA, PIO (mmHg) & FONDO DE OJOS</div>
+                            <div style="font-size: 0.86rem; margin-bottom: 0.5rem;">
+                                <div><strong>Biomicroscopía OD:</strong> <span id="prnCoBioOd">--</span></div>
+                                <div style="margin-top: 3px;"><strong>Biomicroscopía OI:</strong> <span id="prnCoBioOi">--</span></div>
+                                <div style="margin-top: 5px; background: #F8FAFC; padding: 4px 8px; border: 1px solid #E2E8F0; border-radius: 4px;">
+                                    <strong>Presión Intraocular (Tonometría):</strong>
+                                    OD: <span id="prnCoPioOd" style="font-weight: bold;">--</span> mmHg &bull;
+                                    OI: <span id="prnCoPioOi" style="font-weight: bold;">--</span> mmHg
+                                </div>
+                                <div style="margin-top: 5px;"><strong>Fondo de Ojo OD:</strong> <span id="prnCoFondoOd">--</span></div>
+                                <div style="margin-top: 3px;"><strong>Fondo de Ojo OI:</strong> <span id="prnCoFondoOi">--</span></div>
+                            </div>
+
+                            <!-- 7. Impresión Diagnóstica -->
+                            <div class="cdoc-block-title">7. IMPRESIÓN DIAGNÓSTICA</div>
+                            <ol style="margin: 0.35rem 0 0.75rem 1.5rem; padding: 0; font-size: 0.88rem; line-height: 1.4;">
+                                <li id="prnCoDiag1">--</li>
+                                <li id="prnCoDiag2" style="display: none;"></li>
+                                <li id="prnCoDiag3" style="display: none;"></li>
+                                <li id="prnCoDiag4" style="display: none;"></li>
+                                <li id="prnCoDiag5" style="display: none;"></li>
+                            </ol>
+
+                            <!-- 8. Conducta & Tratamiento -->
+                            <div class="cdoc-block-title">8. CONDUCTA & PLAN TERAPÉUTICO</div>
+                            <div style="font-size: 0.88rem; line-height: 1.4; text-align: justify; margin: 0.4rem 0;" id="prnCoConducta">
+                                --
+                            </div>
+
+                            <!-- Firma y Sello -->
+                            <div style="margin-top: 2.5rem; display: flex; justify-content: flex-end; text-align: center;">
+                                <div style="width: 280px; border-top: 1px solid #0F172A; padding-top: 4px;">
+                                    <strong style="font-size: 0.92rem;" id="prnCoDoctorFirma"></strong><br>
+                                    <span style="font-size: 0.8rem; color: #475569;" id="prnCoDoctorCreds">C.M. -- | M.P.P.S. --</span><br>
+                                    <span style="font-size: 0.75rem; color: #64748B;">Oftalmología</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModalConsultaOftalmologica()">Cerrar</button>
+                    <button type="button" class="btn btn-primary" onclick="openModalAndPrint('modalConsultaOftalmologicaOficial')">
+                        <i class="fa-solid fa-print"></i> Imprimir Consulta
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="modalFichaConsultaOficial" style="display: none;">
+        <div class="modal-dialog" style="max-width: 650px;">
+            <div class="modal-content">
+                <div class="modal-header header-amber">
+                    <div>
+                        <h3><i class="fa-solid fa-receipt"></i> 3. Ficha de Consulta Oficial</h3>
+                        <span style="font-size: 0.8rem; color: rgba(255,255,255,0.85);">Formato compacto de refracción y observaciones</span>
+                    </div>
+                    <button type="button" class="btn-modal-close" onclick="cerrarModalFichaConsultaRapida()">&times;</button>
+                </div>
+                <div class="modal-body" style="background: #E2E8F0; padding: 1.5rem; overflow-y: auto; max-height: calc(88vh - 120px);">
+                    <div class="clinical-doc-sheet cdoc-ficha-rapida-sheet" id="fichaConsultaPrintArea">
+                        <div class="clinical-doc-watermark"></div>
+                        
+                        <!-- Encabezado Ficha Médica del Doctor (Sin Datos Corporativos) -->
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 14px; border-bottom: 2px solid #0F172A; padding-bottom: 0.5rem; margin-bottom: 0.85rem;">
+                                <img src="images/LOGO.jpg" alt="Centro Óptico Nieves" class="header-doc-logo-img">
+                            <div style="text-align: center;">
+                                <h2 style="font-size: 1.25rem; font-weight: 800; color: #0F172A; margin: 0; letter-spacing: 0.03em;" id="prnFchDocNombre"></h2>
+                                <div style="font-size: 0.85rem; font-weight: 700; color: #0080EA;" id="prnFchDocEspecialidad">OFTALMOLOGÍA</div>
+                                <div style="font-size: 0.78rem; color: #475569; margin-top: 2px;" id="prnFchDocCreds"></div>
+                                <div style="font-size: 0.9rem; font-weight: 800; color: #1E293B; margin-top: 4px;">FICHA DE CONSULTA OFTALMOLÓGICA</div>
+                            </div>
+                        </div>
+
+                        <!-- Datos del Paciente -->
+                        <div style="font-size: 0.88rem; margin-bottom: 0.85rem;">
+                            <div class="cdoc-field-row">
+                                <div class="cdoc-field" style="flex: 2;">
+                                    <strong>Fecha:</strong>
+                                    <span class="cdoc-line-fill" id="prnFchFecha" style="min-width: 90px;">--</span>
+                                </div>
+                                <div class="cdoc-field">
+                                    <strong>Sede:</strong>
+                                    <span class="cdoc-line-fill" id="prnFchSede">--</span>
+                                </div>
+                            </div>
+
+                            <div class="cdoc-field-row" style="margin-top: 4px;">
+                                <div class="cdoc-field" style="width: 100%;">
+                                    <strong>Nombre y Apellido:</strong>
+                                    <span class="cdoc-line-fill" style="flex: 1;" id="prnFchNombre">--</span>
+                                </div>
+                            </div>
+
+                            <div class="cdoc-field-row" style="margin-top: 4px;">
+                                <div class="cdoc-field">
+                                    <strong>Cédula:</strong>
+                                    <span class="cdoc-line-fill" style="min-width: 110px;" id="prnFchCedula">--</span>
+                                </div>
+                                <div class="cdoc-field">
+                                    <strong>Teléfono:</strong>
+                                    <span class="cdoc-line-fill" style="min-width: 110px;" id="prnFchTel">--</span>
+                                </div>
+                                <div class="cdoc-field">
+                                    <strong>Edad:</strong>
+                                    <span class="cdoc-line-fill" style="min-width: 45px;" id="prnFchEdad">--</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tabla DER / IZQ exacta de PDF 3 -->
+                        <table class="cdoc-table" style="margin: 0.75rem 0;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 80px;"></th>
+                                    <th>ESF</th>
+                                    <th>CIL</th>
+                                    <th>EJE</th>
+                                    <th>ADD</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong style="font-size: 1rem;">DER</strong></td>
+                                    <td id="prnFchDerEsf" style="font-weight: bold; font-size: 1.05rem;">--</td>
+                                    <td id="prnFchDerCil" style="font-weight: bold; font-size: 1.05rem;">--</td>
+                                    <td id="prnFchDerEje" style="font-size: 1rem;">--</td>
+                                    <td id="prnFchDerAdd" style="font-weight: bold; font-size: 1.05rem;">--</td>
+                                </tr>
+                                <tr>
+                                    <td><strong style="font-size: 1rem;">IZQ</strong></td>
+                                    <td id="prnFchIzqEsf" style="font-weight: bold; font-size: 1.05rem;">--</td>
+                                    <td id="prnFchIzqCil" style="font-weight: bold; font-size: 1.05rem;">--</td>
+                                    <td id="prnFchIzqEje" style="font-size: 1rem;">--</td>
+                                    <td id="prnFchIzqAdd" style="font-weight: bold; font-size: 1.05rem;">--</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="cdoc-field-row" style="margin-top: 4px;">
+                            <div class="cdoc-field">
+                                <strong>DP:</strong>
+                                <span class="cdoc-line-fill" style="min-width: 60px;" id="prnFchDp">--</span> mm
+                            </div>
+                        </div>
+
+                        <!-- Observación -->
+                        <div style="margin-top: 0.85rem;">
+                            <strong>Observación:</strong>
+                            <div style="border: 1px solid #0F172A; min-height: 85px; padding: 6px 10px; margin-top: 4px; font-size: 0.88rem; line-height: 1.35; white-space: pre-line;" id="prnFchObservacion">
+                                --
+                            </div>
+                        </div>
+
+                        <!-- Doble Doctor / Firmas de PDF 3 -->
+                        <div style="display: flex; justify-content: space-between; margin-top: 2.5rem; padding-top: 0.5rem;">
+                            <div style="width: 45%; text-align: center; border-top: 1px solid #0F172A; padding-top: 4px;">
+                                <strong style="font-size: 0.85rem;" id="prnFchDoc1">Doctor(a)</strong><br>
+                                <span style="font-size: 0.75rem; color: #475569;">Firma y Sello</span>
+                            </div>
+                            <div style="width: 45%; text-align: center; border-top: 1px solid #0F172A; padding-top: 4px;">
+                                <strong style="font-size: 0.85rem;" id="prnFchDoc2">Doctor(a) / Optometrista</strong><br>
+                                <span style="font-size: 0.75rem; color: #475569;">Firma y Sello</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModalFichaConsultaRapida()">Cerrar</button>
+                    <button type="button" class="btn btn-primary" onclick="openModalAndPrint('modalFichaConsultaOficial')">
+                        <i class="fa-solid fa-print"></i> Imprimir Ficha
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="recipeViewModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-dialog" style="max-width: 650px;">
+            <div class="modal-content">
+                <div class="modal-header header-purple">
+                    <div>
+                        <h3><i class="fa-solid fa-file-prescription"></i> Detalle de Prescripción Médica</h3>
+                        <span style="font-size: 0.8rem; color: rgba(255,255,255,0.85);">Resumen de fármacos e indicaciones emitidas</span>
+                    </div>
+                    <button type="button" class="btn-modal-close" onclick="cerrarRecipeViewModal()">&times;</button>
+                </div>
+                <div class="modal-body" style="padding: 1.5rem;">
+                    <div id="recipeViewContent">
+                        <!-- Rellenado dinámicamente -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarRecipeViewModal()">Cerrar</button>
+                    <button type="button" class="btn btn-primary" id="btnImprimirDesdeViewModal" onclick="imprimirRecipeActualDesdeModal()">
+                        <i class="fa-solid fa-print"></i> Imprimir Récipe Oficial
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalPrintRecipeContainer" class="modal-backdrop" style="display: none;">
+        <div class="modal-dialog modal-dialog-lg modal-dialog-recipe" style="max-width: 1140px; width: 95vw;">
+            <div class="modal-content">
+                <div class="modal-header header-blue no-print">
+                    <div>
+                        <h3><i class="fa-solid fa-print"></i> Récipe Médico Oficial — Hoja Dual</h3>
+                        <span style="font-size: 0.8rem; color: rgba(255,255,255,0.85);" id="pdfDocSubtitleTop">Oftalmología</span>
+                    </div>
+                    <button type="button" class="btn-modal-close" onclick="cerrarModalPrintRecipe()">&times;</button>
+                </div>
+                <div class="modal-body" style="background: #E2E8F0; padding: 1.5rem; overflow-x: auto;">
+                    <div id="blueprintPDFRecipe" class="pdf-premium-recipe-landscape">
+                        <div class="pdf-recipe-watermark watermark-left"></div>
+                        <div class="pdf-recipe-watermark watermark-right"></div>
+                        <!-- ENCABEZADOS DUALES -->
+                        <div class="pdf-dual-header">
+                            <!-- Columna Izquierda: Membrete Médico Rp. -->
+                            <div class="header-box">
+                                <img src="images/LOGO.jpg" alt="Centro Óptico Nieves" class="header-doc-logo-img">
+                                <div class="header-text">
+                                    <h2 id="pdfDocNameL"></h2>
+                                    <p class="specialty" id="pdfDocSpecL">OFTALMOLOGÍA</p>
+                                    <p class="credentials" id="pdfDocCredsL"></p>
+                                </div>
+                            </div>
+                            <!-- Columna Derecha: Membrete Médico Indicaciones -->
+                            <div class="header-box">
+                                <img src="images/LOGO.jpg" alt="Centro Óptico Nieves" class="header-doc-logo-img">
+                                <div class="header-text">
+                                    <h2 id="pdfDocNameR"></h2>
+                                    <p class="specialty" id="pdfDocSpecR">OFTALMOLOGÍA</p>
+                                    <p class="credentials" id="pdfDocCredsR"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CUERPO DUAL -->
+                        <div class="pdf-dual-body">
+                            <!-- PARTE IZQUIERDA: RP (PRESCRIPCIÓN) -->
+                            <div class="recipe-col left-col">
+                                <h3 class="col-title">Rp.</h3>
+                                <div class="medications-block" id="pdfContenedorFilas">
+                                    <!-- Añadido dinámicamente -->
+                                </div>
+
+                                <!-- Firma en Récipe -->
+                                <div class="bottom-signatures">
+                                    <div class="signature-section">
+                                        <div style="height: 35px;"></div>
+                                        <p class="sig-label">Firma y Sello Médico</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- PARTE DERECHA: INDICACIONES -->
+                            <div class="recipe-col right-col">
+                                <h3 class="col-title">INDICACIONES:</h3>
+                                <div class="indications-block" id="pdfIndicaciones">
+                                    <!-- Añadido dinámicamente -->
+                                </div>
+
+                                <!-- Firma en Indicaciones -->
+                                <div class="bottom-signatures">
+                                    <div class="signature-section">
+                                        <div style="height: 35px;"></div>
+                                        <p class="sig-label">Firma y Sello Médico</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DATOS DEL PACIENTE ALINEADOS EN FILA COMPARTIDA -->
+                        <div class="pdf-patient-shared-row">
+                            <div class="patient-shared-col left-patient">
+                                <div class="patient-data-compact">
+                                    <div class="data-row-compact">
+                                        <span class="label">Nombre:</span>
+                                        <span class="value-line" id="pdfNombreRp"></span>
+                                    </div>
+                                    <div class="data-row-compact">
+                                        <span class="label">C.I.:</span>
+                                        <span class="value-line" id="pdfCedulaRp"></span>
+                                        <span class="label" style="margin-left: 10px;">Fecha:</span>
+                                        <span class="value-line" id="pdfFechaRp"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="patient-shared-col right-patient">
+                                <div class="patient-data-compact">
+                                    <div class="data-row-compact">
+                                        <span class="label">Nombre:</span>
+                                        <span class="value-line" id="pdfNombreInd"></span>
+                                    </div>
+                                    <div class="data-row-compact">
+                                        <span class="label">C.I.:</span>
+                                        <span class="value-line" id="pdfCedulaInd"></span>
+                                        <span class="label" style="margin-left: 10px;">Fecha:</span>
+                                        <span class="value-line" id="pdfFechaInd"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- APARTADO DE OBSERVACIONES ANCHO -->
+                        <div id="pdfObservacionesBlock" class="pdf-obs-block" style="display: none;">
+                            <strong>Observaciones / Indicaciones Adicionales:</strong>
+                            <div id="pdfObservacionesText"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer no-print">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModalPrintRecipe()">Cerrar</button>
+                    <button type="button" class="btn btn-primary" onclick="openModalAndPrint('modalPrintRecipeContainer', { landscape: true })">
+                        <i class="fa-solid fa-print"></i> Imprimir Récipe Directo
+                    </button>
+                </div>
+            </div>
+        </div>
+    <!-- MODAL: AUDITORÍA DE CUENTAS POR COBRAR MASTER -->
+    <div class="modal-backdrop" id="modalMasterSaldosCobrar" style="display: none;">
+        <div class="modal-dialog modal-dialog-lg" style="max-width: 950px;">
+            <div class="modal-content">
+                <div class="modal-header header-amber" style="background: #D97706; color: #FFFFFF;">
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.2rem; font-weight: 800; color: #FFFFFF; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fa-solid fa-hand-holding-dollar"></i> Auditoría de Cuentas por Cobrar (Saldos Pendientes)
+                        </h3>
+                        <p style="margin: 0.2rem 0 0 0; font-size: 0.82rem; color: #FEF3C7;">
+                            Relación detallada de deudores, abonos realizados y cartera pendiente consolidada.
+                        </p>
+                    </div>
+                    <button type="button" class="btn-modal-close" style="color: #FFFFFF;" onclick="closeModal('modalMasterSaldosCobrar')">&times;</button>
+                </div>
+                <div class="modal-body" style="padding: 1.25rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;">
+                        <div class="search-input-wrapper" style="flex: 1; min-width: 250px;">
+                            <i class="fa-solid fa-magnifying-glass search-icon-inside"></i>
+                            <input type="text" id="inputBuscarSaldosMaster" class="form-control" placeholder="Buscar por Paciente, Cédula o N° Recibo..." oninput="renderMasterSaldosCobrarTabla()">
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <select id="filtroSedeSaldosMaster" class="form-control" onchange="renderMasterSaldosCobrarTabla()" style="width: auto; font-weight: 700;">
+                                <option value="todas">Todas las Sedes</option>
+                                <option value="Maracay">Sede Maracay</option>
+                                <option value="San Juan de los Morros">Sede San Juan</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Resumen rápido en cabecera de modal -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-bottom: 1rem;">
+                        <div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px; padding: 0.75rem 1rem;">
+                            <span style="font-size: 0.72rem; font-weight: 700; color: #92400E; text-transform: uppercase;">Total por Cobrar ($)</span>
+                            <div style="font-size: 1.25rem; font-weight: 800; color: #B45309;" id="modalMasterTotalSaldosUsd">$0.00</div>
+                        </div>
+                        <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 8px; padding: 0.75rem 1rem;">
+                            <span style="font-size: 0.72rem; font-weight: 700; color: #166534; text-transform: uppercase;">Total por Cobrar (Bs)</span>
+                            <div style="font-size: 1.25rem; font-weight: 800; color: #15803D;" id="modalMasterTotalSaldosBs">0.00 Bs</div>
+                        </div>
+                        <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 8px; padding: 0.75rem 1rem;">
+                            <span style="font-size: 0.72rem; font-weight: 700; color: #1E40AF; text-transform: uppercase;">Recibos Pendientes</span>
+                            <div style="font-size: 1.25rem; font-weight: 800; color: #1D4ED8;" id="modalMasterCountSaldos">0</div>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de Cuentas por Cobrar -->
+                    <div class="table-responsive" style="max-height: 380px; overflow-y: auto; border: 1px solid #E2E8F0; border-radius: 8px;">
+                        <table class="modern-table">
+                            <thead style="position: sticky; top: 0; z-index: 2;">
+                                <tr>
+                                    <th>N° Recibo</th>
+                                    <th>Fecha</th>
+                                    <th>Paciente</th>
+                                    <th>Sede</th>
+                                    <th style="text-align: right;">Total ($)</th>
+                                    <th style="text-align: right;">Abonado ($)</th>
+                                    <th style="text-align: right;">Saldo Deudor ($ / Bs)</th>
+                                    <th style="text-align: center;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaMasterSaldosCobrarBody">
+                                <!-- Poblado dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('modalMasterSaldosCobrar')">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: AUDITORÍA DE ÓRDENES EN LABORATORIO MASTER -->
+    <div class="modal-backdrop" id="modalMasterOrdenesLab" style="display: none;">
+        <div class="modal-dialog modal-dialog-lg" style="max-width: 950px;">
+            <div class="modal-content">
+                <div class="modal-header" style="background: #0891B2; color: #FFFFFF;">
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.2rem; font-weight: 800; color: #FFFFFF; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fa-solid fa-microscope"></i> Auditoría de Órdenes en Laboratorio & Taller
+                        </h3>
+                        <p style="margin: 0.2rem 0 0 0; font-size: 0.82rem; color: #CFFAFE;">
+                            Seguimiento técnico del estado de tallado, cristales y monturas en ambas sedes.
+                        </p>
+                    </div>
+                    <button type="button" class="btn-modal-close" style="color: #FFFFFF;" onclick="closeModal('modalMasterOrdenesLab')">&times;</button>
+                </div>
+                <div class="modal-body" style="padding: 1.25rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;">
+                        <div class="search-input-wrapper" style="flex: 1; min-width: 250px;">
+                            <i class="fa-solid fa-magnifying-glass search-icon-inside"></i>
+                            <input type="text" id="inputBuscarOrdenesLabMaster" class="form-control" placeholder="Buscar por N° Recibo, Paciente o Cristales..." oninput="renderMasterOrdenesLabTabla()">
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <select id="filtroSedeOrdenesLabMaster" class="form-control" onchange="renderMasterOrdenesLabTabla()" style="width: auto; font-weight: 700;">
+                                <option value="todas">Todas las Sedes</option>
+                                <option value="Maracay">Sede Maracay</option>
+                                <option value="San Juan de los Morros">Sede San Juan</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Resumen rápido en cabecera -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-bottom: 1rem;">
+                        <div style="background: #EDE9FE; border: 1px solid #DDD6FE; border-radius: 8px; padding: 0.75rem 1rem;">
+                            <span style="font-size: 0.72rem; font-weight: 700; color: #6D28D9; text-transform: uppercase;">En Taller / Tallado</span>
+                            <div style="font-size: 1.25rem; font-weight: 800; color: #5B21B6;" id="modalMasterLabEnTallerCount">0</div>
+                        </div>
+                        <div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px; padding: 0.75rem 1rem;">
+                            <span style="font-size: 0.72rem; font-weight: 700; color: #92400E; text-transform: uppercase;">En Proveedor</span>
+                            <div style="font-size: 1.25rem; font-weight: 800; color: #B45309;" id="modalMasterLabEnProvCount">0</div>
+                        </div>
+                        <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 8px; padding: 0.75rem 1rem;">
+                            <span style="font-size: 0.72rem; font-weight: 700; color: #047857; text-transform: uppercase;">Listos para Retiro</span>
+                            <div style="font-size: 1.25rem; font-weight: 800; color: #065F46;" id="modalMasterLabListosCount">0</div>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de Órdenes de Laboratorio -->
+                    <div class="table-responsive" style="max-height: 380px; overflow-y: auto; border: 1px solid #E2E8F0; border-radius: 8px;">
+                        <table class="modern-table">
+                            <thead style="position: sticky; top: 0; z-index: 2;">
+                                <tr>
+                                    <th>N° Orden / Recibo</th>
+                                    <th>Paciente</th>
+                                    <th>Sede</th>
+                                    <th>Faceta Técnica</th>
+                                    <th>Fecha Estatus</th>
+                                    <th>Fecha Entrega</th>
+                                    <th style="text-align: center;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaMasterOrdenesLabBody">
+                                <!-- Poblado dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('modalMasterOrdenesLab')">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTENEDOR TOAST DE NOTIFICACIONES -->
+    <div class="admin-toast-container" id="adminToastBox"></div>
+
+    <!-- SCRIPTS OFICIALES DEL SISTEMA -->
+    <script src="js/products-data.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/admin.js"></script>
+
+    <!-- SCRIPT INICIALIZADOR DE ALTA GERENCIA MASTER -->
+    <script>
+        // Función para cambiar filtro de caja master
+        window.filtrarCajaMaster = function(sede, btnEl) {
+            AppState.sedeFiltro = sede;
+            document.querySelectorAll('#btnCajaFiltroTodas, #btnCajaFiltroMrcy, #btnCajaFiltroSjm').forEach(b => b.classList.remove('active'));
+            if (btnEl) btnEl.classList.add('active');
+            if (typeof renderCajaStats === 'function') renderCajaStats();
+            if (typeof renderMovimientosCajaTable === 'function') renderMovimientosCajaTable();
+        };
+
+        // Función para filtrar auditoría en la vista dedicada
+        window.filtrarAuditoriaFull = function() {
+            const sede = document.getElementById('filtroSedeAuditoriaFull')?.value || 'todas';
+            const tipo = document.getElementById('filtroTipoAuditoriaFull')?.value || 'TODOS';
+            const busq = document.getElementById('busquedaAuditoriaInput')?.value || '';
+
+            const container = document.getElementById('panelAuditoriaFeedMasterFull');
+            if (!container) return;
+
+            const list = window.OpticaStorage.getActividades ? window.OpticaStorage.getActividades(sede, 150) : [];
+            let filtradas = list;
+
+            if (tipo && tipo !== 'TODOS') {
+                filtradas = filtradas.filter(item => item.accion === tipo);
+            }
+            if (busq && busq.trim()) {
+                const q = busq.toLowerCase().trim();
+                filtradas = filtradas.filter(item => 
+                    (item.descripcion || '').toLowerCase().includes(q) ||
+                    (item.usuario || '').toLowerCase().includes(q) ||
+                    (item.sede || '').toLowerCase().includes(q)
+                );
+            }
+
+            if (filtradas.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem 1rem; color: #94A3B8;">
+                        <i class="fa-solid fa-bell-slash" style="font-size: 2.5rem; margin-bottom: 0.5rem; opacity: 0.5;"></i>
+                        <p style="font-weight: 600; font-size: 0.95rem;">No hay registros con los filtros seleccionados.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const iconosAccion = {
+                'PACIENTE_REGISTRADO': { icon: 'fa-user-plus', color: '#0284C7', bg: '#E0F2FE', label: 'Nuevo Paciente' },
+                'PACIENTE_ACTUALIZADO': { icon: 'fa-user-pen', color: '#0369A1', bg: '#F0F9FF', label: 'Paciente Editado' },
+                'VENTA_EMITIDA': { icon: 'fa-file-invoice-dollar', color: '#059669', bg: '#D1FAE5', label: 'Venta Emitida' },
+                'ABONO_REGISTRADO': { icon: 'fa-money-bill-transfer', color: '#10B981', bg: '#ECFDF5', label: 'Abono Registrado' },
+                'LAB_ORDEN_CREADA': { icon: 'fa-microscope', color: '#D97706', bg: '#FEF3C7', label: 'Nueva Orden Taller' },
+                'LAB_FASE_CAMBIADA': { icon: 'fa-arrows-rotate', color: '#B45309', bg: '#FFFBEB', label: 'Avance en Taller' },
+                'CONSULTA_CREADA': { icon: 'fa-stethoscope', color: '#8B5CF6', bg: '#EDE9FE', label: 'Consulta Médica' },
+                'MOVIMIENTO_CAJA': { icon: 'fa-cash-register', color: '#DC2626', bg: '#FEE2E2', label: 'Caja Operativa' },
+                'SISTEMA_INICIO': { icon: 'fa-shield-halved', color: '#64748B', bg: '#F1F5F9', label: 'Sistema' }
+            };
+
+            container.innerHTML = filtradas.map(item => {
+                const conf = iconosAccion[item.accion] || { icon: 'fa-bell', color: '#64748B', bg: '#F1F5F9', label: item.accion };
+                const isMrcy = (item.sede || '').toLowerCase().includes('maracay');
+                const badgeBg = isMrcy ? '#E0F2FE' : '#D1FAE5';
+                const badgeColor = isMrcy ? '#0369A1' : '#047857';
+
+                return `
+                    <div class="audit-feed-item" style="display: flex; gap: 1rem; align-items: flex-start; padding: 1rem 1.25rem; border-bottom: 1px solid #F1F5F9; transition: background 0.15s ease;">
+                        <div style="width: 40px; height: 40px; border-radius: 10px; background: ${conf.bg}; color: ${conf.color}; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0; margin-top: 2px;">
+                            <i class="fa-solid ${conf.icon}"></i>
+                        </div>
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem; flex-wrap: wrap; gap: 0.4rem;">
+                                <span style="font-size: 0.8rem; font-weight: 800; color: ${conf.color}; text-transform: uppercase; letter-spacing: 0.03em;">
+                                    ${conf.label}
+                                </span>
+                                <div style="display: flex; align-items: center; gap: 0.55rem;">
+                                    <span style="font-size: 0.72rem; padding: 0.2rem 0.55rem; border-radius: 5px; background: ${badgeBg}; color: ${badgeColor}; font-weight: 700;">
+                                        <i class="fa-solid fa-location-dot"></i> ${item.sede || 'Maracay'}
+                                    </span>
+                                    <span style="font-size: 0.76rem; color: #94A3B8; font-weight: 500;">
+                                        <i class="fa-regular fa-clock"></i> ${item.fecha || ''}
+                                    </span>
+                                </div>
+                            </div>
+                            <div style="font-size: 0.9rem; color: #1E293B; line-height: 1.45; word-break: break-word;">
+                                ${item.descripcion || ''}
+                            </div>
+                            <div style="font-size: 0.75rem; color: #64748B; margin-top: 0.35rem;">
+                                <i class="fa-solid fa-user-tag" style="opacity: 0.7;"></i> Operador responsable: <strong>${item.usuario || 'Sistema'}</strong>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        // Al cambiar de pestaña a auditoría, refrescar
+        const oldSwitch = window.switchAdminTab;
+        window.switchAdminTab = function(tabName) {
+            if (typeof oldSwitch === 'function') oldSwitch(tabName);
+            if (tabName === 'auditoria') {
+                filtrarAuditoriaFull();
+            } else if (tabName === 'dashboard') {
+                if (typeof window.renderMasterAltaGerencia === 'function') window.renderMasterAltaGerencia();
+                if (typeof window.renderAuditoriaFeed === 'function') window.renderAuditoriaFeed();
+            }
+        };
+
+        // Inicialización inmediata al cargar
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                if (typeof window.renderMasterAltaGerencia === 'function') window.renderMasterAltaGerencia();
+                if (typeof window.renderAuditoriaFeed === 'function') window.renderAuditoriaFeed();
+                filtrarAuditoriaFull();
+            }, 200);
+        });
+    </script>
+</body>
+</html>
